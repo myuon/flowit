@@ -45,6 +45,8 @@ export function WorkflowEditor() {
     save,
     load,
     loadFromTemplate,
+    workflowMeta,
+    resetWorkflow,
   } = useWorkflow();
 
   const handleSelectTemplate = useCallback(
@@ -60,8 +62,9 @@ export function WorkflowEditor() {
   }, []);
 
   const handleNewWorkflow = useCallback(() => {
+    resetWorkflow();
     setShowTemplateSelector(true);
-  }, []);
+  }, [resetWorkflow]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<WorkflowNodeType>[]) => {
@@ -132,6 +135,45 @@ export function WorkflowEditor() {
             {t.admin}
           </a>
         )}
+        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        {/* Workflow Info */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <span style={{ fontWeight: 500, color: "#333" }}>
+            {workflowMeta.name || t.untitledWorkflow}
+          </span>
+          <span
+            style={{
+              padding: "2px 8px",
+              background:
+                workflowMeta.status === "published" ? "#dcfce7" : "#fef3c7",
+              color:
+                workflowMeta.status === "published" ? "#166534" : "#92400e",
+              borderRadius: 4,
+              fontSize: 11,
+              fontWeight: 500,
+            }}
+          >
+            {workflowMeta.status === "published" ? t.published : t.draft}
+          </span>
+          <span
+            style={{
+              padding: "2px 8px",
+              background: "#f3f4f6",
+              color: "#6b7280",
+              borderRadius: 4,
+              fontSize: 11,
+            }}
+          >
+            {t.version}
+            {workflowMeta.version}
+          </span>
+        </div>
         <div style={{ flex: 1 }} />
         <button
           onClick={handleNewWorkflow}

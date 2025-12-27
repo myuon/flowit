@@ -193,6 +193,7 @@ export function createEmptyWorkflow(name: string): WorkflowDSL {
     meta: {
       name,
       version: "1.0.0",
+      status: "draft",
       createdAt: new Date().toISOString(),
     },
     inputs: {},

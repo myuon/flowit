@@ -66,6 +66,12 @@ export interface Translations {
   userId: string;
   email: string;
   name: string;
+
+  // Workflow Status
+  draft: string;
+  published: string;
+  version: string;
+  untitledWorkflow: string;
 }
 
 const en: Translations = {
@@ -134,6 +140,12 @@ const en: Translations = {
   userId: "ID",
   email: "Email",
   name: "Name",
+
+  // Workflow Status
+  draft: "Draft",
+  published: "Published",
+  version: "v",
+  untitledWorkflow: "Untitled Workflow",
 };
 
 const ja: Translations = {
@@ -202,6 +214,12 @@ const ja: Translations = {
   userId: "ID",
   email: "メール",
   name: "名前",
+
+  // Workflow Status
+  draft: "下書き",
+  published: "公開済み",
+  version: "v",
+  untitledWorkflow: "無題のワークフロー",
 };
 
 export const translations: Record<Language, Translations> = {

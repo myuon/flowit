@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { Edge } from "@xyflow/react";
 import { getNode, registerBuiltinNodes } from "@flowit/sdk";
-import type { WorkflowDSL, WorkflowNode, WorkflowEdge } from "@flowit/shared";
+import type { WorkflowDSL, WorkflowNode, WorkflowEdge, WorkflowMeta } from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
 import { executeWorkflow as executeWorkflowApi } from "../api/client";
 import type { ExecutionResult, ExecutionLog } from "../components/panels/ExecutionPanel";
@@ -12,10 +12,17 @@ registerBuiltinNodes();
 
 const STORAGE_KEY = "flowit-workflow";
 
+const DEFAULT_WORKFLOW_META: WorkflowMeta = {
+  name: "",
+  version: "1",
+  status: "draft",
+};
+
 export function useWorkflow() {
   const [nodes, setNodes] = useState<WorkflowNodeType[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNode, setSelectedNode] = useState<WorkflowNodeType | null>(null);
+  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>(DEFAULT_WORKFLOW_META);
   const [execution, setExecution] = useState<ExecutionResult>({
     status: "idle",
     logs: [],
@@ -91,17 +98,14 @@ export function useWorkflow() {
 
     return {
       dslVersion: "0.1.0",
-      meta: {
-        name: "Untitled Workflow",
-        version: "1.0.0",
-      },
+      meta: workflowMeta,
       inputs: {},
       outputs: {},
       secrets: [],
       nodes: dslNodes,
       edges: dslEdges,
     };
-  }, [nodes, edges]);
+  }, [nodes, edges, workflowMeta]);
 
   // Load from WorkflowDSL
   const fromDSL = useCallback((dsl: WorkflowDSL) => {
@@ -134,6 +138,12 @@ export function useWorkflow() {
     setNodes(loadedNodes);
     setEdges(loadedEdges);
     setSelectedNode(null);
+    setWorkflowMeta({
+      name: dsl.meta.name,
+      version: dsl.meta.version,
+      status: dsl.meta.status ?? "draft",
+      description: dsl.meta.description,
+    });
   }, []);
 
   // Save to localStorage
@@ -258,6 +268,15 @@ export function useWorkflow() {
     }
   }, [nodes, toDSL, addLog]);
 
+  // Reset workflow to default state
+  const resetWorkflow = useCallback(() => {
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setWorkflowMeta(DEFAULT_WORKFLOW_META);
+    clearLogs();
+  }, [clearLogs]);
+
   return {
     nodes,
     edges,
@@ -275,5 +294,7 @@ export function useWorkflow() {
     loadFromTemplate,
     toDSL,
     fromDSL,
+    workflowMeta,
+    resetWorkflow,
   };
 }

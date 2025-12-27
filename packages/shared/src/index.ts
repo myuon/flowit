@@ -53,11 +53,15 @@ export interface WorkflowEdge {
   targetHandle: string; // Input handle name
 }
 
+// Workflow status
+export type WorkflowStatus = "draft" | "published";
+
 // Workflow metadata
 export interface WorkflowMeta {
   name: string;
   description?: string;
   version: string;
+  status: WorkflowStatus;
   createdAt?: string;
   updatedAt?: string;
 }

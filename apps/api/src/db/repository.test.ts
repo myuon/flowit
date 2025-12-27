@@ -304,7 +304,7 @@ describe("Repository", () => {
 
       const mockDsl: WorkflowDSL = {
         dslVersion: "0.1.0",
-        meta: { name: "Test", version: "1.0.0" },
+        meta: { name: "Test", version: "1.0.0", status: "draft" },
         inputs: {},
         outputs: {},
         secrets: [],
@@ -325,7 +325,7 @@ describe("Repository", () => {
       const workflow = await repos.workflow.create({ name: "With Versions" });
       const mockDsl: WorkflowDSL = {
         dslVersion: "0.1.0",
-        meta: { name: "Test", version: "1.0.0" },
+        meta: { name: "Test", version: "1.0.0", status: "draft" },
         inputs: {},
         outputs: {},
         secrets: [],
@@ -349,7 +349,7 @@ describe("Repository", () => {
       const workflow = await repos.workflow.create({ name: "Run Test" });
       const mockDsl: WorkflowDSL = {
         dslVersion: "0.1.0",
-        meta: { name: "Test", version: "1.0.0" },
+        meta: { name: "Test", version: "1.0.0", status: "draft" },
         inputs: {},
         outputs: {},
         secrets: [],
@@ -377,7 +377,7 @@ describe("Repository", () => {
       const workflow = await repos.workflow.create({ name: "Step Test" });
       const mockDsl: WorkflowDSL = {
         dslVersion: "0.1.0",
-        meta: { name: "Test", version: "1.0.0" },
+        meta: { name: "Test", version: "1.0.0", status: "draft" },
         inputs: {},
         outputs: {},
         secrets: [],

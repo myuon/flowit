@@ -56,6 +56,7 @@ function createWorkflow(
     meta: {
       name: "Test Workflow",
       version: "1.0.0",
+      status: "draft",
     },
     inputs: {},
     outputs: {},

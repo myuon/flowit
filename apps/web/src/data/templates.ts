@@ -22,6 +22,7 @@ export const workflowTemplates: WorkflowTemplate[] = [
       meta: {
         name: "API to Slack",
         version: "1.0.0",
+        status: "draft",
       },
       inputs: {},
       outputs: {},
@@ -117,6 +118,7 @@ export const workflowTemplates: WorkflowTemplate[] = [
       meta: {
         name: "LLM Chat",
         version: "1.0.0",
+        status: "draft",
       },
       inputs: {},
       outputs: {},
@@ -200,6 +202,7 @@ export const workflowTemplates: WorkflowTemplate[] = [
       meta: {
         name: "JSON Template",
         version: "1.0.0",
+        status: "draft",
       },
       inputs: {},
       outputs: {},
@@ -280,6 +283,7 @@ export const workflowTemplates: WorkflowTemplate[] = [
       meta: {
         name: "Conditional Flow",
         version: "1.0.0",
+        status: "draft",
       },
       inputs: {},
       outputs: {},
