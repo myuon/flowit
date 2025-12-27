@@ -1,5 +1,5 @@
 // Input nodes
-export { textInputNode, numberInputNode, jsonInputNode } from "./input";
+export { textInputNode, numberInputNode, jsonInputNode, webhookTriggerNode } from "./input";
 
 // Output nodes
 export { outputNode, debugNode } from "./output";
@@ -26,7 +26,7 @@ export { slackMessageNode, slackBlockBuilderNode } from "./slack";
 export { ifConditionNode, switchNode, mergeNode } from "./control";
 
 // All built-in nodes
-import { textInputNode, numberInputNode, jsonInputNode } from "./input";
+import { textInputNode, numberInputNode, jsonInputNode, webhookTriggerNode } from "./input";
 import { outputNode, debugNode } from "./output";
 import {
   templateNode,
@@ -48,6 +48,7 @@ export const builtinNodes = [
   textInputNode,
   numberInputNode,
   jsonInputNode,
+  webhookTriggerNode,
   // Output
   outputNode,
   debugNode,

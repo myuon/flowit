@@ -86,3 +86,50 @@ export const jsonInputNode = defineNode({
     return { value: params.json };
   },
 });
+
+/**
+ * Webhook Trigger Node
+ * Triggers workflow when external webhook is called
+ */
+export const webhookTriggerNode = defineNode({
+  id: "webhook-trigger",
+  displayName: "Webhook Trigger",
+  description: "Triggers workflow when an external HTTP request is received",
+  inputs: {},
+  outputs: {
+    body: io.any({ description: "The request body" }),
+    headers: io.object({}, { description: "The request headers" }),
+    query: io.object({}, { description: "The query parameters" }),
+    method: io.string({ description: "The HTTP method used" }),
+  },
+  paramsSchema: {
+    method: param.select(
+      "Allowed Method",
+      [
+        { label: "GET", value: "GET" },
+        { label: "POST", value: "POST" },
+      ],
+      {
+        description: "The HTTP method this webhook accepts",
+        default: "POST",
+      }
+    ),
+  },
+  display: {
+    icon: "🔗",
+    color: "#9C27B0",
+    category: "input",
+    tags: ["input", "webhook", "trigger", "http"],
+  },
+  async run({ params, context }) {
+    // When triggered by actual webhook, data comes from context
+    // For manual execution, return placeholder data
+    context.log(`Webhook trigger (${params.method}) - waiting for external request`);
+    return {
+      body: {},
+      headers: {},
+      query: {},
+      method: params.method,
+    };
+  },
+});

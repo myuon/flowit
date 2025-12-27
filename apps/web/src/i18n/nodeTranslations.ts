@@ -50,6 +50,17 @@ const en: NodeTranslationsData = {
         json: { label: "JSON", description: "The JSON value to output" },
       },
     },
+    "webhook-trigger": {
+      displayName: "Webhook Trigger",
+      description: "Triggers workflow when an external HTTP request is received",
+      params: {
+        method: {
+          label: "Allowed Method",
+          description: "The HTTP method this webhook accepts",
+          options: { GET: "GET", POST: "POST" },
+        },
+      },
+    },
     // Output nodes
     output: {
       displayName: "Output",
@@ -334,6 +345,17 @@ const ja: NodeTranslationsData = {
       description: "ワークフローへのJSONオブジェクトを入力します",
       params: {
         json: { label: "JSON", description: "出力するJSON値" },
+      },
+    },
+    "webhook-trigger": {
+      displayName: "Webhookトリガー",
+      description: "外部からのHTTPリクエストを受信してワークフローを起動します",
+      params: {
+        method: {
+          label: "許可メソッド",
+          description: "このWebhookが受け付けるHTTPメソッド",
+          options: { GET: "GET", POST: "POST" },
+        },
       },
     },
     // Output nodes
