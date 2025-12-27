@@ -1,23 +1,15 @@
-import type { FlowNode } from "@flowit/shared";
+import type { ReactFlowNode, IOSchema } from "@flowit/shared";
+
+// Re-export converter
+export * from "./converter";
 
 // Node definition types
-export interface NodeInput {
-  name: string;
-  type: string;
-  required?: boolean;
-}
-
-export interface NodeOutput {
-  name: string;
-  type: string;
-}
-
 export interface NodeDefinition {
   type: string;
   label: string;
   description?: string;
-  inputs: NodeInput[];
-  outputs: NodeOutput[];
+  inputs: Record<string, IOSchema>;
+  outputs: Record<string, IOSchema>;
   execute: (
     inputs: Record<string, unknown>
   ) => Promise<Record<string, unknown>>;
@@ -39,9 +31,13 @@ export function getAllNodeDefinitions(): NodeDefinition[] {
 }
 
 // Utility to create a node instance
-export function createNodeData(definition: NodeDefinition): FlowNode["data"] {
+export function createNodeData(
+  definition: NodeDefinition
+): ReactFlowNode["data"] {
   return {
     label: definition.label,
+    nodeType: definition.type,
+    params: {},
     inputs: definition.inputs,
     outputs: definition.outputs,
   };

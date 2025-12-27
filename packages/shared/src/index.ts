@@ -1,31 +1,135 @@
-// Flow types
-export interface FlowNode {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  data: Record<string, unknown>;
+// ============================================
+// Workflow DSL v0
+// ============================================
+
+export const WORKFLOW_DSL_VERSION = "0.1.0" as const;
+
+// IO Schema types
+export type SchemaType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "object"
+  | "array"
+  | "any";
+
+export interface IOSchema {
+  type: SchemaType;
+  description?: string;
+  required?: boolean;
+  default?: unknown;
+  items?: IOSchema; // for array type
+  properties?: Record<string, IOSchema>; // for object type
 }
 
-export interface FlowEdge {
+// Secrets reference
+export interface SecretRef {
+  key: string; // Reference key in secrets store
+  env?: string; // Optional env variable name to inject as
+}
+
+// Node parameter value (can be static or reference)
+export type ParamValue =
+  | { type: "static"; value: unknown }
+  | { type: "secret"; ref: string }
+  | { type: "input"; path: string }; // Reference to workflow input
+
+// DSL Node definition
+export interface WorkflowNode {
+  id: string;
+  type: string; // Node type from registry (e.g., "llm", "http", "transform")
+  label?: string;
+  params: Record<string, ParamValue>;
+  inputs: Record<string, IOSchema>;
+  outputs: Record<string, IOSchema>;
+}
+
+// DSL Edge definition
+export interface WorkflowEdge {
+  id: string;
+  source: string; // Source node ID
+  target: string; // Target node ID
+  sourceHandle: string; // Output handle name
+  targetHandle: string; // Input handle name
+}
+
+// Workflow metadata
+export interface WorkflowMeta {
+  name: string;
+  description?: string;
+  version: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Complete Workflow DSL document
+export interface WorkflowDSL {
+  dslVersion: typeof WORKFLOW_DSL_VERSION;
+  meta: WorkflowMeta;
+  inputs: Record<string, IOSchema>; // Workflow-level inputs
+  outputs: Record<string, IOSchema>; // Workflow-level outputs
+  secrets: SecretRef[]; // Required secrets
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+}
+
+// ============================================
+// React Flow types (for UI)
+// ============================================
+
+export interface ReactFlowNodeData {
+  label: string;
+  nodeType: string;
+  params: Record<string, ParamValue>;
+  inputs: Record<string, IOSchema>;
+  outputs: Record<string, IOSchema>;
+}
+
+export interface ReactFlowNode {
+  id: string;
+  type: string; // React Flow node type (custom component)
+  position: { x: number; y: number };
+  data: ReactFlowNodeData;
+}
+
+export interface ReactFlowEdge {
   id: string;
   source: string;
   target: string;
-  sourceHandle?: string;
-  targetHandle?: string;
+  sourceHandle: string;
+  targetHandle: string;
 }
 
-export interface FlowGraph {
-  nodes: FlowNode[];
-  edges: FlowEdge[];
+export interface ReactFlowGraph {
+  nodes: ReactFlowNode[];
+  edges: ReactFlowEdge[];
 }
 
+// ============================================
 // API types
-export interface ExecuteFlowRequest {
-  graph: FlowGraph;
+// ============================================
+
+export interface ExecuteWorkflowRequest {
+  workflow: WorkflowDSL;
   inputs: Record<string, unknown>;
+  secrets?: Record<string, string>; // Runtime secrets
 }
 
-export interface ExecuteFlowResponse {
+export interface ExecuteWorkflowResponse {
   outputs: Record<string, unknown>;
   executionId: string;
+  status: "success" | "error";
+  error?: string;
 }
+
+// Legacy types (deprecated, use new types above)
+/** @deprecated Use ReactFlowNode instead */
+export type FlowNode = ReactFlowNode;
+/** @deprecated Use ReactFlowEdge instead */
+export type FlowEdge = ReactFlowEdge;
+/** @deprecated Use ReactFlowGraph instead */
+export type FlowGraph = ReactFlowGraph;
+/** @deprecated Use ExecuteWorkflowRequest instead */
+export type ExecuteFlowRequest = ExecuteWorkflowRequest;
+/** @deprecated Use ExecuteWorkflowResponse instead */
+export type ExecuteFlowResponse = ExecuteWorkflowResponse;
