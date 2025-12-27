@@ -5,6 +5,7 @@ import type { WorkflowDSL, WorkflowNode, WorkflowEdge } from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
 import { executeWorkflow as executeWorkflowApi } from "../api/client";
 import type { ExecutionResult, ExecutionLog } from "../components/panels/ExecutionPanel";
+import type { WorkflowTemplate } from "../data/templates";
 
 // Register builtin nodes on module load
 registerBuiltinNodes();
@@ -189,6 +190,26 @@ export function useWorkflow() {
     setExecution({ status: "idle", logs: [] });
   }, []);
 
+  // Load from template
+  const loadFromTemplate = useCallback(
+    (template: WorkflowTemplate) => {
+      fromDSL(template.dsl);
+
+      // Apply template positions
+      if (template.positions) {
+        setNodes((nds) =>
+          nds.map((node) => {
+            const pos = template.positions.find((p) => p.id === node.id);
+            return pos ? { ...node, position: pos.position } : node;
+          })
+        );
+      }
+
+      addLog("info", `Loaded template: ${template.name}`);
+    },
+    [fromDSL, addLog]
+  );
+
   // Execute workflow
   const execute = useCallback(async () => {
     if (nodes.length === 0) {
@@ -251,6 +272,7 @@ export function useWorkflow() {
     clearLogs,
     save,
     load,
+    loadFromTemplate,
     toDSL,
     fromDSL,
   };

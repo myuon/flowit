@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   ReactFlow,
   Controls,
@@ -18,9 +18,13 @@ import { nodeTypes, type WorkflowNodeType } from "../nodes";
 import { NodePalette } from "../panels/NodePalette";
 import { ParamPanel } from "../panels/ParamPanel";
 import { ExecutionPanel } from "../panels/ExecutionPanel";
+import { TemplateSelector } from "../panels/TemplateSelector";
 import { useWorkflow } from "../../hooks/useWorkflow";
+import type { WorkflowTemplate } from "../../data/templates";
 
 export function WorkflowEditor() {
+  const [showTemplateSelector, setShowTemplateSelector] = useState(true);
+
   const {
     nodes,
     edges,
@@ -35,7 +39,24 @@ export function WorkflowEditor() {
     clearLogs,
     save,
     load,
+    loadFromTemplate,
   } = useWorkflow();
+
+  const handleSelectTemplate = useCallback(
+    (template: WorkflowTemplate) => {
+      loadFromTemplate(template);
+      setShowTemplateSelector(false);
+    },
+    [loadFromTemplate]
+  );
+
+  const handleStartBlank = useCallback(() => {
+    setShowTemplateSelector(false);
+  }, []);
+
+  const handleNewWorkflow = useCallback(() => {
+    setShowTemplateSelector(true);
+  }, []);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<WorkflowNodeType>[]) => {
@@ -92,6 +113,19 @@ export function WorkflowEditor() {
       >
         <div style={{ fontWeight: 600, fontSize: 16 }}>Flowit</div>
         <div style={{ flex: 1 }} />
+        <button
+          onClick={handleNewWorkflow}
+          style={{
+            padding: "6px 12px",
+            background: "#333",
+            color: "white",
+            border: "none",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+        >
+          New
+        </button>
         <button
           onClick={save}
           style={{
@@ -171,6 +205,14 @@ export function WorkflowEditor() {
           onUpdateParams={updateNodeParams}
         />
       </div>
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && (
+        <TemplateSelector
+          onSelectTemplate={handleSelectTemplate}
+          onStartBlank={handleStartBlank}
+        />
+      )}
     </div>
   );
 }
