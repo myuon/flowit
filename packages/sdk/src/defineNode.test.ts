@@ -10,7 +10,16 @@ import {
   getNodeCatalog,
   getGroupedCatalog,
 } from "./registry";
-import { textInputNode, templateNode, llmNode } from "./nodes";
+import {
+  textInputNode,
+  templateNode,
+  llmNode,
+  jsTransformNode,
+  mapNode,
+  filterNode,
+  httpRequestNode,
+  slackMessageNode,
+} from "./nodes";
 
 describe("defineNode", () => {
   it("should create a node definition with correct structure", () => {
@@ -208,11 +217,13 @@ describe("registry", () => {
 });
 
 describe("built-in nodes", () => {
+  const mockContext = { nodeId: "1", executionId: "e1", log: () => {} };
+
   it("should execute textInputNode", async () => {
     const result = await textInputNode.run({
       inputs: {},
       params: { text: "Hello, World!" },
-      context: { nodeId: "1", executionId: "e1", log: () => {} },
+      context: mockContext,
     });
     expect(result.value).toBe("Hello, World!");
   });
@@ -221,8 +232,74 @@ describe("built-in nodes", () => {
     const result = await templateNode.run({
       inputs: { variables: { name: "Alice", age: 30 } },
       params: { template: "Hello, {{name}}! You are {{age}} years old." },
-      context: { nodeId: "1", executionId: "e1", log: () => {} },
+      context: mockContext,
     });
     expect(result.result).toBe("Hello, Alice! You are 30 years old.");
+  });
+});
+
+describe("transform nodes", () => {
+  const mockContext = { nodeId: "1", executionId: "e1", log: () => {} };
+
+  it("should execute jsTransformNode with expression", async () => {
+    const result = await jsTransformNode.run({
+      inputs: {
+        data: { items: [1, 2, 3, 4, 5] },
+        context: {},
+      },
+      params: { expression: "data.items.filter(x => x > 2)" },
+      context: mockContext,
+    });
+    expect(result.result).toEqual([3, 4, 5]);
+  });
+
+  it("should execute jsTransformNode with object manipulation", async () => {
+    const result = await jsTransformNode.run({
+      inputs: {
+        data: { user: { name: "John", age: 30 } },
+        context: {},
+      },
+      params: { expression: "({ ...data.user, isAdult: data.user.age >= 18 })" },
+      context: mockContext,
+    });
+    expect(result.result).toEqual({ name: "John", age: 30, isAdult: true });
+  });
+
+  it("should execute mapNode", async () => {
+    const result = await mapNode.run({
+      inputs: { array: [{ name: "Alice" }, { name: "Bob" }] },
+      params: { expression: "item.name.toUpperCase()" },
+      context: mockContext,
+    });
+    expect(result.result).toEqual(["ALICE", "BOB"]);
+  });
+
+  it("should execute filterNode", async () => {
+    const result = await filterNode.run({
+      inputs: { array: [1, 2, 3, 4, 5, 6] },
+      params: { condition: "item % 2 === 0" },
+      context: mockContext,
+    });
+    expect(result.result).toEqual([2, 4, 6]);
+    expect(result.count).toBe(3);
+  });
+});
+
+describe("integration nodes structure", () => {
+  it("should have httpRequestNode with correct structure", () => {
+    expect(httpRequestNode.id).toBe("http-request");
+    expect(httpRequestNode.display.category).toBe("integration");
+    expect(httpRequestNode.paramsSchema.url).toBeDefined();
+    expect(httpRequestNode.paramsSchema.method).toBeDefined();
+    expect(httpRequestNode.outputs.data).toBeDefined();
+    expect(httpRequestNode.outputs.status).toBeDefined();
+  });
+
+  it("should have slackMessageNode with correct structure", () => {
+    expect(slackMessageNode.id).toBe("slack-message");
+    expect(slackMessageNode.display.category).toBe("integration");
+    expect(slackMessageNode.inputs.text).toBeDefined();
+    expect(slackMessageNode.paramsSchema.webhookUrl).toBeDefined();
+    expect(slackMessageNode.outputs.success).toBeDefined();
   });
 });

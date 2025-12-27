@@ -10,10 +10,17 @@ export {
   jsonParseNode,
   jsonStringifyNode,
   getPropertyNode,
+  jsTransformNode,
+  mapNode,
+  filterNode,
 } from "./transform";
 
 // AI nodes
 export { llmNode, promptBuilderNode } from "./ai";
+
+// Integration nodes
+export { httpRequestNode } from "./http";
+export { slackMessageNode, slackBlockBuilderNode } from "./slack";
 
 // All built-in nodes
 import { textInputNode, numberInputNode, jsonInputNode } from "./input";
@@ -23,8 +30,13 @@ import {
   jsonParseNode,
   jsonStringifyNode,
   getPropertyNode,
+  jsTransformNode,
+  mapNode,
+  filterNode,
 } from "./transform";
 import { llmNode, promptBuilderNode } from "./ai";
+import { httpRequestNode } from "./http";
+import { slackMessageNode, slackBlockBuilderNode } from "./slack";
 import { registerNode } from "../registry";
 
 export const builtinNodes = [
@@ -40,9 +52,16 @@ export const builtinNodes = [
   jsonParseNode,
   jsonStringifyNode,
   getPropertyNode,
+  jsTransformNode,
+  mapNode,
+  filterNode,
   // AI
   llmNode,
   promptBuilderNode,
+  // Integration
+  httpRequestNode,
+  slackMessageNode,
+  slackBlockBuilderNode,
 ];
 
 /**

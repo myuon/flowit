@@ -132,3 +132,159 @@ export const getPropertyNode = defineNode({
     return { value };
   },
 });
+
+/**
+ * JavaScript Transform Node
+ * Transforms data using a JavaScript expression
+ */
+export const jsTransformNode = defineNode({
+  id: "js-transform",
+  displayName: "JS Transform",
+  description: "Transforms data using a JavaScript expression",
+  inputs: {
+    data: io.any({ description: "Input data (available as `data`)", required: true }),
+    context: io.object({}, { description: "Additional context (available as `ctx`)" }),
+  },
+  outputs: {
+    result: io.any({ description: "Transformed result" }),
+  },
+  paramsSchema: {
+    expression: param.string("Expression", {
+      description:
+        "JavaScript expression. Use `data` for input, `ctx` for context. Example: `data.items.map(x => x.name)`",
+      placeholder: "data.items.filter(x => x.active)",
+      multiline: true,
+      required: true,
+    }),
+  },
+  display: {
+    icon: "⚡",
+    color: "#FFC107",
+    category: "transform",
+    tags: ["javascript", "transform", "map", "filter"],
+  },
+  async run({ inputs, params, context }) {
+    const data = inputs.data;
+    const ctx = inputs.context || {};
+
+    // Create a safe evaluation context
+    const evalContext = {
+      data,
+      ctx,
+      // Common utilities
+      JSON,
+      Math,
+      Date,
+      Array,
+      Object,
+      String,
+      Number,
+      Boolean,
+      parseInt,
+      parseFloat,
+      isNaN,
+      isFinite,
+    };
+
+    try {
+      // Create function from expression
+      const keys = Object.keys(evalContext);
+      const values = Object.values(evalContext);
+      const fn = new Function(...keys, `"use strict"; return (${params.expression});`);
+      const result = fn(...values);
+
+      context.log(`Transform completed`);
+      return { result };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Transform error: ${message}`);
+    }
+  },
+});
+
+/**
+ * Map Node
+ * Maps over an array and transforms each element
+ */
+export const mapNode = defineNode({
+  id: "map",
+  displayName: "Map",
+  description: "Maps over an array and transforms each element",
+  inputs: {
+    array: io.array(io.any(), { description: "Array to map over", required: true }),
+  },
+  outputs: {
+    result: io.array(io.any(), { description: "Mapped array" }),
+  },
+  paramsSchema: {
+    expression: param.string("Expression", {
+      description:
+        "JavaScript expression for each item. Use `item` for current element, `index` for position.",
+      placeholder: "item.name",
+      multiline: true,
+      required: true,
+    }),
+  },
+  display: {
+    icon: "🔁",
+    color: "#9C27B0",
+    category: "transform",
+    tags: ["array", "map", "transform"],
+  },
+  async run({ inputs, params }) {
+    const array = inputs.array as unknown[];
+    const fn = new Function(
+      "item",
+      "index",
+      "array",
+      `"use strict"; return (${params.expression});`
+    );
+
+    const result = array.map((item, index, arr) => fn(item, index, arr));
+    return { result };
+  },
+});
+
+/**
+ * Filter Node
+ * Filters an array based on a condition
+ */
+export const filterNode = defineNode({
+  id: "filter",
+  displayName: "Filter",
+  description: "Filters an array based on a condition",
+  inputs: {
+    array: io.array(io.any(), { description: "Array to filter", required: true }),
+  },
+  outputs: {
+    result: io.array(io.any(), { description: "Filtered array" }),
+    count: io.number({ description: "Number of items after filtering" }),
+  },
+  paramsSchema: {
+    condition: param.string("Condition", {
+      description:
+        "JavaScript condition for each item. Use `item` for current element. Return truthy to keep.",
+      placeholder: "item.active === true",
+      multiline: true,
+      required: true,
+    }),
+  },
+  display: {
+    icon: "🔎",
+    color: "#E91E63",
+    category: "transform",
+    tags: ["array", "filter"],
+  },
+  async run({ inputs, params }) {
+    const array = inputs.array as unknown[];
+    const fn = new Function(
+      "item",
+      "index",
+      "array",
+      `"use strict"; return (${params.condition});`
+    );
+
+    const result = array.filter((item, index, arr) => fn(item, index, arr));
+    return { result, count: result.length };
+  },
+});
