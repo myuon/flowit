@@ -21,9 +21,11 @@ import { ExecutionPanel } from "../panels/ExecutionPanel";
 import { TemplateSelector } from "../panels/TemplateSelector";
 import { UserMenu } from "../UserMenu";
 import { useWorkflow } from "../../hooks/useWorkflow";
+import { useAuth } from "../../auth";
 import type { WorkflowTemplate } from "../../data/templates";
 
 export function WorkflowEditor() {
+  const { isAdmin } = useAuth();
   const [showTemplateSelector, setShowTemplateSelector] = useState(true);
 
   const {
@@ -113,6 +115,21 @@ export function WorkflowEditor() {
         }}
       >
         <div style={{ fontWeight: 600, fontSize: 16 }}>Flowit</div>
+        {isAdmin && (
+          <a
+            href="/admin"
+            style={{
+              padding: "4px 10px",
+              background: "#fef3c7",
+              color: "#92400e",
+              borderRadius: 4,
+              fontSize: 12,
+              textDecoration: "none",
+            }}
+          >
+            Admin
+          </a>
+        )}
         <div style={{ flex: 1 }} />
         <button
           onClick={handleNewWorkflow}

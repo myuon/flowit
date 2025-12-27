@@ -8,8 +8,10 @@ import {
 } from "react";
 import type { AuthUser, AuthSession } from "@flowit/shared";
 import { getLoginUrl } from "./config";
+import { getCurrentUser } from "../api/client";
 
 const AUTH_STORAGE_KEY = "flowit-auth";
+const ADMIN_STORAGE_KEY = "flowit-admin";
 
 interface AuthContextValue {
   /** Current authenticated user, null if not authenticated */
@@ -20,6 +22,8 @@ interface AuthContextValue {
   isLoading: boolean;
   /** Whether user is authenticated */
   isAuthenticated: boolean;
+  /** Whether user is admin */
+  isAdmin: boolean;
   /** Start login flow */
   login: () => void;
   /** Logout and clear session */
@@ -75,16 +79,35 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<AuthSession | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from storage
+  // Initialize auth state from storage and fetch admin status
   useEffect(() => {
-    const storedSession = loadSession();
-    if (storedSession) {
-      setSession(storedSession);
-      setUser(storedSession.user);
-    }
-    setIsLoading(false);
+    const init = async () => {
+      const storedSession = loadSession();
+      if (storedSession) {
+        setSession(storedSession);
+        setUser(storedSession.user);
+
+        // Check cached admin status first
+        const cachedAdmin = sessionStorage.getItem(ADMIN_STORAGE_KEY);
+        if (cachedAdmin !== null) {
+          setIsAdmin(cachedAdmin === "true");
+        }
+
+        // Fetch fresh admin status from API
+        try {
+          const { isAdmin: adminStatus } = await getCurrentUser();
+          setIsAdmin(adminStatus);
+          sessionStorage.setItem(ADMIN_STORAGE_KEY, String(adminStatus));
+        } catch {
+          // If API call fails, keep cached value
+        }
+      }
+      setIsLoading(false);
+    };
+    init();
   }, []);
 
   const login = useCallback(() => {
@@ -94,8 +117,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(() => {
     clearSession();
+    sessionStorage.removeItem(ADMIN_STORAGE_KEY);
     setSession(null);
     setUser(null);
+    setIsAdmin(false);
     // Redirect to home
     window.location.href = "/";
   }, []);
@@ -115,6 +140,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     session,
     isLoading,
     isAuthenticated: !!user,
+    isAdmin,
     login,
     logout,
     getAccessToken,

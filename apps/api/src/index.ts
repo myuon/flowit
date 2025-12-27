@@ -36,10 +36,17 @@ app.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
 
+// Check if user is admin
+function isAdmin(userId: string): boolean {
+  const adminIds = process.env.ADMIN_USER_IDS || "";
+  const adminList = adminIds.split(",").map((id) => id.trim()).filter(Boolean);
+  return adminList.includes(userId);
+}
+
 // Auth info endpoint (returns current user if authenticated)
 app.get("/auth/me", requireAuth, (c) => {
   const user = c.get("user");
-  return c.json({ user });
+  return c.json({ user, isAdmin: isAdmin(user.sub) });
 });
 
 // Protected API routes

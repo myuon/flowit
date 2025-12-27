@@ -108,7 +108,7 @@ export async function healthCheck(): Promise<{ status: string }> {
 /**
  * Get current authenticated user from API
  */
-export async function getCurrentUser(): Promise<{ user: AuthUser }> {
+export async function getCurrentUser(): Promise<{ user: AuthUser; isAdmin: boolean }> {
   const headers = getAuthHeaders();
 
   const response = await fetch(`${API_BASE_URL}/auth/me`, {

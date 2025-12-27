@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth, AuthCallback, LoginPage } from "./auth";
 import { WorkflowEditor } from "./components/editor/WorkflowEditor";
+import { AdminPage } from "./pages/AdminPage";
 
 /**
  * Simple path-based router for auth flows
@@ -12,14 +13,19 @@ function AppRouter() {
     return <AuthCallback />;
   }
 
+  // Admin page
+  if (path === "/admin") {
+    return <ProtectedRoute page="admin" />;
+  }
+
   // Main app (protected)
-  return <ProtectedRoute />;
+  return <ProtectedRoute page="editor" />;
 }
 
 /**
  * Protected route - shows login if not authenticated
  */
-function ProtectedRoute() {
+function ProtectedRoute({ page }: { page: "editor" | "admin" }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -57,6 +63,10 @@ function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <LoginPage />;
+  }
+
+  if (page === "admin") {
+    return <AdminPage />;
   }
 
   return <WorkflowEditor />;
