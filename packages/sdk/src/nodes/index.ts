@@ -22,6 +22,9 @@ export { llmNode, promptBuilderNode } from "./ai";
 export { httpRequestNode } from "./http";
 export { slackMessageNode, slackBlockBuilderNode } from "./slack";
 
+// Control nodes
+export { ifConditionNode, switchNode, mergeNode } from "./control";
+
 // All built-in nodes
 import { textInputNode, numberInputNode, jsonInputNode } from "./input";
 import { outputNode, debugNode } from "./output";
@@ -37,6 +40,7 @@ import {
 import { llmNode, promptBuilderNode } from "./ai";
 import { httpRequestNode } from "./http";
 import { slackMessageNode, slackBlockBuilderNode } from "./slack";
+import { ifConditionNode, switchNode, mergeNode } from "./control";
 import { registerNode } from "../registry";
 
 export const builtinNodes = [
@@ -62,6 +66,10 @@ export const builtinNodes = [
   httpRequestNode,
   slackMessageNode,
   slackBlockBuilderNode,
+  // Control
+  ifConditionNode,
+  switchNode,
+  mergeNode,
 ];
 
 /**
