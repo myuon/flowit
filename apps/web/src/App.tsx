@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth, AuthCallback, LoginPage } from "./auth";
+import { I18nProvider } from "./i18n";
 import { WorkflowEditor } from "./components/editor/WorkflowEditor";
 import { AdminPage } from "./pages/AdminPage";
 
@@ -74,8 +75,10 @@ function ProtectedRoute({ page }: { page: "editor" | "admin" }) {
 
 export function App() {
   return (
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
+    </I18nProvider>
   );
 }

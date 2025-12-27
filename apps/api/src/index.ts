@@ -5,10 +5,14 @@ import { cors } from "hono/cors";
 import type {
   ExecuteWorkflowRequest,
   ExecuteWorkflowResponse,
+  AppSettings,
+  Language,
 } from "@flowit/shared";
+import { DEFAULT_APP_SETTINGS } from "@flowit/shared";
 import { runWorkflow, validateWorkflow } from "./executor";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
+import { db, appConfig } from "./db";
 
 const app = new Hono();
 
@@ -99,6 +103,71 @@ api.post("/execute", async (c) => {
 
 // Mount protected API routes
 app.route("/api", api);
+
+// ============================================
+// Configuration endpoints
+// ============================================
+
+// Get app settings (public - needed for i18n before login)
+app.get("/config/settings", async (c) => {
+  const settings: AppSettings = { ...DEFAULT_APP_SETTINGS };
+
+  const rows = await db.select().from(appConfig);
+  for (const row of rows) {
+    if (row.key === "language" && (row.value === "en" || row.value === "ja")) {
+      settings.language = row.value as Language;
+    }
+  }
+
+  return c.json(settings);
+});
+
+// Admin routes for configuration
+const admin = new Hono<{ Variables: AuthVariables }>();
+admin.use("*", requireAuth);
+
+// Middleware to check admin status
+admin.use("*", async (c, next) => {
+  const user = c.get("user");
+  if (!isAdmin(user.sub)) {
+    return c.json({ error: "Admin access required" }, 403);
+  }
+  await next();
+});
+
+// Update app settings
+admin.put("/settings", async (c) => {
+  const body = await c.req.json<Partial<AppSettings>>();
+  const now = new Date().toISOString();
+
+  if (body.language) {
+    if (body.language !== "en" && body.language !== "ja") {
+      return c.json({ error: "Invalid language" }, 400);
+    }
+
+    await db
+      .insert(appConfig)
+      .values({ key: "language", value: body.language, updatedAt: now })
+      .onConflictDoUpdate({
+        target: appConfig.key,
+        set: { value: body.language, updatedAt: now },
+      });
+  }
+
+  // Return updated settings
+  const settings: AppSettings = { ...DEFAULT_APP_SETTINGS };
+  const rows = await db.select().from(appConfig);
+  for (const row of rows) {
+    if (row.key === "language" && (row.value === "en" || row.value === "ja")) {
+      settings.language = row.value as Language;
+    }
+  }
+
+  return c.json(settings);
+});
+
+// Mount admin routes
+app.route("/admin", admin);
 
 const port = parseInt(process.env.PORT || "3001");
 

@@ -187,8 +187,20 @@ export const nodeCatalogCache = sqliteTable(
 );
 
 // ============================================
+// App Configuration - Key-value settings
+// ============================================
+export const appConfig = sqliteTable("app_config", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+// ============================================
 // Type exports for use in application
 // ============================================
+export type AppConfig = typeof appConfig.$inferSelect;
+export type NewAppConfig = typeof appConfig.$inferInsert;
+
 export type Workflow = typeof workflows.$inferSelect;
 export type NewWorkflow = typeof workflows.$inferInsert;
 

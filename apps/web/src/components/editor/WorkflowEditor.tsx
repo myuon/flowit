@@ -22,10 +22,12 @@ import { TemplateSelector } from "../panels/TemplateSelector";
 import { UserMenu } from "../UserMenu";
 import { useWorkflow } from "../../hooks/useWorkflow";
 import { useAuth } from "../../auth";
+import { useI18n } from "../../i18n";
 import type { WorkflowTemplate } from "../../data/templates";
 
 export function WorkflowEditor() {
   const { isAdmin } = useAuth();
+  const { t } = useI18n();
   const [showTemplateSelector, setShowTemplateSelector] = useState(true);
 
   const {
@@ -114,7 +116,7 @@ export function WorkflowEditor() {
           background: "white",
         }}
       >
-        <div style={{ fontWeight: 600, fontSize: 16 }}>Flowit</div>
+        <div style={{ fontWeight: 600, fontSize: 16 }}>{t.appName}</div>
         {isAdmin && (
           <a
             href="/admin"
@@ -127,7 +129,7 @@ export function WorkflowEditor() {
               textDecoration: "none",
             }}
           >
-            Admin
+            {t.admin}
           </a>
         )}
         <div style={{ flex: 1 }} />
@@ -142,7 +144,7 @@ export function WorkflowEditor() {
             cursor: "pointer",
           }}
         >
-          New
+          {t.new}
         </button>
         <button
           onClick={save}
@@ -154,7 +156,7 @@ export function WorkflowEditor() {
             cursor: "pointer",
           }}
         >
-          Save
+          {t.save}
         </button>
         <button
           onClick={load}
@@ -166,7 +168,7 @@ export function WorkflowEditor() {
             cursor: "pointer",
           }}
         >
-          Load
+          {t.load}
         </button>
         <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
         <UserMenu />

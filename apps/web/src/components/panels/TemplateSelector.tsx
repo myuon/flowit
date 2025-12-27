@@ -4,6 +4,7 @@ import {
   getTemplatesByCategory,
   type WorkflowTemplate,
 } from "../../data/templates";
+import { useI18n } from "../../i18n";
 
 interface TemplateSelectorProps {
   onSelectTemplate: (template: WorkflowTemplate) => void;
@@ -14,6 +15,7 @@ function TemplateSelectorComponent({
   onSelectTemplate,
   onStartBlank,
 }: TemplateSelectorProps) {
+  const { t } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categories = getTemplatesByCategory();
   const categoryNames = Object.keys(categories);
@@ -54,10 +56,10 @@ function TemplateSelectorComponent({
           }}
         >
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>
-            Create New Workflow
+            {t.createNewWorkflow}
           </h2>
           <p style={{ margin: "8px 0 0", color: "#666", fontSize: 14 }}>
-            Start from a template or create a blank workflow
+            {t.templateDescription}
           </p>
         </div>
 
@@ -83,7 +85,7 @@ function TemplateSelectorComponent({
               fontSize: 13,
             }}
           >
-            All
+            {t.all}
           </button>
           {categoryNames.map((category) => (
             <button
@@ -143,12 +145,12 @@ function TemplateSelectorComponent({
             >
               <span style={{ fontSize: 32, marginBottom: 12 }}>+</span>
               <span style={{ fontWeight: 500, color: "#333" }}>
-                Blank Workflow
+                {t.blankWorkflow}
               </span>
               <span
                 style={{ fontSize: 12, color: "#888", marginTop: 4 }}
               >
-                Start from scratch
+                {t.startFromScratch}
               </span>
             </div>
 
@@ -231,7 +233,7 @@ function TemplateSelectorComponent({
               fontSize: 14,
             }}
           >
-            Skip and start blank
+            {t.skipAndStartBlank}
           </button>
         </div>
       </div>

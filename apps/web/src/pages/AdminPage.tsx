@@ -1,8 +1,36 @@
+import { useEffect, useState } from "react";
+import type { Language, AppSettings } from "@flowit/shared";
 import { useAuth } from "../auth";
+import { useI18n } from "../i18n";
 import { UserMenu } from "../components/UserMenu";
+import { getAppSettings, updateAppSettings } from "../api/client";
 
 export function AdminPage() {
   const { user, isAdmin } = useAuth();
+  const { t, refresh: refreshI18n } = useI18n();
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAppSettings()
+      .then(setSettings)
+      .catch((err) => setError(err.message));
+  }, []);
+
+  const handleLanguageChange = async (language: Language) => {
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await updateAppSettings({ language });
+      setSettings(updated);
+      await refreshI18n();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (!isAdmin) {
     return (
@@ -16,10 +44,8 @@ export function AdminPage() {
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        <h1 style={{ color: "#dc2626", marginBottom: 16 }}>Access Denied</h1>
-        <p style={{ color: "#666", marginBottom: 24 }}>
-          You do not have permission to access this page.
-        </p>
+        <h1 style={{ color: "#dc2626", marginBottom: 16 }}>{t.accessDenied}</h1>
+        <p style={{ color: "#666", marginBottom: 24 }}>{t.noPermission}</p>
         <a
           href="/"
           style={{
@@ -32,7 +58,7 @@ export function AdminPage() {
             fontSize: 16,
           }}
         >
-          Go Home
+          {t.goHome}
         </a>
       </div>
     );
@@ -80,7 +106,7 @@ export function AdminPage() {
             fontSize: 12,
           }}
         >
-          Admin
+          {t.admin}
         </span>
         <div style={{ flex: 1 }} />
         <a
@@ -95,7 +121,7 @@ export function AdminPage() {
             fontSize: 14,
           }}
         >
-          Back to Editor
+          {t.backToEditor}
         </a>
         <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
         <UserMenu />
@@ -103,7 +129,7 @@ export function AdminPage() {
 
       {/* Content */}
       <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
-        <h1 style={{ margin: "0 0 24px 0" }}>Admin Dashboard</h1>
+        <h1 style={{ margin: "0 0 24px 0" }}>{t.adminDashboard}</h1>
 
         <div
           style={{
@@ -114,16 +140,16 @@ export function AdminPage() {
             marginBottom: 24,
           }}
         >
-          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>Current User</h2>
+          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>{t.currentUser}</h2>
           <div style={{ display: "grid", gap: 8 }}>
             <div>
-              <strong>ID:</strong> {user?.sub}
+              <strong>{t.userId}:</strong> {user?.sub}
             </div>
             <div>
-              <strong>Email:</strong> {user?.email}
+              <strong>{t.email}:</strong> {user?.email}
             </div>
             <div>
-              <strong>Name:</strong> {user?.name || "N/A"}
+              <strong>{t.name}:</strong> {user?.name || "N/A"}
             </div>
           </div>
         </div>
@@ -136,10 +162,51 @@ export function AdminPage() {
             padding: 24,
           }}
         >
-          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>Admin Tools</h2>
-          <p style={{ color: "#666", margin: 0 }}>
-            Admin features will be added here.
-          </p>
+          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>{t.settings}</h2>
+
+          {error && (
+            <div
+              style={{
+                padding: 12,
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                borderRadius: 6,
+                color: "#dc2626",
+                marginBottom: 16,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <label
+              htmlFor="language"
+              style={{ fontWeight: 500, minWidth: 100 }}
+            >
+              {t.language}
+            </label>
+            <select
+              id="language"
+              value={settings?.language || "en"}
+              onChange={(e) => handleLanguageChange(e.target.value as Language)}
+              disabled={saving || !settings}
+              style={{
+                padding: "8px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: 6,
+                fontSize: 14,
+                minWidth: 150,
+                cursor: saving ? "wait" : "pointer",
+              }}
+            >
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+            {saving && (
+              <span style={{ color: "#666", fontSize: 14 }}>{t.saving}</span>
+            )}
+          </div>
         </div>
       </div>
     </div>

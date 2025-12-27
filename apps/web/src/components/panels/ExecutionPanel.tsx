@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useI18n } from "../../i18n";
 
 export interface ExecutionLog {
   type: "info" | "success" | "error" | "node";
@@ -26,6 +27,7 @@ function ExecutionPanelComponent({
   onExecute,
   onClear,
 }: ExecutionPanelProps) {
+  const { t } = useI18n();
   const isRunning = execution.status === "running";
 
   return (
@@ -76,12 +78,12 @@ function ExecutionPanelComponent({
                   animation: "spin 1s linear infinite",
                 }}
               />
-              Running...
+              {t.running}
             </>
           ) : (
             <>
               <span>▶</span>
-              Execute
+              {t.execute}
             </>
           )}
         </button>
@@ -97,7 +99,7 @@ function ExecutionPanelComponent({
             cursor: "pointer",
           }}
         >
-          Clear
+          {t.clear}
         </button>
 
         <div style={{ flex: 1 }} />
@@ -110,12 +112,12 @@ function ExecutionPanelComponent({
 
         {execution.status === "success" && (
           <span style={{ color: "#4CAF50", fontSize: 12, fontWeight: 500 }}>
-            ✓ Success
+            ✓ {t.success}
           </span>
         )}
         {execution.status === "error" && (
           <span style={{ color: "#f44336", fontSize: 12, fontWeight: 500 }}>
-            ✗ Error
+            ✗ {t.error}
           </span>
         )}
       </div>
@@ -132,7 +134,7 @@ function ExecutionPanelComponent({
       >
         {execution.logs.length === 0 ? (
           <div style={{ color: "#666" }}>
-            Click Execute to run the workflow...
+            {t.runWorkflow}
           </div>
         ) : (
           execution.logs.map((log, index) => (
@@ -172,7 +174,7 @@ function ExecutionPanelComponent({
         {execution.status === "success" && execution.outputs && (
           <div style={{ marginTop: 12 }}>
             <div style={{ color: "#4CAF50", marginBottom: 4 }}>
-              Output:
+              {t.output}
             </div>
             <pre
               style={{

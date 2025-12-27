@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Handle, Position, type Node } from "@xyflow/react";
 import type { IOSchema } from "@flowit/shared";
+import { useI18n, getNodeDisplayName } from "../../i18n";
 
 export interface WorkflowNodeData extends Record<string, unknown> {
   label: string;
@@ -26,8 +27,10 @@ const handleStyle = {
 };
 
 function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
+  const { language } = useI18n();
   const inputKeys = Object.keys(data.inputs || {});
   const outputKeys = Object.keys(data.outputs || {});
+  const displayName = getNodeDisplayName(data.nodeType, language, data.label);
 
   return (
     <div
@@ -52,7 +55,7 @@ function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
         }}
       >
         {data.icon && <span>{data.icon}</span>}
-        <span style={{ fontWeight: 600, color: "#333" }}>{data.label}</span>
+        <span style={{ fontWeight: 600, color: "#333" }}>{displayName}</span>
       </div>
 
       {/* Body */}

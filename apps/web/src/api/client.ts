@@ -4,6 +4,7 @@ import type {
   ExecuteWorkflowResponse,
   AuthUser,
   AuthSession,
+  AppSettings,
 } from "@flowit/shared";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -121,6 +122,48 @@ export async function getCurrentUser(): Promise<{ user: AuthUser; isAdmin: boole
 
   if (!response.ok) {
     throw new Error(`Failed to get user: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get app settings (public endpoint)
+ */
+export async function getAppSettings(): Promise<AppSettings> {
+  const response = await fetch(`${API_BASE_URL}/config/settings`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to get settings: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update app settings (admin only)
+ */
+export async function updateAppSettings(
+  settings: Partial<AppSettings>
+): Promise<AppSettings> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/admin/settings`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(settings),
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 403) {
+    throw new Error("Admin access required");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to update settings: ${response.statusText}`);
   }
 
   return response.json();

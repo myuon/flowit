@@ -1,22 +1,33 @@
 import { memo, useState } from "react";
 import { getGroupedCatalog, type NodeCatalogItem } from "@flowit/sdk";
+import {
+  useI18n,
+  getCategoryName,
+  getNodeDisplayName,
+  getNodeDescription,
+} from "../../i18n";
 
 interface NodePaletteProps {
   onAddNode: (nodeType: string) => void;
 }
 
 function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
+  const { t, language } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const groupedCatalog = getGroupedCatalog();
 
   const filteredGroups = Object.entries(groupedCatalog).reduce(
     (acc, [category, nodes]) => {
-      const filtered = nodes.filter(
-        (node) =>
-          node.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          node.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          node.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const filtered = nodes.filter((node) => {
+        const displayName = getNodeDisplayName(node.id, language, node.displayName);
+        const description = getNodeDescription(node.id, language, node.description);
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          displayName.toLowerCase().includes(searchLower) ||
+          node.id.toLowerCase().includes(searchLower) ||
+          description.toLowerCase().includes(searchLower)
+        );
+      });
       if (filtered.length > 0) {
         acc[category] = filtered;
       }
@@ -45,14 +56,14 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
           fontSize: 14,
         }}
       >
-        Nodes
+        {t.nodes}
       </div>
 
       {/* Search */}
       <div style={{ padding: "8px 12px" }}>
         <input
           type="text"
-          placeholder="Search nodes..."
+          placeholder={t.searchNodes}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -78,53 +89,57 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
                 marginBottom: 8,
               }}
             >
-              {category}
+              {getCategoryName(category, language)}
             </div>
-            {nodes.map((node) => (
-              <div
-                key={node.id}
-                onClick={() => onAddNode(node.id)}
-                style={{
-                  padding: "8px 10px",
-                  marginBottom: 4,
-                  background: "white",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f0f0f0";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "white";
-                }}
-              >
-                <span>{node.icon || "📦"}</span>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>
-                    {node.displayName}
-                  </div>
-                  {node.description && (
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: "#888",
-                        marginTop: 2,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxWidth: 160,
-                      }}
-                    >
-                      {node.description}
+            {nodes.map((node) => {
+              const displayName = getNodeDisplayName(node.id, language, node.displayName);
+              const description = getNodeDescription(node.id, language, node.description);
+              return (
+                <div
+                  key={node.id}
+                  onClick={() => onAddNode(node.id)}
+                  style={{
+                    padding: "8px 10px",
+                    marginBottom: 4,
+                    background: "white",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#f0f0f0";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "white";
+                  }}
+                >
+                  <span>{node.icon || "📦"}</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>
+                      {displayName}
                     </div>
-                  )}
+                    {description && (
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#888",
+                          marginTop: 2,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: 160,
+                        }}
+                      >
+                        {description}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ))}
       </div>

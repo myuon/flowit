@@ -183,6 +183,23 @@ export interface AuthSession {
   expiresAt: number;
 }
 
+// ============================================
+// App Configuration types
+// ============================================
+
+/** Supported languages */
+export type Language = "en" | "ja";
+
+/** App configuration settings */
+export interface AppSettings {
+  language: Language;
+}
+
+/** Default app settings */
+export const DEFAULT_APP_SETTINGS: AppSettings = {
+  language: "en",
+};
+
 // Legacy types (deprecated, use new types above)
 /** @deprecated Use ReactFlowNode instead */
 export type FlowNode = ReactFlowNode;

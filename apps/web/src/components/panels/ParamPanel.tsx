@@ -2,6 +2,13 @@ import { memo, useCallback } from "react";
 import type { Node } from "@xyflow/react";
 import { getNode } from "@flowit/sdk";
 import type { WorkflowNodeData } from "../nodes";
+import {
+  useI18n,
+  getNodeDisplayName,
+  getParamLabel,
+  getParamDescription,
+  getParamOptionLabel,
+} from "../../i18n";
 
 interface ParamPanelProps {
   selectedNode: Node<WorkflowNodeData> | null;
@@ -9,6 +16,8 @@ interface ParamPanelProps {
 }
 
 function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) {
+  const { t, language } = useI18n();
+
   if (!selectedNode) {
     return (
       <div
@@ -29,7 +38,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
             fontSize: 14,
           }}
         >
-          Properties
+          {t.properties}
         </div>
         <div
           style={{
@@ -41,7 +50,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
             fontSize: 13,
           }}
         >
-          Select a node to edit
+          {t.selectNode}
         </div>
       </div>
     );
@@ -89,7 +98,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
           fontSize: 14,
         }}
       >
-        Properties
+        {t.properties}
       </div>
 
       {/* Node Info */}
@@ -102,7 +111,13 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 20 }}>{selectedNode.data.icon || "📦"}</span>
           <div>
-            <div style={{ fontWeight: 500 }}>{selectedNode.data.label}</div>
+            <div style={{ fontWeight: 500 }}>
+              {getNodeDisplayName(
+                selectedNode.data.nodeType,
+                language,
+                selectedNode.data.label
+              )}
+            </div>
             <div style={{ fontSize: 11, color: "#888" }}>
               {selectedNode.data.nodeType}
             </div>
@@ -121,7 +136,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
             marginBottom: 12,
           }}
         >
-          Parameters
+          {t.parameters}
         </div>
 
         {Object.entries(paramsSchema).map(([key, schema]) => {
@@ -132,6 +147,14 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
             options?: Array<{ value: string; label: string }>;
             multiline?: boolean;
           };
+          const nodeType = selectedNode.data.nodeType;
+          const label = getParamLabel(nodeType, key, language, paramSchema.label || key);
+          const description = getParamDescription(
+            nodeType,
+            key,
+            language,
+            paramSchema.description
+          );
 
           return (
             <div key={key} style={{ marginBottom: 16 }}>
@@ -143,9 +166,9 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
                   marginBottom: 4,
                 }}
               >
-                {paramSchema.label || key}
+                {label}
               </label>
-              {paramSchema.description && (
+              {description && (
                 <div
                   style={{
                     fontSize: 11,
@@ -153,7 +176,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
                     marginBottom: 6,
                   }}
                 >
-                  {paramSchema.description}
+                  {description}
                 </div>
               )}
 
@@ -170,10 +193,10 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
                     fontSize: 13,
                   }}
                 >
-                  <option value="">Select...</option>
+                  <option value="">{t.selectOption}</option>
                   {paramSchema.options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                      {getParamOptionLabel(nodeType, key, opt.value, language, opt.label)}
                     </option>
                   ))}
                 </select>
@@ -184,7 +207,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
                     checked={Boolean(getParamValue(key))}
                     onChange={(e) => handleParamChange(key, e.target.checked)}
                   />
-                  <span style={{ fontSize: 13 }}>Enabled</span>
+                  <span style={{ fontSize: 13 }}>{t.enabled}</span>
                 </label>
               ) : paramSchema.type === "number" ? (
                 <input
@@ -261,7 +284,7 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
 
         {Object.keys(paramsSchema).length === 0 && (
           <div style={{ color: "#888", fontSize: 13 }}>
-            This node has no configurable parameters.
+            {t.noParameters}
           </div>
         )}
       </div>
