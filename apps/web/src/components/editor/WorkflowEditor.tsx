@@ -267,6 +267,7 @@ export function WorkflowEditor() {
         <ParamPanel
           selectedNode={selectedNode}
           onUpdateParams={updateNodeParams}
+          workflowId={workflowMeta.id}
         />
       </div>
 

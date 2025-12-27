@@ -72,6 +72,12 @@ export interface Translations {
   published: string;
   version: string;
   untitledWorkflow: string;
+
+  // Webhook
+  webhookUrl: string;
+  copyUrl: string;
+  webhookNote: string;
+  saveWorkflowFirst: string;
 }
 
 const en: Translations = {
@@ -146,6 +152,12 @@ const en: Translations = {
   published: "Published",
   version: "v",
   untitledWorkflow: "Untitled Workflow",
+
+  // Webhook
+  webhookUrl: "Webhook URL",
+  copyUrl: "Copy URL",
+  webhookNote: "Publish the workflow to enable webhook triggers",
+  saveWorkflowFirst: "Save the workflow to get a webhook URL",
 };
 
 const ja: Translations = {
@@ -220,6 +232,12 @@ const ja: Translations = {
   published: "公開済み",
   version: "v",
   untitledWorkflow: "無題のワークフロー",
+
+  // Webhook
+  webhookUrl: "Webhook URL",
+  copyUrl: "URLをコピー",
+  webhookNote: "Webhookを有効にするにはワークフローを公開してください",
+  saveWorkflowFirst: "Webhook URLを取得するにはワークフローを保存してください",
 };
 
 export const translations: Record<Language, Translations> = {

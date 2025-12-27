@@ -13,6 +13,7 @@ import { runWorkflow, validateWorkflow } from "./executor";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { db, appConfig } from "./db";
+import { workflowRepository } from "./db/repository";
 
 const app = new Hono();
 
@@ -168,6 +169,87 @@ admin.put("/settings", async (c) => {
 
 // Mount admin routes
 app.route("/admin", admin);
+
+// ============================================
+// Webhook endpoints (public - no auth required)
+// ============================================
+
+// Webhook trigger endpoint
+app.all("/webhooks/:workflowId", async (c) => {
+  const workflowId = c.req.param("workflowId");
+  const method = c.req.method;
+
+  // Find the workflow
+  const workflow = await workflowRepository.findByIdWithVersions(workflowId);
+  if (!workflow) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  // Get the current version
+  if (!workflow.currentVersionId) {
+    return c.json({ error: "Workflow has no published version" }, 400);
+  }
+
+  const version = workflow.versions.find((v) => v.id === workflow.currentVersionId);
+  if (!version) {
+    return c.json({ error: "Workflow version not found" }, 404);
+  }
+
+  const dsl = version.dsl as ExecuteWorkflowRequest["workflow"];
+
+  // Check if workflow has a webhook trigger node
+  const webhookNode = dsl.nodes.find((n) => n.type === "webhook-trigger");
+  if (!webhookNode) {
+    return c.json({ error: "Workflow does not have a webhook trigger" }, 400);
+  }
+
+  // Check if method matches
+  const allowedMethod = (webhookNode.params?.method as { value: string })?.value || "POST";
+  if (method !== allowedMethod && method !== "OPTIONS") {
+    return c.json({ error: `Method ${method} not allowed. Expected ${allowedMethod}` }, 405);
+  }
+
+  // Handle OPTIONS for CORS preflight
+  if (method === "OPTIONS") {
+    return new Response(null, { status: 204 });
+  }
+
+  // Get webhook input data
+  let body = {};
+  if (method === "POST") {
+    try {
+      body = await c.req.json();
+    } catch {
+      body = {};
+    }
+  }
+
+  const query = Object.fromEntries(new URL(c.req.url).searchParams);
+  const headers = Object.fromEntries(c.req.raw.headers);
+
+  // Run the workflow with webhook data as context
+  const result = await runWorkflow({
+    workflow: dsl,
+    inputs: {
+      _webhook: {
+        body,
+        headers,
+        query,
+        method,
+      },
+    },
+    secrets: {},
+  });
+
+  const response: ExecuteWorkflowResponse = {
+    outputs: result.outputs,
+    executionId: result.executionId,
+    status: result.status,
+    error: result.error,
+  };
+
+  return c.json(response, result.status === "error" ? 500 : 200);
+});
 
 const port = parseInt(process.env.PORT || "3001");
 

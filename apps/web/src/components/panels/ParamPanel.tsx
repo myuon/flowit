@@ -13,9 +13,10 @@ import {
 interface ParamPanelProps {
   selectedNode: Node<WorkflowNodeData> | null;
   onUpdateParams: (nodeId: string, params: Record<string, unknown>) => void;
+  workflowId?: string;
 }
 
-function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) {
+function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: ParamPanelProps) {
   const { t, language } = useI18n();
 
   if (!selectedNode) {
@@ -285,6 +286,70 @@ function ParamPanelComponent({ selectedNode, onUpdateParams }: ParamPanelProps) 
         {Object.keys(paramsSchema).length === 0 && (
           <div style={{ color: "#888", fontSize: 13 }}>
             {t.noParameters}
+          </div>
+        )}
+
+        {/* Webhook URL for webhook-trigger nodes */}
+        {selectedNode.data.nodeType === "webhook-trigger" && (
+          <div style={{ marginTop: 16 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#666",
+                textTransform: "uppercase",
+                marginBottom: 8,
+              }}
+            >
+              {t.webhookUrl}
+            </div>
+            {workflowId ? (
+              <>
+                <div
+                  style={{
+                    padding: "8px",
+                    background: "#f0f0f0",
+                    borderRadius: 4,
+                    fontSize: 11,
+                    fontFamily: "monospace",
+                    wordBreak: "break-all",
+                    marginBottom: 8,
+                  }}
+                >
+                  {`${window.location.origin.replace(/:\d+$/, ":3001")}/webhooks/${workflowId}`}
+                </div>
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin.replace(/:\d+$/, ":3001")}/webhooks/${workflowId}`;
+                    navigator.clipboard.writeText(url);
+                  }}
+                  style={{
+                    padding: "6px 12px",
+                    background: "#333",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontSize: 12,
+                  }}
+                >
+                  {t.copyUrl}
+                </button>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "#888",
+                    marginTop: 8,
+                  }}
+                >
+                  {t.webhookNote}
+                </div>
+              </>
+            ) : (
+              <div style={{ color: "#888", fontSize: 12 }}>
+                {t.saveWorkflowFirst}
+              </div>
+            )}
           </div>
         )}
       </div>

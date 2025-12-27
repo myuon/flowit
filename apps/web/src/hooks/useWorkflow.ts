@@ -12,17 +12,24 @@ registerBuiltinNodes();
 
 const STORAGE_KEY = "flowit-workflow";
 
-const DEFAULT_WORKFLOW_META: WorkflowMeta = {
-  name: "",
-  version: "1",
-  status: "draft",
-};
+function generateWorkflowId(): string {
+  return crypto.randomUUID();
+}
+
+function createDefaultWorkflowMeta(): WorkflowMeta {
+  return {
+    id: generateWorkflowId(),
+    name: "",
+    version: "1",
+    status: "draft",
+  };
+}
 
 export function useWorkflow() {
   const [nodes, setNodes] = useState<WorkflowNodeType[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNode, setSelectedNode] = useState<WorkflowNodeType | null>(null);
-  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>(DEFAULT_WORKFLOW_META);
+  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>(createDefaultWorkflowMeta);
   const [execution, setExecution] = useState<ExecutionResult>({
     status: "idle",
     logs: [],
@@ -139,6 +146,7 @@ export function useWorkflow() {
     setEdges(loadedEdges);
     setSelectedNode(null);
     setWorkflowMeta({
+      id: dsl.meta.id || generateWorkflowId(),
       name: dsl.meta.name,
       version: dsl.meta.version,
       status: dsl.meta.status ?? "draft",
@@ -273,7 +281,7 @@ export function useWorkflow() {
     setNodes([]);
     setEdges([]);
     setSelectedNode(null);
-    setWorkflowMeta(DEFAULT_WORKFLOW_META);
+    setWorkflowMeta(createDefaultWorkflowMeta());
     clearLogs();
   }, [clearLogs]);
 

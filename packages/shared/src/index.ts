@@ -58,6 +58,7 @@ export type WorkflowStatus = "draft" | "published";
 
 // Workflow metadata
 export interface WorkflowMeta {
+  id?: string; // Unique workflow identifier for webhooks etc.
   name: string;
   description?: string;
   version: string;
