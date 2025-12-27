@@ -1,9 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import type { Edge } from "@xyflow/react";
 import { getNode, registerBuiltinNodes } from "@flowit/sdk";
 import type { WorkflowDSL, WorkflowNode, WorkflowEdge, WorkflowMeta } from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
-import { executeWorkflow as executeWorkflowApi } from "../api/client";
+import { executeWorkflow as executeWorkflowApi, getWorkflow, updateWorkflow } from "../api/client";
 import type { ExecutionResult, ExecutionLog } from "../components/panels/ExecutionPanel";
 import type { WorkflowTemplate } from "../data/templates";
 
@@ -25,7 +25,12 @@ function createDefaultWorkflowMeta(): WorkflowMeta {
   };
 }
 
-export function useWorkflow() {
+interface UseWorkflowOptions {
+  workflowId?: string;
+}
+
+export function useWorkflow(options: UseWorkflowOptions = {}) {
+  const { workflowId } = options;
   const [nodes, setNodes] = useState<WorkflowNodeType[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNode, setSelectedNode] = useState<WorkflowNodeType | null>(null);
@@ -34,6 +39,8 @@ export function useWorkflow() {
     status: "idle",
     logs: [],
   });
+  const [isLoading, setIsLoading] = useState(!!workflowId);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Add a new node to the canvas
   const addNode = useCallback((nodeType: string) => {
@@ -285,6 +292,82 @@ export function useWorkflow() {
     clearLogs();
   }, [clearLogs]);
 
+  // Save workflow to API
+  const saveToApi = useCallback(async () => {
+    if (!workflowId) {
+      addLog("error", "No workflow ID - cannot save to API");
+      return;
+    }
+
+    try {
+      const dsl = toDSL();
+      // Include positions in a custom field for persistence
+      const positions = nodes.map((n) => ({ id: n.id, position: n.position }));
+      const dslWithPositions = {
+        ...dsl,
+        _positions: positions,
+      };
+
+      await updateWorkflow(workflowId, {
+        name: workflowMeta.name,
+        description: workflowMeta.description,
+        dsl: dslWithPositions,
+      });
+      addLog("success", "Workflow saved to server");
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      addLog("error", `Failed to save workflow: ${errorMessage}`);
+    }
+  }, [workflowId, toDSL, nodes, workflowMeta, addLog]);
+
+  // Load workflow from API on mount
+  useEffect(() => {
+    if (!workflowId) return;
+
+    const loadWorkflow = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+        const result = await getWorkflow(workflowId);
+        const workflow = result.workflow;
+
+        // Find the current version's DSL
+        const currentVersion = workflow.versions.find(
+          (v) => v.id === workflow.currentVersionId
+        );
+
+        if (currentVersion) {
+          const dsl = currentVersion.dsl as WorkflowDSL & { _positions?: Array<{ id: string; position: { x: number; y: number } }> };
+          fromDSL(dsl);
+
+          // Apply saved positions if available
+          if (dsl._positions) {
+            setNodes((nds) =>
+              nds.map((node) => {
+                const pos = dsl._positions?.find((p) => p.id === node.id);
+                return pos ? { ...node, position: pos.position } : node;
+              })
+            );
+          }
+        } else {
+          // No version yet, just set the workflow name
+          setWorkflowMeta((prev) => ({
+            ...prev,
+            id: workflow.id,
+            name: workflow.name,
+          }));
+        }
+      } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        setLoadError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadWorkflow();
+  }, [workflowId, fromDSL]);
+
   return {
     nodes,
     edges,
@@ -304,5 +387,8 @@ export function useWorkflow() {
     fromDSL,
     workflowMeta,
     resetWorkflow,
+    isLoading,
+    loadError,
+    saveToApi,
   };
 }

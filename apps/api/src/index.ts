@@ -13,7 +13,7 @@ import { runWorkflow, validateWorkflow } from "./executor";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { db, appConfig } from "./db";
-import { workflowRepository } from "./db/repository";
+import { workflowRepository, workflowVersionRepository } from "./db/repository";
 
 const app = new Hono();
 
@@ -67,6 +67,81 @@ api.post("/validate", async (c) => {
     valid: errors.length === 0,
     errors,
   });
+});
+
+// ============================================
+// Workflow CRUD endpoints
+// ============================================
+
+// List all workflows
+api.get("/workflows", async (c) => {
+  const workflows = await workflowRepository.findAll();
+  return c.json({ workflows });
+});
+
+// Get a single workflow with versions
+api.get("/workflows/:id", async (c) => {
+  const id = c.req.param("id");
+  const workflow = await workflowRepository.findByIdWithVersions(id);
+
+  if (!workflow) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  return c.json({ workflow });
+});
+
+// Create a new workflow
+api.post("/workflows", async (c) => {
+  const body = await c.req.json<{ name: string; description?: string; dsl?: ExecuteWorkflowRequest["workflow"] }>();
+
+  const workflow = await workflowRepository.create({
+    name: body.name || "Untitled Workflow",
+    description: body.description,
+  });
+
+  // Create initial version if DSL provided
+  if (body.dsl) {
+    await workflowVersionRepository.create(workflow.id, body.dsl);
+  }
+
+  return c.json({ workflow }, 201);
+});
+
+// Update a workflow
+api.put("/workflows/:id", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json<{ name?: string; description?: string; dsl?: ExecuteWorkflowRequest["workflow"] }>();
+
+  const existing = await workflowRepository.findById(id);
+  if (!existing) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  // Update workflow metadata
+  const workflow = await workflowRepository.update(id, {
+    name: body.name,
+    description: body.description,
+  });
+
+  // Create new version if DSL provided
+  if (body.dsl) {
+    await workflowVersionRepository.create(id, body.dsl);
+  }
+
+  return c.json({ workflow });
+});
+
+// Delete a workflow
+api.delete("/workflows/:id", async (c) => {
+  const id = c.req.param("id");
+  const deleted = await workflowRepository.delete(id);
+
+  if (!deleted) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  return c.json({ success: true });
 });
 
 // Execute a workflow

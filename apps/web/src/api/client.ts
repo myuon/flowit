@@ -5,6 +5,7 @@ import type {
   AuthUser,
   AuthSession,
   AppSettings,
+  WorkflowMeta,
 } from "@flowit/shared";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -167,4 +168,155 @@ export async function updateAppSettings(
   }
 
   return response.json();
+}
+
+// ============================================
+// Workflow API
+// ============================================
+
+export interface WorkflowListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  currentVersionId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkflowWithVersions extends WorkflowListItem {
+  versions: Array<{
+    id: string;
+    workflowId: string;
+    version: number;
+    dsl: WorkflowDSL & { meta?: WorkflowMeta };
+    changelog: string | null;
+    createdAt: string;
+  }>;
+}
+
+/**
+ * List all workflows
+ */
+export async function listWorkflows(): Promise<{ workflows: WorkflowListItem[] }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
+    headers,
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to list workflows: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get a single workflow with its versions
+ */
+export async function getWorkflow(id: string): Promise<{ workflow: WorkflowWithVersions }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
+    headers,
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 404) {
+    throw new Error("Workflow not found");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to get workflow: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Create a new workflow
+ */
+export async function createWorkflow(data: {
+  name: string;
+  description?: string;
+  dsl?: WorkflowDSL;
+}): Promise<{ workflow: WorkflowListItem }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to create workflow: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update a workflow
+ */
+export async function updateWorkflow(
+  id: string,
+  data: { name?: string; description?: string; dsl?: WorkflowDSL }
+): Promise<{ workflow: WorkflowListItem }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 404) {
+    throw new Error("Workflow not found");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to update workflow: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete a workflow
+ */
+export async function deleteWorkflow(id: string): Promise<void> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
+    method: "DELETE",
+    headers,
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 404) {
+    throw new Error("Workflow not found");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete workflow: ${response.statusText}`);
+  }
 }

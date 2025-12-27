@@ -2,6 +2,7 @@ import { AuthProvider, useAuth, AuthCallback, LoginPage } from "./auth";
 import { I18nProvider } from "./i18n";
 import { WorkflowEditor } from "./components/editor/WorkflowEditor";
 import { AdminPage } from "./pages/AdminPage";
+import { WorkflowListPage } from "./pages/WorkflowListPage";
 
 /**
  * Simple path-based router for auth flows
@@ -19,14 +20,21 @@ function AppRouter() {
     return <ProtectedRoute page="admin" />;
   }
 
-  // Main app (protected)
-  return <ProtectedRoute page="editor" />;
+  // Workflow editor page
+  const workflowMatch = path.match(/^\/workflows\/([^/]+)$/);
+  if (workflowMatch) {
+    const workflowId = workflowMatch[1];
+    return <ProtectedRoute page="editor" workflowId={workflowId} />;
+  }
+
+  // Home page - workflow list
+  return <ProtectedRoute page="list" />;
 }
 
 /**
  * Protected route - shows login if not authenticated
  */
-function ProtectedRoute({ page }: { page: "editor" | "admin" }) {
+function ProtectedRoute({ page, workflowId }: { page: "list" | "editor" | "admin"; workflowId?: string }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -70,7 +78,11 @@ function ProtectedRoute({ page }: { page: "editor" | "admin" }) {
     return <AdminPage />;
   }
 
-  return <WorkflowEditor />;
+  if (page === "editor") {
+    return <WorkflowEditor workflowId={workflowId} />;
+  }
+
+  return <WorkflowListPage />;
 }
 
 export function App() {

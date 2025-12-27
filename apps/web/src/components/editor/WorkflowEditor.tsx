@@ -25,10 +25,14 @@ import { useAuth } from "../../auth";
 import { useI18n } from "../../i18n";
 import type { WorkflowTemplate } from "../../data/templates";
 
-export function WorkflowEditor() {
+interface WorkflowEditorProps {
+  workflowId?: string;
+}
+
+export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   const { isAdmin } = useAuth();
   const { t } = useI18n();
-  const [showTemplateSelector, setShowTemplateSelector] = useState(true);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(!workflowId);
 
   const {
     nodes,
@@ -46,8 +50,10 @@ export function WorkflowEditor() {
     load,
     loadFromTemplate,
     workflowMeta,
-    resetWorkflow,
-  } = useWorkflow();
+    isLoading,
+    loadError,
+    saveToApi,
+  } = useWorkflow({ workflowId });
 
   const handleSelectTemplate = useCallback(
     (template: WorkflowTemplate) => {
@@ -62,9 +68,17 @@ export function WorkflowEditor() {
   }, []);
 
   const handleNewWorkflow = useCallback(() => {
-    resetWorkflow();
-    setShowTemplateSelector(true);
-  }, [resetWorkflow]);
+    // Navigate to home to create new workflow
+    window.location.href = "/";
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (workflowId) {
+      saveToApi();
+    } else {
+      save();
+    }
+  }, [workflowId, saveToApi, save]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<WorkflowNodeType>[]) => {
@@ -98,6 +112,77 @@ export function WorkflowEditor() {
     [setSelectedNode]
   );
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              border: "4px solid #f3f3f3",
+              borderTop: "4px solid #333",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 16px",
+            }}
+          />
+          <p style={{ color: "#666" }}>{t.loading}</p>
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (loadError) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <p style={{ color: "#dc2626", marginBottom: 16 }}>{t.error}: {loadError}</p>
+          <a
+            href="/"
+            style={{
+              padding: "10px 20px",
+              background: "#333",
+              color: "white",
+              borderRadius: 6,
+              textDecoration: "none",
+            }}
+          >
+            {t.goHome}
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -119,7 +204,17 @@ export function WorkflowEditor() {
           background: "white",
         }}
       >
-        <div style={{ fontWeight: 600, fontSize: 16 }}>{t.appName}</div>
+        <a
+          href="/"
+          style={{
+            fontWeight: 600,
+            fontSize: 16,
+            color: "#333",
+            textDecoration: "none",
+          }}
+        >
+          {t.appName}
+        </a>
         {isAdmin && (
           <a
             href="/admin"
@@ -189,7 +284,7 @@ export function WorkflowEditor() {
           {t.new}
         </button>
         <button
-          onClick={save}
+          onClick={handleSave}
           style={{
             padding: "6px 12px",
             background: "#f0f0f0",

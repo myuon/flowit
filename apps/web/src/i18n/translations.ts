@@ -78,6 +78,15 @@ export interface Translations {
   copyUrl: string;
   webhookNote: string;
   saveWorkflowFirst: string;
+
+  // Workflow List
+  workflows: string;
+  newWorkflow: string;
+  noWorkflows: string;
+  createFirstWorkflow: string;
+  lastUpdated: string;
+  delete: string;
+  confirmDelete: string;
 }
 
 const en: Translations = {
@@ -158,6 +167,15 @@ const en: Translations = {
   copyUrl: "Copy URL",
   webhookNote: "Publish the workflow to enable webhook triggers",
   saveWorkflowFirst: "Save the workflow to get a webhook URL",
+
+  // Workflow List
+  workflows: "Workflows",
+  newWorkflow: "New Workflow",
+  noWorkflows: "No workflows yet",
+  createFirstWorkflow: "Create your first workflow",
+  lastUpdated: "Last updated",
+  delete: "Delete",
+  confirmDelete: "Are you sure you want to delete \"{name}\"?",
 };
 
 const ja: Translations = {
@@ -238,6 +256,15 @@ const ja: Translations = {
   copyUrl: "URLをコピー",
   webhookNote: "Webhookを有効にするにはワークフローを公開してください",
   saveWorkflowFirst: "Webhook URLを取得するにはワークフローを保存してください",
+
+  // Workflow List
+  workflows: "ワークフロー",
+  newWorkflow: "新規ワークフロー",
+  noWorkflows: "ワークフローがありません",
+  createFirstWorkflow: "最初のワークフローを作成",
+  lastUpdated: "最終更新",
+  delete: "削除",
+  confirmDelete: "「{name}」を削除してもよろしいですか？",
 };
 
 export const translations: Record<Language, Translations> = {
