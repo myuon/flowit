@@ -19,6 +19,7 @@ import { NodePalette } from "../panels/NodePalette";
 import { ParamPanel } from "../panels/ParamPanel";
 import { ExecutionPanel } from "../panels/ExecutionPanel";
 import { TemplateSelector } from "../panels/TemplateSelector";
+import { UserMenu } from "../UserMenu";
 import { useWorkflow } from "../../hooks/useWorkflow";
 import type { WorkflowTemplate } from "../../data/templates";
 
@@ -150,6 +151,8 @@ export function WorkflowEditor() {
         >
           Load
         </button>
+        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        <UserMenu />
       </div>
 
       {/* Main Content */}

@@ -2,9 +2,50 @@ import type {
   WorkflowDSL,
   ExecuteWorkflowRequest,
   ExecuteWorkflowResponse,
+  AuthUser,
+  AuthSession,
 } from "@flowit/shared";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const AUTH_STORAGE_KEY = "flowit-auth";
+
+/**
+ * Get current access token from session storage
+ */
+function getAccessToken(): string | null {
+  try {
+    const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
+    if (!stored) return null;
+
+    const session = JSON.parse(stored) as AuthSession;
+
+    // Check if expired
+    if (session.expiresAt < Date.now()) {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      return null;
+    }
+
+    return session.accessToken;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Create headers with auth token
+ */
+function getAuthHeaders(): HeadersInit {
+  const token = getAccessToken();
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return headers;
+}
 
 export interface ValidateResponse {
   valid: boolean;
@@ -14,13 +55,17 @@ export interface ValidateResponse {
 export async function validateWorkflow(
   workflow: WorkflowDSL
 ): Promise<ValidateResponse> {
-  const response = await fetch(`${API_BASE_URL}/validate`, {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/validate`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({ workflow }),
   });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
 
   if (!response.ok) {
     throw new Error(`Validation failed: ${response.statusText}`);
@@ -32,13 +77,17 @@ export async function validateWorkflow(
 export async function executeWorkflow(
   request: ExecuteWorkflowRequest
 ): Promise<ExecuteWorkflowResponse> {
-  const response = await fetch(`${API_BASE_URL}/execute`, {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/execute`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(request),
   });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
 
   const data = await response.json();
 
@@ -51,5 +100,26 @@ export async function executeWorkflow(
 
 export async function healthCheck(): Promise<{ status: string }> {
   const response = await fetch(`${API_BASE_URL}/health`);
+  return response.json();
+}
+
+/**
+ * Get current authenticated user from API
+ */
+export async function getCurrentUser(): Promise<{ user: AuthUser }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    headers,
+  });
+
+  if (response.status === 401) {
+    throw new Error("Not authenticated");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to get user: ${response.statusText}`);
+  }
+
   return response.json();
 }

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -6,11 +7,27 @@ import type {
   ExecuteWorkflowResponse,
 } from "@flowit/shared";
 import { runWorkflow, validateWorkflow } from "./executor";
+import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
+import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 
 const app = new Hono();
 
-app.use("*", cors());
+// CORS configuration
+app.use("*", cors({
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  credentials: true,
+}));
 
+// Auth configuration
+const authConfig = getAuthConfig();
+const requireAuth = jwtAuth(authConfig);
+
+// OAuth routes (login, callback, logout)
+const oauthConfig = getOAuthConfig();
+const oauthRoutes = createOAuthRoutes(oauthConfig);
+app.route("/auth", oauthRoutes);
+
+// Public endpoints
 app.get("/", (c) => {
   return c.json({ message: "Flowit API", version: "0.1.0" });
 });
@@ -19,8 +36,18 @@ app.get("/health", (c) => {
   return c.json({ status: "ok" });
 });
 
+// Auth info endpoint (returns current user if authenticated)
+app.get("/auth/me", requireAuth, (c) => {
+  const user = c.get("user");
+  return c.json({ user });
+});
+
+// Protected API routes
+const api = new Hono<{ Variables: AuthVariables }>();
+api.use("*", requireAuth);
+
 // Validate a workflow without executing
-app.post("/validate", async (c) => {
+api.post("/validate", async (c) => {
   const body = await c.req.json<{ workflow: ExecuteWorkflowRequest["workflow"] }>();
   const errors = validateWorkflow(body.workflow);
 
@@ -31,7 +58,7 @@ app.post("/validate", async (c) => {
 });
 
 // Execute a workflow
-app.post("/execute", async (c) => {
+api.post("/execute", async (c) => {
   const body = await c.req.json<ExecuteWorkflowRequest>();
 
   // Validate first
@@ -62,6 +89,9 @@ app.post("/execute", async (c) => {
 
   return c.json(response, result.status === "error" ? 500 : 200);
 });
+
+// Mount protected API routes
+app.route("/api", api);
 
 const port = parseInt(process.env.PORT || "3001");
 

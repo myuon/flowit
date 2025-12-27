@@ -122,6 +122,67 @@ export interface ExecuteWorkflowResponse {
   error?: string;
 }
 
+// ============================================
+// Auth types (OIDC provider-agnostic)
+// ============================================
+
+/**
+ * OIDC Provider configuration
+ * Designed to work with any standard OIDC provider (Google, Auth0, Keycloak, etc.)
+ */
+export interface OIDCConfig {
+  /** OIDC issuer URL (e.g., https://accounts.google.com) */
+  issuer: string;
+  /** OAuth client ID */
+  clientId: string;
+  /** OAuth client secret (for confidential clients, optional for public clients) */
+  clientSecret?: string;
+  /** OAuth scopes to request */
+  scopes: string[];
+  /** Redirect URI after authentication */
+  redirectUri: string;
+}
+
+/**
+ * Authenticated user information (provider-agnostic)
+ * Uses standard OIDC claims
+ */
+export interface AuthUser {
+  /** Subject identifier (unique user ID from provider) */
+  sub: string;
+  /** User's email address */
+  email: string;
+  /** Whether email is verified */
+  emailVerified?: boolean;
+  /** User's display name */
+  name?: string;
+  /** URL to user's profile picture */
+  picture?: string;
+  /** OIDC issuer that authenticated this user */
+  iss: string;
+}
+
+/**
+ * Token response from OIDC provider
+ */
+export interface TokenResponse {
+  accessToken: string;
+  idToken: string;
+  refreshToken?: string;
+  expiresIn: number;
+  tokenType: string;
+}
+
+/**
+ * Auth session stored on client
+ */
+export interface AuthSession {
+  user: AuthUser;
+  accessToken: string;
+  idToken: string;
+  expiresAt: number;
+}
+
 // Legacy types (deprecated, use new types above)
 /** @deprecated Use ReactFlowNode instead */
 export type FlowNode = ReactFlowNode;
