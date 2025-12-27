@@ -1,7 +1,10 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import type { ExecuteFlowRequest, ExecuteFlowResponse } from "@flowit/shared";
+import type {
+  ExecuteWorkflowRequest,
+  ExecuteWorkflowResponse,
+} from "@flowit/shared";
 
 const app = new Hono();
 
@@ -16,12 +19,13 @@ app.get("/health", (c) => {
 });
 
 app.post("/execute", async (c) => {
-  const _body = await c.req.json<ExecuteFlowRequest>();
+  const _body = await c.req.json<ExecuteWorkflowRequest>();
 
   // TODO: Implement LangGraph execution
-  const response: ExecuteFlowResponse = {
+  const response: ExecuteWorkflowResponse = {
     outputs: {},
     executionId: crypto.randomUUID(),
+    status: "success",
   };
 
   return c.json(response);
