@@ -138,6 +138,6 @@ export function jwtAuth(config: JWTVerifyConfig) {
 export function getAuthConfig(): JWTVerifyConfig {
   return {
     issuer: process.env.OIDC_ISSUER || "https://accounts.google.com",
-    audience: process.env.OIDC_AUDIENCE || process.env.GOOGLE_CLIENT_ID || "",
+    audience: process.env.OIDC_AUDIENCE || process.env.OIDC_CLIENT_ID || "",
   };
 }

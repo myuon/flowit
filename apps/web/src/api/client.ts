@@ -25,7 +25,9 @@ function getAccessToken(): string | null {
       return null;
     }
 
-    return session.accessToken;
+    // Use idToken for API calls (it's a JWT that can be verified)
+    // Google's access_token is opaque and cannot be verified with JWKS
+    return session.idToken;
   } catch {
     return null;
   }
