@@ -381,6 +381,13 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
               })
             );
           }
+
+          // Always use the actual workflow ID from the API
+          setWorkflowMeta((prev) => ({
+            ...prev,
+            id: workflow.id,
+            name: workflow.name,
+          }));
         } else {
           // No version yet, just set the workflow name
           setWorkflowMeta((prev) => ({
