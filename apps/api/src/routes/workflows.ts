@@ -1,8 +1,6 @@
 import { Hono } from "hono";
-import type {
-  ExecuteWorkflowRequest,
-  ExecuteWorkflowResponse,
-} from "@flowit/shared";
+import { zValidator } from "@hono/zod-validator";
+import type { ExecuteWorkflowResponse } from "@flowit/shared";
 import { runWorkflow, validateWorkflow, type WriteLogFn } from "@flowit/sdk";
 import type { AuthVariables } from "../auth";
 import {
@@ -11,22 +9,32 @@ import {
   executionLogRepository,
   userTokenRepository,
 } from "../db/repository";
+import {
+  validateWorkflowSchema,
+  createWorkflowSchema,
+  updateWorkflowSchema,
+  publishWorkflowSchema,
+  executeWorkflowSchema,
+  logsQuerySchema,
+} from "./schemas";
 
 export function createWorkflowRoutes(writeLog: WriteLogFn) {
   const router = new Hono<{ Variables: AuthVariables }>();
 
   // Validate a workflow without executing
-  router.post("/validate", async (c) => {
-    const body = await c.req.json<{
-      workflow: ExecuteWorkflowRequest["workflow"];
-    }>();
-    const errors = validateWorkflow(body.workflow);
+  router.post(
+    "/validate",
+    zValidator("json", validateWorkflowSchema),
+    async (c) => {
+      const { workflow } = c.req.valid("json");
+      const errors = validateWorkflow(workflow);
 
-    return c.json({
-      valid: errors.length === 0,
-      errors,
-    });
-  });
+      return c.json({
+        valid: errors.length === 0,
+        errors,
+      });
+    }
+  );
 
   // List all workflows
   router.get("/workflows", async (c) => {
@@ -47,80 +55,77 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
   });
 
   // Create a new workflow
-  router.post("/workflows", async (c) => {
-    const body = await c.req.json<{
-      name: string;
-      description?: string;
-      dsl?: ExecuteWorkflowRequest["workflow"];
-    }>();
+  router.post(
+    "/workflows",
+    zValidator("json", createWorkflowSchema),
+    async (c) => {
+      const body = c.req.valid("json");
 
-    const workflow = await workflowRepository.create({
-      name: body.name || "Untitled Workflow",
-      description: body.description,
-    });
+      const workflow = await workflowRepository.create({
+        name: body.name,
+        description: body.description,
+      });
 
-    // Create initial version if DSL provided
-    if (body.dsl) {
-      await workflowVersionRepository.create(workflow.id, body.dsl);
+      // Create initial version if DSL provided
+      if (body.dsl) {
+        await workflowVersionRepository.create(workflow.id, body.dsl);
+      }
+
+      return c.json({ workflow }, 201);
     }
-
-    return c.json({ workflow }, 201);
-  });
+  );
 
   // Update a workflow
-  router.put("/workflows/:id", async (c) => {
-    const id = c.req.param("id");
-    const body = await c.req.json<{
-      name?: string;
-      description?: string;
-      dsl?: ExecuteWorkflowRequest["workflow"];
-    }>();
+  router.put(
+    "/workflows/:id",
+    zValidator("json", updateWorkflowSchema),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
 
-    const existing = await workflowRepository.findById(id);
-    if (!existing) {
-      return c.json({ error: "Workflow not found" }, 404);
+      const existing = await workflowRepository.findById(id);
+      if (!existing) {
+        return c.json({ error: "Workflow not found" }, 404);
+      }
+
+      // Update workflow metadata
+      const workflow = await workflowRepository.update(id, {
+        name: body.name,
+        description: body.description,
+      });
+
+      // Create new version if DSL provided
+      if (body.dsl) {
+        await workflowVersionRepository.create(id, body.dsl);
+      }
+
+      return c.json({ workflow });
     }
-
-    // Update workflow metadata
-    const workflow = await workflowRepository.update(id, {
-      name: body.name,
-      description: body.description,
-    });
-
-    // Create new version if DSL provided
-    if (body.dsl) {
-      await workflowVersionRepository.create(id, body.dsl);
-    }
-
-    return c.json({ workflow });
-  });
+  );
 
   // Publish a workflow (create a new version and set it as current)
-  router.post("/workflows/:id/publish", async (c) => {
-    const id = c.req.param("id");
-    const body = await c.req.json<{
-      dsl: ExecuteWorkflowRequest["workflow"];
-      changelog?: string;
-    }>();
+  router.post(
+    "/workflows/:id/publish",
+    zValidator("json", publishWorkflowSchema),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
 
-    const existing = await workflowRepository.findById(id);
-    if (!existing) {
-      return c.json({ error: "Workflow not found" }, 404);
+      const existing = await workflowRepository.findById(id);
+      if (!existing) {
+        return c.json({ error: "Workflow not found" }, 404);
+      }
+
+      // Create a new version (this also sets it as current)
+      const version = await workflowVersionRepository.create(
+        id,
+        body.dsl,
+        body.changelog
+      );
+
+      return c.json({ version });
     }
-
-    if (!body.dsl) {
-      return c.json({ error: "DSL is required" }, 400);
-    }
-
-    // Create a new version (this also sets it as current)
-    const version = await workflowVersionRepository.create(
-      id,
-      body.dsl,
-      body.changelog
-    );
-
-    return c.json({ version });
-  });
+  );
 
   // Delete a workflow
   router.delete("/workflows/:id", async (c) => {
@@ -135,19 +140,26 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
   });
 
   // Get execution logs for a workflow
-  router.get("/workflows/:id/logs", async (c) => {
-    const id = c.req.param("id");
-    const limit = parseInt(c.req.query("limit") || "100");
-    const offset = parseInt(c.req.query("offset") || "0");
+  router.get(
+    "/workflows/:id/logs",
+    zValidator("query", logsQuerySchema),
+    async (c) => {
+      const id = c.req.param("id");
+      const { limit, offset } = c.req.valid("query");
 
-    const workflow = await workflowRepository.findById(id);
-    if (!workflow) {
-      return c.json({ error: "Workflow not found" }, 404);
+      const workflow = await workflowRepository.findById(id);
+      if (!workflow) {
+        return c.json({ error: "Workflow not found" }, 404);
+      }
+
+      const logs = await executionLogRepository.findByWorkflowId(
+        id,
+        limit,
+        offset
+      );
+      return c.json({ logs });
     }
-
-    const logs = await executionLogRepository.findByWorkflowId(id, limit, offset);
-    return c.json({ logs });
-  });
+  );
 
   // Delete execution logs for a workflow
   router.delete("/workflows/:id/logs", async (c) => {
@@ -163,55 +175,59 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
   });
 
   // Execute a workflow
-  router.post("/execute", async (c) => {
-    const body = await c.req.json<ExecuteWorkflowRequest>();
-    const user = c.get("user");
+  router.post(
+    "/execute",
+    zValidator("json", executeWorkflowSchema),
+    async (c) => {
+      const body = c.req.valid("json");
+      const user = c.get("user");
 
-    // Validate first
-    const validationErrors = validateWorkflow(body.workflow);
-    if (validationErrors.length > 0) {
+      // Validate first
+      const validationErrors = validateWorkflow(body.workflow);
+      if (validationErrors.length > 0) {
+        const response: ExecuteWorkflowResponse = {
+          outputs: {},
+          executionId: crypto.randomUUID(),
+          status: "error",
+          error: `Validation failed: ${validationErrors.join(", ")}`,
+        };
+        return c.json(response, 400);
+      }
+
+      // Get workflowId from the request body if available
+      const workflowId = body.workflow.meta?.id;
+
+      // Build secrets with user's stored OAuth tokens
+      const secrets: Record<string, string> = { ...body.secrets };
+
+      // Inject Google access token if available
+      const googleToken = await userTokenRepository.findByUserAndProvider(
+        user.sub,
+        "google"
+      );
+      if (googleToken) {
+        secrets._google_access_token = googleToken.accessToken;
+      }
+
+      // Run the workflow
+      const result = await runWorkflow({
+        workflow: body.workflow,
+        inputs: body.inputs,
+        secrets,
+        workflowId,
+        writeLog: workflowId ? writeLog : undefined,
+      });
+
       const response: ExecuteWorkflowResponse = {
-        outputs: {},
-        executionId: crypto.randomUUID(),
-        status: "error",
-        error: `Validation failed: ${validationErrors.join(", ")}`,
+        outputs: result.outputs,
+        executionId: result.executionId,
+        status: result.status,
+        error: result.error,
       };
-      return c.json(response, 400);
+
+      return c.json(response, result.status === "error" ? 500 : 200);
     }
-
-    // Get workflowId from the request body if available
-    const workflowId = body.workflow.meta?.id;
-
-    // Build secrets with user's stored OAuth tokens
-    const secrets: Record<string, string> = { ...body.secrets };
-
-    // Inject Google access token if available
-    const googleToken = await userTokenRepository.findByUserAndProvider(
-      user.sub,
-      "google"
-    );
-    if (googleToken) {
-      secrets._google_access_token = googleToken.accessToken;
-    }
-
-    // Run the workflow
-    const result = await runWorkflow({
-      workflow: body.workflow,
-      inputs: body.inputs,
-      secrets,
-      workflowId,
-      writeLog: workflowId ? writeLog : undefined,
-    });
-
-    const response: ExecuteWorkflowResponse = {
-      outputs: result.outputs,
-      executionId: result.executionId,
-      status: result.status,
-      error: result.error,
-    };
-
-    return c.json(response, result.status === "error" ? 500 : 200);
-  });
+  );
 
   return router;
 }
