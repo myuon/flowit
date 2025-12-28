@@ -365,10 +365,8 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
         const result = await getWorkflow(workflowId);
         const workflow = result.workflow;
 
-        // Find the current version's DSL
-        const currentVersion = workflow.versions.find(
-          (v) => v.id === workflow.currentVersionId
-        );
+        // Get the current version's DSL
+        const currentVersion = workflow.currentVersion;
 
         if (currentVersion) {
           const dsl = currentVersion.dsl as WorkflowDSL & { _positions?: Array<{ id: string; position: { x: number; y: number } }> };

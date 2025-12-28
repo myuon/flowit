@@ -288,17 +288,6 @@ export function WorkflowListPage() {
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span
-                    style={{
-                      padding: "4px 8px",
-                      background: workflow.currentVersionId ? "#dcfce7" : "#fef3c7",
-                      color: workflow.currentVersionId ? "#166534" : "#92400e",
-                      borderRadius: 4,
-                      fontSize: 12,
-                    }}
-                  >
-                    {workflow.currentVersionId ? t.published : t.draft}
-                  </span>
                   <button
                     onClick={(e) => {
                       e.preventDefault();

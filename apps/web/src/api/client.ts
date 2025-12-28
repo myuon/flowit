@@ -1,3 +1,5 @@
+import { hc } from "hono/client";
+import type { AppType } from "@flowit/api";
 import type {
   WorkflowDSL,
   ExecuteWorkflowRequest,
@@ -36,109 +38,136 @@ function getAccessToken(): string | null {
 }
 
 /**
- * Create headers with auth token
+ * Custom fetch that adds auth headers
  */
-function getAuthHeaders(): HeadersInit {
+const authFetch: typeof fetch = (input, init) => {
   const token = getAccessToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+  const headers = new Headers(init?.headers);
 
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
-  return headers;
-}
+  return fetch(input, { ...init, headers });
+};
+
+// Create hono client with auth
+const client = hc<AppType>(API_BASE_URL, { fetch: authFetch });
+
+// ============================================
+// Response Types (re-export for consumers)
+// ============================================
 
 export interface ValidateResponse {
   valid: boolean;
   errors: string[];
 }
 
+export interface WorkflowListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkflowVersion {
+  id: string;
+  workflowId: string;
+  version: number;
+  dsl: WorkflowDSL & { meta?: WorkflowMeta };
+  changelog: string | null;
+  createdAt: string;
+}
+
+export interface WorkflowWithVersions extends WorkflowListItem {
+  versions: WorkflowVersion[];
+  currentVersion: WorkflowVersion | null;
+}
+
+export interface ExecutionLogItem {
+  id: string;
+  workflowId: string;
+  executionId: string;
+  nodeId: string;
+  data: unknown;
+  createdAt: string;
+}
+
+export interface ValidateGasDeploymentResponse {
+  valid: boolean;
+  error?: string;
+  scriptId?: string;
+  scriptName?: string;
+}
+
+// ============================================
+// API Functions
+// ============================================
+
 export async function validateWorkflow(
   workflow: WorkflowDSL
 ): Promise<ValidateResponse> {
-  const headers = getAuthHeaders();
+  const res = await client.api.validate.$post({ json: { workflow } });
 
-  const response = await fetch(`${API_BASE_URL}/api/validate`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ workflow }),
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (!response.ok) {
-    throw new Error(`Validation failed: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Validation failed: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 export async function executeWorkflow(
   request: ExecuteWorkflowRequest
 ): Promise<ExecuteWorkflowResponse> {
-  const headers = getAuthHeaders();
+  const res = await client.api.execute.$post({ json: request });
 
-  const response = await fetch(`${API_BASE_URL}/api/execute`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(request),
-  });
+  const data = await res.json();
 
-  if (response.status === 401) {
-    throw new Error("Authentication required");
-  }
-
-  const data = await response.json();
-
-  if (!response.ok && !data.error) {
-    throw new Error(`Execution failed: ${response.statusText}`);
+  if (!res.ok && !("error" in data)) {
+    throw new Error(`Execution failed: ${res.statusText}`);
   }
 
   return data;
 }
 
 export async function healthCheck(): Promise<{ status: string }> {
-  const response = await fetch(`${API_BASE_URL}/health`);
-  return response.json();
+  const res = await client.health.$get();
+  return res.json();
 }
 
 /**
  * Get current authenticated user from API
  */
 export async function getCurrentUser(): Promise<{ user: AuthUser; isAdmin: boolean }> {
-  const headers = getAuthHeaders();
+  const res = await client.auth.me.$get();
 
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    headers,
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Not authenticated");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to get user: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to get user: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 /**
  * Get app settings (public endpoint)
  */
 export async function getAppSettings(): Promise<AppSettings> {
-  const response = await fetch(`${API_BASE_URL}/config/settings`);
+  const res = await client.config.settings.$get();
 
-  if (!response.ok) {
-    throw new Error(`Failed to get settings: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to get settings: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 /**
@@ -147,97 +176,63 @@ export async function getAppSettings(): Promise<AppSettings> {
 export async function updateAppSettings(
   settings: Partial<AppSettings>
 ): Promise<AppSettings> {
-  const headers = getAuthHeaders();
+  const res = await client.admin.settings.$put({ json: settings });
 
-  const response = await fetch(`${API_BASE_URL}/admin/settings`, {
-    method: "PUT",
-    headers,
-    body: JSON.stringify(settings),
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (response.status === 403) {
+  if (res.status === 403) {
     throw new Error("Admin access required");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to update settings: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to update settings: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 // ============================================
 // Workflow API
 // ============================================
 
-export interface WorkflowListItem {
-  id: string;
-  name: string;
-  description: string | null;
-  currentVersionId: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface WorkflowWithVersions extends WorkflowListItem {
-  versions: Array<{
-    id: string;
-    workflowId: string;
-    version: number;
-    dsl: WorkflowDSL & { meta?: WorkflowMeta };
-    changelog: string | null;
-    createdAt: string;
-  }>;
-}
-
 /**
  * List all workflows
  */
 export async function listWorkflows(): Promise<{ workflows: WorkflowListItem[] }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows.$get();
 
-  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
-    headers,
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to list workflows: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to list workflows: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 /**
  * Get a single workflow with its versions
  */
 export async function getWorkflow(id: string): Promise<{ workflow: WorkflowWithVersions }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows[":id"].$get({ param: { id } });
 
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
-    headers,
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (response.status === 404) {
+  if (res.status === 404) {
     throw new Error("Workflow not found");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to get workflow: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to get workflow: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json() as Promise<{ workflow: WorkflowWithVersions }>;
 }
 
 /**
@@ -248,23 +243,13 @@ export async function createWorkflow(data: {
   description?: string;
   dsl?: WorkflowDSL;
 }): Promise<{ workflow: WorkflowListItem }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows.$post({ json: data });
 
-  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(data),
-  });
-
-  if (response.status === 401) {
-    throw new Error("Authentication required");
+  if (!res.ok) {
+    throw new Error(`Failed to create workflow: ${res.statusText}`);
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to create workflow: ${response.statusText}`);
-  }
-
-  return response.json();
+  return res.json();
 }
 
 /**
@@ -274,27 +259,22 @@ export async function updateWorkflow(
   id: string,
   data: { name?: string; description?: string; dsl?: WorkflowDSL }
 ): Promise<{ workflow: WorkflowListItem }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows[":id"].$put({ param: { id }, json: data });
 
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
-    method: "PUT",
-    headers,
-    body: JSON.stringify(data),
-  });
-
-  if (response.status === 401) {
-    throw new Error("Authentication required");
-  }
-
-  if (response.status === 404) {
+  if (res.status === 404) {
     throw new Error("Workflow not found");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to update workflow: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to update workflow: ${res.statusText}`);
   }
 
-  return response.json();
+  const result = await res.json();
+  if (!result.workflow) {
+    throw new Error("Workflow not found");
+  }
+
+  return { workflow: result.workflow };
 }
 
 /**
@@ -311,65 +291,45 @@ export async function publishWorkflow(
     createdAt: string;
   };
 }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows[":id"].publish.$post({ param: { id }, json: data });
 
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}/publish`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(data),
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (response.status === 404) {
+  if (res.status === 404) {
     throw new Error("Workflow not found");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to publish workflow: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to publish workflow: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 /**
  * Delete a workflow
  */
 export async function deleteWorkflow(id: string): Promise<void> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows[":id"].$delete({ param: { id } });
 
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
-    method: "DELETE",
-    headers,
-  });
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (response.status === 404) {
+  if (res.status === 404) {
     throw new Error("Workflow not found");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete workflow: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to delete workflow: ${res.statusText}`);
   }
 }
 
 // ============================================
 // Execution Logs API
 // ============================================
-
-export interface ExecutionLogItem {
-  id: string;
-  workflowId: string;
-  executionId: string;
-  nodeId: string;
-  data: unknown;
-  createdAt: string;
-}
 
 /**
  * Get execution logs for a workflow
@@ -379,26 +339,24 @@ export async function getExecutionLogs(
   limit = 100,
   offset = 0
 ): Promise<{ logs: ExecutionLogItem[] }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows[":id"].logs.$get({
+    param: { id: workflowId },
+    query: { limit: String(limit), offset: String(offset) },
+  });
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/workflows/${workflowId}/logs?limit=${limit}&offset=${offset}`,
-    { headers }
-  );
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (response.status === 404) {
+  if (res.status === 404) {
     throw new Error("Workflow not found");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to get execution logs: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to get execution logs: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 /**
@@ -407,41 +365,28 @@ export async function getExecutionLogs(
 export async function deleteExecutionLogs(
   workflowId: string
 ): Promise<{ deleted: number }> {
-  const headers = getAuthHeaders();
+  const res = await client.api.workflows[":id"].logs.$delete({
+    param: { id: workflowId },
+  });
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/workflows/${workflowId}/logs`,
-    {
-      method: "DELETE",
-      headers,
-    }
-  );
-
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (response.status === 404) {
+  if (res.status === 404) {
     throw new Error("Workflow not found");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete execution logs: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to delete execution logs: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
 
 // ============================================
 // GAS (Google Apps Script) API
 // ============================================
-
-export interface ValidateGasDeploymentResponse {
-  valid: boolean;
-  error?: string;
-  scriptId?: string;
-  scriptName?: string;
-}
 
 /**
  * Validate a GAS deployment ID
@@ -449,21 +394,17 @@ export interface ValidateGasDeploymentResponse {
 export async function validateGasDeployment(
   deploymentId: string
 ): Promise<ValidateGasDeploymentResponse> {
-  const headers = getAuthHeaders();
-
-  const response = await fetch(`${API_BASE_URL}/api/gas/validate-deployment`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ deploymentId }),
+  const res = await client.api.gas["validate-deployment"].$post({
+    json: { deploymentId },
   });
 
-  if (response.status === 401) {
+  if (res.status === 401) {
     throw new Error("Authentication required");
   }
 
-  if (!response.ok) {
-    throw new Error(`Failed to validate deployment: ${response.statusText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to validate deployment: ${res.statusText}`);
   }
 
-  return response.json();
+  return res.json();
 }
