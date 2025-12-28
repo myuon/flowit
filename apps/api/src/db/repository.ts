@@ -8,21 +8,29 @@ import {
   nodeCatalogCache,
   executionLogs,
   userTokens,
-  type Workflow,
   type NewWorkflow,
-  type WorkflowVersion,
   type Run,
   type NewRun,
   type RunStep,
   type NewRunStep,
   type NodeCatalogCacheEntry,
   type NewNodeCatalogCacheEntry,
-  type ExecutionLog,
   type NewExecutionLog,
-  type UserToken,
   type NewUserToken,
 } from "./schema";
 import type { WorkflowDSL } from "@flowit/shared";
+import {
+  type Workflow,
+  type WorkflowVersion,
+  type WorkflowWithVersions,
+  workflowFromDb,
+  workflowVersionFromDb,
+  workflowWithVersionsFromDb,
+  type ExecutionLog,
+  executionLogFromDb,
+  type UserToken,
+  userTokenFromDb,
+} from "../models";
 
 // ============================================
 // Workflow Repository
@@ -40,17 +48,18 @@ export const workflowRepository = {
         updatedAt: now,
       })
       .returning();
-    return result;
+    return workflowFromDb(result);
   },
 
   async findById(id: string): Promise<Workflow | undefined> {
-    return db.query.workflows.findFirst({
+    const result = await db.query.workflows.findFirst({
       where: eq(workflows.id, id),
     });
+    return result ? workflowFromDb(result) : undefined;
   },
 
-  async findByIdWithVersions(id: string) {
-    return db.query.workflows.findFirst({
+  async findByIdWithVersions(id: string): Promise<WorkflowWithVersions | undefined> {
+    const result = await db.query.workflows.findFirst({
       where: eq(workflows.id, id),
       with: {
         versions: {
@@ -58,14 +67,17 @@ export const workflowRepository = {
         },
       },
     });
+    if (!result) return undefined;
+    return workflowWithVersionsFromDb(result, result.versions);
   },
 
   async findAll(limit = 50, offset = 0): Promise<Workflow[]> {
-    return db.query.workflows.findMany({
+    const results = await db.query.workflows.findMany({
       limit,
       offset,
       orderBy: [desc(workflows.updatedAt)],
     });
+    return results.map(workflowFromDb);
   },
 
   async update(
@@ -80,7 +92,7 @@ export const workflowRepository = {
       })
       .where(eq(workflows.id, id))
       .returning();
-    return result;
+    return result ? workflowFromDb(result) : undefined;
   },
 
   async delete(id: string): Promise<boolean> {
@@ -129,43 +141,47 @@ export const workflowVersionRepository = {
       })
       .where(eq(workflows.id, workflowId));
 
-    return result;
+    return workflowVersionFromDb(result);
   },
 
   async findById(id: string): Promise<WorkflowVersion | undefined> {
-    return db.query.workflowVersions.findFirst({
+    const result = await db.query.workflowVersions.findFirst({
       where: eq(workflowVersions.id, id),
     });
+    return result ? workflowVersionFromDb(result) : undefined;
   },
 
   async findByWorkflowId(
     workflowId: string,
     limit = 50
   ): Promise<WorkflowVersion[]> {
-    return db.query.workflowVersions.findMany({
+    const results = await db.query.workflowVersions.findMany({
       where: eq(workflowVersions.workflowId, workflowId),
       orderBy: [desc(workflowVersions.version)],
       limit,
     });
+    return results.map(workflowVersionFromDb);
   },
 
   async findByWorkflowAndVersion(
     workflowId: string,
     version: number
   ): Promise<WorkflowVersion | undefined> {
-    return db.query.workflowVersions.findFirst({
+    const result = await db.query.workflowVersions.findFirst({
       where: and(
         eq(workflowVersions.workflowId, workflowId),
         eq(workflowVersions.version, version)
       ),
     });
+    return result ? workflowVersionFromDb(result) : undefined;
   },
 
   async getLatestVersion(workflowId: string): Promise<WorkflowVersion | undefined> {
-    return db.query.workflowVersions.findFirst({
+    const result = await db.query.workflowVersions.findFirst({
       where: eq(workflowVersions.workflowId, workflowId),
       orderBy: [desc(workflowVersions.version)],
     });
+    return result ? workflowVersionFromDb(result) : undefined;
   },
 };
 
@@ -449,7 +465,7 @@ export const executionLogRepository = {
         createdAt: now,
       })
       .returning();
-    return result;
+    return executionLogFromDb(result);
   },
 
   async findByWorkflowId(
@@ -457,19 +473,21 @@ export const executionLogRepository = {
     limit = 100,
     offset = 0
   ): Promise<ExecutionLog[]> {
-    return db.query.executionLogs.findMany({
+    const results = await db.query.executionLogs.findMany({
       where: eq(executionLogs.workflowId, workflowId),
       orderBy: [desc(executionLogs.createdAt)],
       limit,
       offset,
     });
+    return results.map(executionLogFromDb);
   },
 
   async findByExecutionId(executionId: string): Promise<ExecutionLog[]> {
-    return db.query.executionLogs.findMany({
+    const results = await db.query.executionLogs.findMany({
       where: eq(executionLogs.executionId, executionId),
       orderBy: [desc(executionLogs.createdAt)],
     });
+    return results.map(executionLogFromDb);
   },
 
   async deleteByWorkflowId(workflowId: string): Promise<number> {
@@ -505,7 +523,7 @@ export const userTokenRepository = {
         })
         .where(eq(userTokens.id, existing.id))
         .returning();
-      return result;
+      return userTokenFromDb(result);
     }
 
     // Create new token
@@ -518,25 +536,27 @@ export const userTokenRepository = {
         updatedAt: now,
       })
       .returning();
-    return result;
+    return userTokenFromDb(result);
   },
 
   async findByUserAndProvider(
     userId: string,
     provider: string
   ): Promise<UserToken | undefined> {
-    return db.query.userTokens.findFirst({
+    const result = await db.query.userTokens.findFirst({
       where: and(
         eq(userTokens.userId, userId),
         eq(userTokens.provider, provider)
       ),
     });
+    return result ? userTokenFromDb(result) : undefined;
   },
 
   async findByUserId(userId: string): Promise<UserToken[]> {
-    return db.query.userTokens.findMany({
+    const results = await db.query.userTokens.findMany({
       where: eq(userTokens.userId, userId),
     });
+    return results.map(userTokenFromDb);
   },
 
   async delete(userId: string, provider: string): Promise<boolean> {

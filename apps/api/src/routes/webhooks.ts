@@ -21,18 +21,11 @@ export function createWebhookRoutes(writeLog: WriteLogFn) {
     }
 
     // Get the current version
-    if (!workflow.currentVersionId) {
+    if (!workflow.currentVersion) {
       return c.json({ error: "Workflow has no published version" }, 400);
     }
 
-    const version = workflow.versions.find(
-      (v) => v.id === workflow.currentVersionId
-    );
-    if (!version) {
-      return c.json({ error: "Workflow version not found" }, 404);
-    }
-
-    const dsl = version.dsl as ExecuteWorkflowRequest["workflow"];
+    const dsl = workflow.currentVersion.dsl as ExecuteWorkflowRequest["workflow"];
 
     // Check if workflow has a webhook trigger node
     const webhookNode = dsl.nodes.find((n) => n.type === "webhook-trigger");

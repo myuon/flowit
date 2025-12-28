@@ -1,10 +1,13 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import type { AppSettings, Language } from "@flowit/shared";
-import { DEFAULT_APP_SETTINGS } from "@flowit/shared";
 import type { AuthVariables } from "../auth";
 import { db, appConfig } from "../db";
 import { updateSettingsSchema } from "./schemas";
+import {
+  appConfigFromDb,
+  appSettingsFromConfigs,
+  updateSettingsInputFromRequest,
+} from "../models";
 
 export function isAdmin(userId: string): boolean {
   const adminIds = process.env.ADMIN_USER_IDS || "";
@@ -33,29 +36,23 @@ export function createAdminRoutes() {
     zValidator("json", updateSettingsSchema),
     async (c) => {
       const body = c.req.valid("json");
+      const input = updateSettingsInputFromRequest(body);
       const now = new Date().toISOString();
 
-      if (body.language) {
+      if (input.language) {
         await db
           .insert(appConfig)
-          .values({ key: "language", value: body.language, updatedAt: now })
+          .values({ key: "language", value: input.language, updatedAt: now })
           .onConflictDoUpdate({
             target: appConfig.key,
-            set: { value: body.language, updatedAt: now },
+            set: { value: input.language, updatedAt: now },
           });
       }
 
       // Return updated settings
-      const settings: AppSettings = { ...DEFAULT_APP_SETTINGS };
       const rows = await db.select().from(appConfig);
-      for (const row of rows) {
-        if (
-          row.key === "language" &&
-          (row.value === "en" || row.value === "ja")
-        ) {
-          settings.language = row.value as Language;
-        }
-      }
+      const configs = rows.map(appConfigFromDb);
+      const settings = appSettingsFromConfigs(configs);
 
       return c.json(settings);
     }

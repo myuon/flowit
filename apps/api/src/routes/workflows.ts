@@ -17,6 +17,11 @@ import {
   executeWorkflowSchema,
   logsQuerySchema,
 } from "./schemas";
+import {
+  createWorkflowInputFromRequest,
+  updateWorkflowInputFromRequest,
+  publishWorkflowInputFromRequest,
+} from "../models";
 
 export function createWorkflowRoutes(writeLog: WriteLogFn) {
   const router = new Hono<{ Variables: AuthVariables }>();
@@ -60,15 +65,16 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
     zValidator("json", createWorkflowSchema),
     async (c) => {
       const body = c.req.valid("json");
+      const input = createWorkflowInputFromRequest(body);
 
       const workflow = await workflowRepository.create({
-        name: body.name,
-        description: body.description,
+        name: input.name,
+        description: input.description,
       });
 
       // Create initial version if DSL provided
-      if (body.dsl) {
-        await workflowVersionRepository.create(workflow.id, body.dsl);
+      if (input.dsl) {
+        await workflowVersionRepository.create(workflow.id, input.dsl);
       }
 
       return c.json({ workflow }, 201);
@@ -82,6 +88,7 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
     async (c) => {
       const id = c.req.param("id");
       const body = c.req.valid("json");
+      const input = updateWorkflowInputFromRequest(body);
 
       const existing = await workflowRepository.findById(id);
       if (!existing) {
@@ -90,13 +97,13 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
 
       // Update workflow metadata
       const workflow = await workflowRepository.update(id, {
-        name: body.name,
-        description: body.description,
+        name: input.name,
+        description: input.description,
       });
 
       // Create new version if DSL provided
-      if (body.dsl) {
-        await workflowVersionRepository.create(id, body.dsl);
+      if (input.dsl) {
+        await workflowVersionRepository.create(id, input.dsl);
       }
 
       return c.json({ workflow });
@@ -110,6 +117,7 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
     async (c) => {
       const id = c.req.param("id");
       const body = c.req.valid("json");
+      const input = publishWorkflowInputFromRequest(body);
 
       const existing = await workflowRepository.findById(id);
       if (!existing) {
@@ -119,8 +127,8 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
       // Create a new version (this also sets it as current)
       const version = await workflowVersionRepository.create(
         id,
-        body.dsl,
-        body.changelog
+        input.dsl,
+        input.changelog
       );
 
       return c.json({ version });
