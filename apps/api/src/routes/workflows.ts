@@ -24,46 +24,39 @@ import {
 } from "../models";
 
 export function createWorkflowRoutes(writeLog: WriteLogFn) {
-  const router = new Hono<{ Variables: AuthVariables }>();
+  return new Hono<{ Variables: AuthVariables }>()
+    // Validate a workflow without executing
+    .post(
+      "/validate",
+      zValidator("json", validateWorkflowSchema),
+      async (c) => {
+        const { workflow } = c.req.valid("json");
+        const errors = validateWorkflow(workflow);
 
-  // Validate a workflow without executing
-  router.post(
-    "/validate",
-    zValidator("json", validateWorkflowSchema),
-    async (c) => {
-      const { workflow } = c.req.valid("json");
-      const errors = validateWorkflow(workflow);
+        return c.json({
+          valid: errors.length === 0,
+          errors,
+        });
+      }
+    )
+    // List all workflows
+    .get("/workflows", async (c) => {
+      const workflows = await workflowRepository.findAll();
+      return c.json({ workflows });
+    })
+    // Get a single workflow with versions
+    .get("/workflows/:id", async (c) => {
+      const id = c.req.param("id");
+      const workflow = await workflowRepository.findByIdWithVersions(id);
 
-      return c.json({
-        valid: errors.length === 0,
-        errors,
-      });
-    }
-  );
+      if (!workflow) {
+        return c.json({ error: "Workflow not found" }, 404);
+      }
 
-  // List all workflows
-  router.get("/workflows", async (c) => {
-    const workflows = await workflowRepository.findAll();
-    return c.json({ workflows });
-  });
-
-  // Get a single workflow with versions
-  router.get("/workflows/:id", async (c) => {
-    const id = c.req.param("id");
-    const workflow = await workflowRepository.findByIdWithVersions(id);
-
-    if (!workflow) {
-      return c.json({ error: "Workflow not found" }, 404);
-    }
-
-    return c.json({ workflow });
-  });
-
-  // Create a new workflow
-  router.post(
-    "/workflows",
-    zValidator("json", createWorkflowSchema),
-    async (c) => {
+      return c.json({ workflow });
+    })
+    // Create a new workflow
+    .post("/workflows", zValidator("json", createWorkflowSchema), async (c) => {
       const body = c.req.valid("json");
       const input = createWorkflowInputFromRequest(body);
 
@@ -78,115 +71,105 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
       }
 
       return c.json({ workflow }, 201);
-    }
-  );
+    })
+    // Update a workflow
+    .put(
+      "/workflows/:id",
+      zValidator("json", updateWorkflowSchema),
+      async (c) => {
+        const id = c.req.param("id");
+        const body = c.req.valid("json");
+        const input = updateWorkflowInputFromRequest(body);
 
-  // Update a workflow
-  router.put(
-    "/workflows/:id",
-    zValidator("json", updateWorkflowSchema),
-    async (c) => {
+        const existing = await workflowRepository.findById(id);
+        if (!existing) {
+          return c.json({ error: "Workflow not found" }, 404);
+        }
+
+        // Update workflow metadata
+        const workflow = await workflowRepository.update(id, {
+          name: input.name,
+          description: input.description,
+        });
+
+        // Create new version if DSL provided
+        if (input.dsl) {
+          await workflowVersionRepository.create(id, input.dsl);
+        }
+
+        return c.json({ workflow });
+      }
+    )
+    // Publish a workflow (create a new version and set it as current)
+    .post(
+      "/workflows/:id/publish",
+      zValidator("json", publishWorkflowSchema),
+      async (c) => {
+        const id = c.req.param("id");
+        const body = c.req.valid("json");
+        const input = publishWorkflowInputFromRequest(body);
+
+        const existing = await workflowRepository.findById(id);
+        if (!existing) {
+          return c.json({ error: "Workflow not found" }, 404);
+        }
+
+        // Create a new version (this also sets it as current)
+        const version = await workflowVersionRepository.create(
+          id,
+          input.dsl,
+          input.changelog
+        );
+
+        return c.json({ version });
+      }
+    )
+    // Delete a workflow
+    .delete("/workflows/:id", async (c) => {
       const id = c.req.param("id");
-      const body = c.req.valid("json");
-      const input = updateWorkflowInputFromRequest(body);
+      const deleted = await workflowRepository.delete(id);
 
-      const existing = await workflowRepository.findById(id);
-      if (!existing) {
+      if (!deleted) {
         return c.json({ error: "Workflow not found" }, 404);
       }
 
-      // Update workflow metadata
-      const workflow = await workflowRepository.update(id, {
-        name: input.name,
-        description: input.description,
-      });
+      return c.json({ success: true });
+    })
+    // Get execution logs for a workflow
+    .get(
+      "/workflows/:id/logs",
+      zValidator("query", logsQuerySchema),
+      async (c) => {
+        const id = c.req.param("id");
+        const { limit, offset } = c.req.valid("query");
 
-      // Create new version if DSL provided
-      if (input.dsl) {
-        await workflowVersionRepository.create(id, input.dsl);
+        const workflow = await workflowRepository.findById(id);
+        if (!workflow) {
+          return c.json({ error: "Workflow not found" }, 404);
+        }
+
+        const logs = await executionLogRepository.findByWorkflowId(
+          id,
+          limit,
+          offset
+        );
+        return c.json({ logs });
       }
-
-      return c.json({ workflow });
-    }
-  );
-
-  // Publish a workflow (create a new version and set it as current)
-  router.post(
-    "/workflows/:id/publish",
-    zValidator("json", publishWorkflowSchema),
-    async (c) => {
+    )
+    // Delete execution logs for a workflow
+    .delete("/workflows/:id/logs", async (c) => {
       const id = c.req.param("id");
-      const body = c.req.valid("json");
-      const input = publishWorkflowInputFromRequest(body);
-
-      const existing = await workflowRepository.findById(id);
-      if (!existing) {
-        return c.json({ error: "Workflow not found" }, 404);
-      }
-
-      // Create a new version (this also sets it as current)
-      const version = await workflowVersionRepository.create(
-        id,
-        input.dsl,
-        input.changelog
-      );
-
-      return c.json({ version });
-    }
-  );
-
-  // Delete a workflow
-  router.delete("/workflows/:id", async (c) => {
-    const id = c.req.param("id");
-    const deleted = await workflowRepository.delete(id);
-
-    if (!deleted) {
-      return c.json({ error: "Workflow not found" }, 404);
-    }
-
-    return c.json({ success: true });
-  });
-
-  // Get execution logs for a workflow
-  router.get(
-    "/workflows/:id/logs",
-    zValidator("query", logsQuerySchema),
-    async (c) => {
-      const id = c.req.param("id");
-      const { limit, offset } = c.req.valid("query");
 
       const workflow = await workflowRepository.findById(id);
       if (!workflow) {
         return c.json({ error: "Workflow not found" }, 404);
       }
 
-      const logs = await executionLogRepository.findByWorkflowId(
-        id,
-        limit,
-        offset
-      );
-      return c.json({ logs });
-    }
-  );
-
-  // Delete execution logs for a workflow
-  router.delete("/workflows/:id/logs", async (c) => {
-    const id = c.req.param("id");
-
-    const workflow = await workflowRepository.findById(id);
-    if (!workflow) {
-      return c.json({ error: "Workflow not found" }, 404);
-    }
-
-    const count = await executionLogRepository.deleteByWorkflowId(id);
-    return c.json({ deleted: count });
-  });
-
-  // Execute a workflow
-  router.post(
-    "/execute",
-    zValidator("json", executeWorkflowSchema),
-    async (c) => {
+      const count = await executionLogRepository.deleteByWorkflowId(id);
+      return c.json({ deleted: count });
+    })
+    // Execute a workflow
+    .post("/execute", zValidator("json", executeWorkflowSchema), async (c) => {
       const body = c.req.valid("json");
       const user = c.get("user");
 
@@ -234,8 +217,5 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
       };
 
       return c.json(response, result.status === "error" ? 500 : 200);
-    }
-  );
-
-  return router;
+    });
 }

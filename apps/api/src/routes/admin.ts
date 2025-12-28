@@ -19,44 +19,40 @@ export function isAdmin(userId: string): boolean {
 }
 
 export function createAdminRoutes() {
-  const router = new Hono<{ Variables: AuthVariables }>();
-
-  // Middleware to check admin status
-  router.use("*", async (c, next) => {
-    const user = c.get("user");
-    if (!isAdmin(user.sub)) {
-      return c.json({ error: "Admin access required" }, 403);
-    }
-    await next();
-  });
-
-  // Update app settings
-  router.put(
-    "/settings",
-    zValidator("json", updateSettingsSchema),
-    async (c) => {
-      const body = c.req.valid("json");
-      const input = updateSettingsInputFromRequest(body);
-      const now = new Date().toISOString();
-
-      if (input.language) {
-        await db
-          .insert(appConfig)
-          .values({ key: "language", value: input.language, updatedAt: now })
-          .onConflictDoUpdate({
-            target: appConfig.key,
-            set: { value: input.language, updatedAt: now },
-          });
+  return new Hono<{ Variables: AuthVariables }>()
+    // Middleware to check admin status
+    .use("*", async (c, next) => {
+      const user = c.get("user");
+      if (!isAdmin(user.sub)) {
+        return c.json({ error: "Admin access required" }, 403);
       }
+      await next();
+    })
+    // Update app settings
+    .put(
+      "/settings",
+      zValidator("json", updateSettingsSchema),
+      async (c) => {
+        const body = c.req.valid("json");
+        const input = updateSettingsInputFromRequest(body);
+        const now = new Date().toISOString();
 
-      // Return updated settings
-      const rows = await db.select().from(appConfig);
-      const configs = rows.map(appConfigFromDb);
-      const settings = appSettingsFromConfigs(configs);
+        if (input.language) {
+          await db
+            .insert(appConfig)
+            .values({ key: "language", value: input.language, updatedAt: now })
+            .onConflictDoUpdate({
+              target: appConfig.key,
+              set: { value: input.language, updatedAt: now },
+            });
+        }
 
-      return c.json(settings);
-    }
-  );
+        // Return updated settings
+        const rows = await db.select().from(appConfig);
+        const configs = rows.map(appConfigFromDb);
+        const settings = appSettingsFromConfigs(configs);
 
-  return router;
+        return c.json(settings);
+      }
+    );
 }
