@@ -217,6 +217,32 @@ export const executionLogsRelations = relations(executionLogs, ({ one }) => ({
 }));
 
 // ============================================
+// User Tokens - OAuth tokens for external APIs
+// ============================================
+export const userTokens = sqliteTable(
+  "user_tokens",
+  {
+    id: text("id").primaryKey(),
+    // User identifier (sub from OIDC)
+    userId: text("user_id").notNull(),
+    // Token provider (e.g., "google")
+    provider: text("provider").notNull(),
+    // OAuth tokens (encrypted in production)
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token"),
+    // Token expiry
+    expiresAt: text("expires_at"),
+    // Metadata
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("user_tokens_user_id_idx").on(table.userId),
+    index("user_tokens_user_provider_idx").on(table.userId, table.provider),
+  ]
+);
+
+// ============================================
 // App Configuration - Key-value settings
 // ============================================
 export const appConfig = sqliteTable("app_config", {
@@ -248,3 +274,6 @@ export type NewNodeCatalogCacheEntry = typeof nodeCatalogCache.$inferInsert;
 
 export type ExecutionLog = typeof executionLogs.$inferSelect;
 export type NewExecutionLog = typeof executionLogs.$inferInsert;
+
+export type UserToken = typeof userTokens.$inferSelect;
+export type NewUserToken = typeof userTokens.$inferInsert;

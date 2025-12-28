@@ -14,7 +14,7 @@ import { runWorkflow, validateWorkflow } from "./executor";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { db, appConfig } from "./db";
-import { workflowRepository, workflowVersionRepository, executionLogRepository } from "./db/repository";
+import { workflowRepository, workflowVersionRepository, executionLogRepository, userTokenRepository } from "./db/repository";
 import type { WriteLogFn } from "./executor";
 
 // Create writeLog function for execution logs
@@ -190,6 +190,7 @@ api.delete("/workflows/:id/logs", async (c) => {
 // Execute a workflow
 api.post("/execute", async (c) => {
   const body = await c.req.json<ExecuteWorkflowRequest>();
+  const user = c.get("user");
 
   // Validate first
   const validationErrors = validateWorkflow(body.workflow);
@@ -206,11 +207,20 @@ api.post("/execute", async (c) => {
   // Get workflowId from the request body if available
   const workflowId = body.workflow.meta?.id;
 
+  // Build secrets with user's stored OAuth tokens
+  const secrets: Record<string, string> = { ...body.secrets };
+
+  // Inject Google access token if available
+  const googleToken = await userTokenRepository.findByUserAndProvider(user.sub, "google");
+  if (googleToken) {
+    secrets._google_access_token = googleToken.accessToken;
+  }
+
   // Run the workflow
   const result = await runWorkflow({
     workflow: body.workflow,
     inputs: body.inputs,
-    secrets: body.secrets,
+    secrets,
     workflowId,
     writeLog: workflowId ? writeLog : undefined,
   });

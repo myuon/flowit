@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import * as jose from "jose";
 import type { AuthUser } from "@flowit/shared";
+import { userTokenRepository } from "../db/repository";
 
 /**
  * OIDC Provider configuration
@@ -23,7 +24,13 @@ export function getOAuthConfig(): OAuthConfig {
     clientId: process.env.OIDC_CLIENT_ID || "",
     clientSecret: process.env.OIDC_CLIENT_SECRET || "",
     redirectUri: process.env.OIDC_REDIRECT_URI || "http://localhost:3001/auth/callback",
-    scopes: ["openid", "email", "profile"],
+    scopes: [
+      "openid",
+      "email",
+      "profile",
+      // Google Apps Script API - required for scripts.run
+      "https://www.googleapis.com/auth/script.projects",
+    ],
     frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
   };
 }
@@ -176,6 +183,19 @@ export function createOAuthRoutes(config: OAuthConfig) {
       // Decode ID token to get user info (we verify it in the JWT middleware later)
       const idTokenPayload = jose.decodeJwt(tokens.id_token);
       const user = extractUserFromIdToken(idTokenPayload);
+
+      // Store OAuth tokens for later API access (e.g., Google Apps Script)
+      if (user.sub) {
+        await userTokenRepository.upsert({
+          userId: user.sub,
+          provider: "google",
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          expiresAt: tokens.expires_in
+            ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
+            : undefined,
+        });
+      }
 
       // Redirect to frontend with tokens
       // In production, consider using httpOnly cookies instead
