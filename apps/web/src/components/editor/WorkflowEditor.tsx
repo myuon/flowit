@@ -19,6 +19,9 @@ import { NodePalette } from "../panels/NodePalette";
 import { ParamPanel } from "../panels/ParamPanel";
 import { ExecutionPanel } from "../panels/ExecutionPanel";
 import { TemplateSelector } from "../panels/TemplateSelector";
+import { LogViewer } from "../panels/LogViewer";
+
+type ViewMode = "editor" | "logs";
 import { UserMenu } from "../UserMenu";
 import { useWorkflow } from "../../hooks/useWorkflow";
 import { useAuth } from "../../auth";
@@ -33,6 +36,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   const { isAdmin } = useAuth();
   const { t } = useI18n();
   const [showTemplateSelector, setShowTemplateSelector] = useState(!workflowId);
+  const [viewMode, setViewMode] = useState<ViewMode>("editor");
 
   const {
     nodes,
@@ -269,6 +273,49 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             {workflowMeta.version}
           </span>
         </div>
+        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        {/* View Toggle */}
+        <div
+          style={{
+            display: "flex",
+            background: "#f3f4f6",
+            borderRadius: 6,
+            padding: 2,
+          }}
+        >
+          <button
+            onClick={() => setViewMode("editor")}
+            style={{
+              padding: "4px 12px",
+              background: viewMode === "editor" ? "white" : "transparent",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: viewMode === "editor" ? 500 : 400,
+              color: viewMode === "editor" ? "#333" : "#666",
+              boxShadow: viewMode === "editor" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            {t.editor}
+          </button>
+          <button
+            onClick={() => setViewMode("logs")}
+            style={{
+              padding: "4px 12px",
+              background: viewMode === "logs" ? "white" : "transparent",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: viewMode === "logs" ? 500 : 400,
+              color: viewMode === "logs" ? "#333" : "#666",
+              boxShadow: viewMode === "logs" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            {t.executionLogs}
+          </button>
+        </div>
         <div style={{ flex: 1 }} />
         <button
           onClick={handleNewWorkflow}
@@ -313,57 +360,63 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
 
       {/* Main Content */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* Left Panel - Node Palette */}
-        <NodePalette onAddNode={addNode} />
+        {viewMode === "editor" ? (
+          <>
+            {/* Left Panel - Node Palette */}
+            <NodePalette onAddNode={addNode} />
 
-        {/* Center - Flow Editor */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onSelectionChange={onSelectionChange}
-              nodeTypes={nodeTypes}
-              fitView
-              snapToGrid
-              snapGrid={[15, 15]}
-              deleteKeyCode={["Backspace", "Delete"]}
+            {/* Center - Flow Editor */}
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
             >
-              <Controls />
-              <MiniMap
-                nodeColor={(node) => {
-                  const data = node.data as { color?: string };
-                  return data?.color || "#ccc";
-                }}
-                style={{ background: "#f0f0f0" }}
+              <div style={{ flex: 1 }}>
+                <ReactFlow
+                  nodes={nodes}
+                  edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  onConnect={onConnect}
+                  onSelectionChange={onSelectionChange}
+                  nodeTypes={nodeTypes}
+                  fitView
+                  snapToGrid
+                  snapGrid={[15, 15]}
+                  deleteKeyCode={["Backspace", "Delete"]}
+                >
+                  <Controls />
+                  <MiniMap
+                    nodeColor={(node) => {
+                      const data = node.data as { color?: string };
+                      return data?.color || "#ccc";
+                    }}
+                    style={{ background: "#f0f0f0" }}
+                  />
+                  <Background gap={15} />
+                </ReactFlow>
+              </div>
+
+              {/* Bottom - Execution Panel */}
+              <ExecutionPanel
+                execution={execution}
+                onExecute={execute}
+                onClear={clearLogs}
               />
-              <Background gap={15} />
-            </ReactFlow>
-          </div>
+            </div>
 
-          {/* Bottom - Execution Panel */}
-          <ExecutionPanel
-            execution={execution}
-            onExecute={execute}
-            onClear={clearLogs}
-          />
-        </div>
-
-        {/* Right Panel - Properties */}
-        <ParamPanel
-          selectedNode={selectedNode}
-          onUpdateParams={updateNodeParams}
-          workflowId={workflowMeta.id}
-        />
+            {/* Right Panel - Properties */}
+            <ParamPanel
+              selectedNode={selectedNode}
+              onUpdateParams={updateNodeParams}
+              workflowId={workflowMeta.id}
+            />
+          </>
+        ) : (
+          <LogViewer workflowId={workflowMeta.id || workflowId || ""} />
+        )}
       </div>
 
       {/* Template Selector Modal */}

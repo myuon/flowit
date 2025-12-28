@@ -311,6 +311,11 @@ const en: NodeTranslationsData = {
         },
       },
     },
+    // Utility nodes
+    log: {
+      displayName: "Log",
+      description: "Logs the value to execution logs and passes it through",
+    },
   },
 };
 
@@ -619,6 +624,11 @@ const ja: NodeTranslationsData = {
           },
         },
       },
+    },
+    // Utility nodes
+    log: {
+      displayName: "ログ",
+      description: "値を実行ログに記録し、そのまま通過させます",
     },
   },
 };

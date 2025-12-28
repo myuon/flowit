@@ -320,3 +320,77 @@ export async function deleteWorkflow(id: string): Promise<void> {
     throw new Error(`Failed to delete workflow: ${response.statusText}`);
   }
 }
+
+// ============================================
+// Execution Logs API
+// ============================================
+
+export interface ExecutionLogItem {
+  id: string;
+  workflowId: string;
+  executionId: string;
+  nodeId: string;
+  data: unknown;
+  createdAt: string;
+}
+
+/**
+ * Get execution logs for a workflow
+ */
+export async function getExecutionLogs(
+  workflowId: string,
+  limit = 100,
+  offset = 0
+): Promise<{ logs: ExecutionLogItem[] }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/workflows/${workflowId}/logs?limit=${limit}&offset=${offset}`,
+    { headers }
+  );
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 404) {
+    throw new Error("Workflow not found");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to get execution logs: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete execution logs for a workflow
+ */
+export async function deleteExecutionLogs(
+  workflowId: string
+): Promise<{ deleted: number }> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/workflows/${workflowId}/logs`,
+    {
+      method: "DELETE",
+      headers,
+    }
+  );
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 404) {
+    throw new Error("Workflow not found");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete execution logs: ${response.statusText}`);
+  }
+
+  return response.json();
+}

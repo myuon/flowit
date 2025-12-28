@@ -1,6 +1,6 @@
 import type { WorkflowDSL, WorkflowNode } from "@flowit/shared";
 import { getNode } from "@flowit/sdk";
-import type { ExecutionState } from "./types";
+import type { ExecutionState, WriteLogFn } from "./types";
 import {
   resolveParams,
   resolveNodeInputs,
@@ -20,7 +20,9 @@ export class WorkflowExecutor {
     workflow: WorkflowDSL,
     inputs: Record<string, unknown>,
     secrets: Record<string, string>,
-    executionId: string
+    executionId: string,
+    workflowId?: string,
+    writeLog?: WriteLogFn
   ) {
     this.workflow = workflow;
     this.nodeMap = new Map(workflow.nodes.map((n) => [n.id, n]));
@@ -29,7 +31,9 @@ export class WorkflowExecutor {
       inputs,
       secrets,
       executionId,
+      workflowId,
       logs: [],
+      writeLog,
     };
   }
 
@@ -60,6 +64,18 @@ export class WorkflowExecutor {
     // Resolve parameters
     const params = resolveParams(workflowNode.params, this.state);
 
+    // Build writeLog function for this node
+    const nodeWriteLog = this.state.writeLog && this.state.workflowId
+      ? async (data: unknown) => {
+          await this.state.writeLog!(
+            this.state.workflowId!,
+            this.state.executionId,
+            workflowNode.id,
+            data
+          );
+        }
+      : undefined;
+
     // Execute the node
     const result = await nodeDef.run({
       inputs,
@@ -67,7 +83,9 @@ export class WorkflowExecutor {
       context: {
         nodeId: workflowNode.id,
         executionId: this.state.executionId,
+        workflowId: this.state.workflowId,
         log: (msg: string) => this.log(msg),
+        writeLog: nodeWriteLog,
       },
     });
 
@@ -212,9 +230,11 @@ export async function executeWorkflow(
   workflow: WorkflowDSL,
   inputs: Record<string, unknown>,
   secrets: Record<string, string>,
-  executionId: string
+  executionId: string,
+  workflowId?: string,
+  writeLog?: WriteLogFn
 ): Promise<ExecutionState> {
-  const executor = new WorkflowExecutor(workflow, inputs, secrets, executionId);
+  const executor = new WorkflowExecutor(workflow, inputs, secrets, executionId, workflowId, writeLog);
   return executor.execute();
 }
 

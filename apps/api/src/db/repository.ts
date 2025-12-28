@@ -6,6 +6,7 @@ import {
   runs,
   runSteps,
   nodeCatalogCache,
+  executionLogs,
   type Workflow,
   type NewWorkflow,
   type WorkflowVersion,
@@ -15,6 +16,8 @@ import {
   type NewRunStep,
   type NodeCatalogCacheEntry,
   type NewNodeCatalogCacheEntry,
+  type ExecutionLog,
+  type NewExecutionLog,
 } from "./schema";
 import type { WorkflowDSL } from "@flowit/shared";
 
@@ -423,5 +426,53 @@ export const nodeCatalogCacheRepository = {
 
   async clear(): Promise<void> {
     await db.delete(nodeCatalogCache);
+  },
+};
+
+// ============================================
+// Execution Log Repository
+// ============================================
+export const executionLogRepository = {
+  async create(
+    data: Omit<NewExecutionLog, "id" | "createdAt">
+  ): Promise<ExecutionLog> {
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const [result] = await db
+      .insert(executionLogs)
+      .values({
+        id,
+        ...data,
+        createdAt: now,
+      })
+      .returning();
+    return result;
+  },
+
+  async findByWorkflowId(
+    workflowId: string,
+    limit = 100,
+    offset = 0
+  ): Promise<ExecutionLog[]> {
+    return db.query.executionLogs.findMany({
+      where: eq(executionLogs.workflowId, workflowId),
+      orderBy: [desc(executionLogs.createdAt)],
+      limit,
+      offset,
+    });
+  },
+
+  async findByExecutionId(executionId: string): Promise<ExecutionLog[]> {
+    return db.query.executionLogs.findMany({
+      where: eq(executionLogs.executionId, executionId),
+      orderBy: [desc(executionLogs.createdAt)],
+    });
+  },
+
+  async deleteByWorkflowId(workflowId: string): Promise<number> {
+    const result = await db
+      .delete(executionLogs)
+      .where(eq(executionLogs.workflowId, workflowId));
+    return result.rowsAffected;
   },
 };

@@ -2,6 +2,7 @@ import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 import type {
   ExecuteWorkflowRequest,
   ExecuteWorkflowResponse,
@@ -13,9 +14,23 @@ import { runWorkflow, validateWorkflow } from "./executor";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { db, appConfig } from "./db";
-import { workflowRepository, workflowVersionRepository } from "./db/repository";
+import { workflowRepository, workflowVersionRepository, executionLogRepository } from "./db/repository";
+import type { WriteLogFn } from "./executor";
+
+// Create writeLog function for execution logs
+const writeLog: WriteLogFn = async (workflowId, executionId, nodeId, data) => {
+  await executionLogRepository.create({
+    workflowId,
+    executionId,
+    nodeId,
+    data: data as string,
+  });
+};
 
 const app = new Hono();
+
+// Logger middleware
+app.use("*", logger());
 
 // CORS configuration
 app.use("*", cors({
@@ -144,6 +159,34 @@ api.delete("/workflows/:id", async (c) => {
   return c.json({ success: true });
 });
 
+// Get execution logs for a workflow
+api.get("/workflows/:id/logs", async (c) => {
+  const id = c.req.param("id");
+  const limit = parseInt(c.req.query("limit") || "100");
+  const offset = parseInt(c.req.query("offset") || "0");
+
+  const workflow = await workflowRepository.findById(id);
+  if (!workflow) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  const logs = await executionLogRepository.findByWorkflowId(id, limit, offset);
+  return c.json({ logs });
+});
+
+// Delete execution logs for a workflow
+api.delete("/workflows/:id/logs", async (c) => {
+  const id = c.req.param("id");
+
+  const workflow = await workflowRepository.findById(id);
+  if (!workflow) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  const count = await executionLogRepository.deleteByWorkflowId(id);
+  return c.json({ deleted: count });
+});
+
 // Execute a workflow
 api.post("/execute", async (c) => {
   const body = await c.req.json<ExecuteWorkflowRequest>();
@@ -160,11 +203,16 @@ api.post("/execute", async (c) => {
     return c.json(response, 400);
   }
 
+  // Get workflowId from the request body if available
+  const workflowId = body.workflow.meta?.id;
+
   // Run the workflow
   const result = await runWorkflow({
     workflow: body.workflow,
     inputs: body.inputs,
     secrets: body.secrets,
+    workflowId,
+    writeLog: workflowId ? writeLog : undefined,
   });
 
   const response: ExecuteWorkflowResponse = {
@@ -314,6 +362,8 @@ app.all("/webhooks/:workflowId", async (c) => {
       },
     },
     secrets: {},
+    workflowId,
+    writeLog,
   });
 
   const response: ExecuteWorkflowResponse = {

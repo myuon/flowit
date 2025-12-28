@@ -187,6 +187,36 @@ export const nodeCatalogCache = sqliteTable(
 );
 
 // ============================================
+// Execution Logs - Logs from log nodes
+// ============================================
+export const executionLogs = sqliteTable(
+  "execution_logs",
+  {
+    id: text("id").primaryKey(),
+    workflowId: text("workflow_id")
+      .notNull()
+      .references(() => workflows.id, { onDelete: "cascade" }),
+    executionId: text("execution_id").notNull(),
+    nodeId: text("node_id").notNull(),
+    // Serialized log data
+    data: text("data", { mode: "json" }).notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [
+    index("execution_logs_workflow_id_idx").on(table.workflowId),
+    index("execution_logs_execution_id_idx").on(table.executionId),
+    index("execution_logs_created_at_idx").on(table.createdAt),
+  ]
+);
+
+export const executionLogsRelations = relations(executionLogs, ({ one }) => ({
+  workflow: one(workflows, {
+    fields: [executionLogs.workflowId],
+    references: [workflows.id],
+  }),
+}));
+
+// ============================================
 // App Configuration - Key-value settings
 // ============================================
 export const appConfig = sqliteTable("app_config", {
@@ -215,3 +245,6 @@ export type NewRunStep = typeof runSteps.$inferInsert;
 
 export type NodeCatalogCacheEntry = typeof nodeCatalogCache.$inferSelect;
 export type NewNodeCatalogCacheEntry = typeof nodeCatalogCache.$inferInsert;
+
+export type ExecutionLog = typeof executionLogs.$inferSelect;
+export type NewExecutionLog = typeof executionLogs.$inferInsert;

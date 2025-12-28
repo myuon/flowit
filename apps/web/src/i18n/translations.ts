@@ -87,6 +87,19 @@ export interface Translations {
   lastUpdated: string;
   delete: string;
   confirmDelete: string;
+
+  // Log Viewer
+  refresh: string;
+  clearAllLogs: string;
+  confirmClearLogs: string;
+  executionLogsHistory: string;
+  noExecutionLogs: string;
+  noExecutionLogsDescription: string;
+  executionId: string;
+  logs: string;
+
+  // View Toggle
+  editor: string;
 }
 
 const en: Translations = {
@@ -176,6 +189,19 @@ const en: Translations = {
   lastUpdated: "Last updated",
   delete: "Delete",
   confirmDelete: "Are you sure you want to delete \"{name}\"?",
+
+  // Log Viewer
+  refresh: "Refresh",
+  clearAllLogs: "Clear All Logs",
+  confirmClearLogs: "Are you sure you want to clear all execution logs?",
+  executionLogsHistory: "Execution Logs History",
+  noExecutionLogs: "No execution logs yet",
+  noExecutionLogsDescription: "Execute a workflow with log nodes to see logs here.",
+  executionId: "Execution",
+  logs: "logs",
+
+  // View Toggle
+  editor: "Editor",
 };
 
 const ja: Translations = {
@@ -265,6 +291,19 @@ const ja: Translations = {
   lastUpdated: "最終更新",
   delete: "削除",
   confirmDelete: "「{name}」を削除してもよろしいですか？",
+
+  // Log Viewer
+  refresh: "更新",
+  clearAllLogs: "すべてのログを削除",
+  confirmClearLogs: "すべての実行ログを削除してもよろしいですか？",
+  executionLogsHistory: "実行ログ履歴",
+  noExecutionLogs: "実行ログがありません",
+  noExecutionLogsDescription: "ログノードを含むワークフローを実行すると、ここにログが表示されます。",
+  executionId: "実行",
+  logs: "件",
+
+  // View Toggle
+  editor: "エディタ",
 };
 
 export const translations: Record<Language, Translations> = {

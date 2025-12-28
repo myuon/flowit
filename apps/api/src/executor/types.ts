@@ -1,5 +1,13 @@
 import type { WorkflowDSL } from "@flowit/shared";
 
+// Function type for writing logs to database
+export type WriteLogFn = (
+  workflowId: string,
+  executionId: string,
+  nodeId: string,
+  data: unknown
+) => Promise<void>;
+
 // Execution state passed through the graph
 export interface ExecutionState {
   // Node outputs: nodeId -> outputName -> value
@@ -10,12 +18,15 @@ export interface ExecutionState {
   secrets: Record<string, string>;
   // Execution metadata
   executionId: string;
+  workflowId?: string;
   // Current node being executed (for logging)
   currentNode?: string;
   // Logs collected during execution
   logs: string[];
   // Error if any
   error?: string;
+  // Optional log writer function
+  writeLog?: WriteLogFn;
 }
 
 // Resolved parameter value

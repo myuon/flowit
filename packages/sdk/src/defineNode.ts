@@ -130,8 +130,11 @@ type InferParamTypes<T extends Record<string, ParamSchema>> = {
 export interface NodeContext {
   nodeId: string;
   executionId: string;
+  workflowId?: string;
   signal?: AbortSignal;
   log: (message: string) => void;
+  /** Write a log entry to the execution log database */
+  writeLog?: (data: unknown) => Promise<void>;
 }
 
 // Node definition configuration
