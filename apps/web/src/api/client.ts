@@ -431,3 +431,39 @@ export async function deleteExecutionLogs(
 
   return response.json();
 }
+
+// ============================================
+// GAS (Google Apps Script) API
+// ============================================
+
+export interface ValidateGasDeploymentResponse {
+  valid: boolean;
+  error?: string;
+  scriptId?: string;
+  scriptName?: string;
+}
+
+/**
+ * Validate a GAS deployment ID
+ */
+export async function validateGasDeployment(
+  deploymentId: string
+): Promise<ValidateGasDeploymentResponse> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/gas/validate-deployment`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ deploymentId }),
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to validate deployment: ${response.statusText}`);
+  }
+
+  return response.json();
+}

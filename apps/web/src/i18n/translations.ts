@@ -101,6 +101,15 @@ export interface Translations {
 
   // View Toggle
   editor: string;
+
+  // GAS Validation
+  validateDeployment: string;
+  validate: string;
+  validating: string;
+  deploymentValid: string;
+  deploymentInvalid: string;
+  deploymentIdRequired: string;
+  scriptName: string;
 }
 
 const en: Translations = {
@@ -204,6 +213,15 @@ const en: Translations = {
 
   // View Toggle
   editor: "Editor",
+
+  // GAS Validation
+  validateDeployment: "Validate Deployment",
+  validate: "Validate",
+  validating: "Validating...",
+  deploymentValid: "Deployment is valid",
+  deploymentInvalid: "Deployment is invalid",
+  deploymentIdRequired: "Deployment ID is required",
+  scriptName: "Script",
 };
 
 const ja: Translations = {
@@ -307,6 +325,15 @@ const ja: Translations = {
 
   // View Toggle
   editor: "エディタ",
+
+  // GAS Validation
+  validateDeployment: "デプロイメント検証",
+  validate: "検証",
+  validating: "検証中...",
+  deploymentValid: "デプロイメントは有効です",
+  deploymentInvalid: "デプロイメントが無効です",
+  deploymentIdRequired: "デプロイメントIDが必要です",
+  scriptName: "スクリプト",
 };
 
 export const translations: Record<Language, Translations> = {

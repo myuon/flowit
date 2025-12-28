@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import type { Node } from "@xyflow/react";
 import { getNode } from "@flowit/sdk";
 import type { WorkflowNodeData } from "../nodes";
@@ -9,6 +9,7 @@ import {
   getParamDescription,
   getParamOptionLabel,
 } from "../../i18n";
+import { validateGasDeployment } from "../../api/client";
 
 interface ParamPanelProps {
   selectedNode: Node<WorkflowNodeData> | null;
@@ -18,6 +19,59 @@ interface ParamPanelProps {
 
 function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: ParamPanelProps) {
   const { t, language } = useI18n();
+  const [validationState, setValidationState] = useState<{
+    status: "idle" | "validating" | "success" | "error";
+    message?: string;
+    scriptName?: string;
+  }>({ status: "idle" });
+
+  const handleValidateGasDeployment = useCallback(async () => {
+    if (!selectedNode) return;
+
+    const deploymentIdParam = selectedNode.data.params.deploymentId;
+    const deploymentId = typeof deploymentIdParam === "object" && deploymentIdParam !== null && "value" in deploymentIdParam
+      ? String((deploymentIdParam as { value: unknown }).value)
+      : "";
+
+    if (!deploymentId) {
+      setValidationState({ status: "error", message: t.deploymentIdRequired || "Deployment ID is required" });
+      return;
+    }
+
+    setValidationState({ status: "validating" });
+
+    try {
+      const result = await validateGasDeployment(deploymentId);
+      if (result.valid) {
+        setValidationState({
+          status: "success",
+          message: t.deploymentValid || "Deployment is valid",
+          scriptName: result.scriptName
+        });
+      } else {
+        setValidationState({
+          status: "error",
+          message: result.error || t.deploymentInvalid || "Deployment is invalid"
+        });
+      }
+    } catch (error) {
+      setValidationState({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }, [selectedNode, t]);
+
+  const handleParamChange = useCallback(
+    (key: string, value: unknown) => {
+      if (!selectedNode) return;
+      onUpdateParams(selectedNode.id, {
+        ...selectedNode.data.params,
+        [key]: { type: "static", value },
+      });
+    },
+    [selectedNode, onUpdateParams]
+  );
 
   if (!selectedNode) {
     return (
@@ -59,16 +113,6 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
 
   const nodeDefinition = getNode(selectedNode.data.nodeType);
   const paramsSchema = nodeDefinition?.paramsSchema || {};
-
-  const handleParamChange = useCallback(
-    (key: string, value: unknown) => {
-      onUpdateParams(selectedNode.id, {
-        ...selectedNode.data.params,
-        [key]: { type: "static", value },
-      });
-    },
-    [selectedNode, onUpdateParams]
-  );
 
   const getParamValue = (key: string): unknown => {
     const param = selectedNode.data.params[key];
@@ -348,6 +392,74 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
             ) : (
               <div style={{ color: "#888", fontSize: 12 }}>
                 {t.saveWorkflowFirst}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Validate deployment for GAS nodes */}
+        {selectedNode.data.nodeType === "gas" && (
+          <div style={{ marginTop: 16 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#666",
+                textTransform: "uppercase",
+                marginBottom: 8,
+              }}
+            >
+              {t.validateDeployment || "Validate Deployment"}
+            </div>
+            <button
+              onClick={handleValidateGasDeployment}
+              disabled={validationState.status === "validating"}
+              style={{
+                padding: "6px 12px",
+                background: validationState.status === "validating" ? "#ccc" : "#333",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                cursor: validationState.status === "validating" ? "not-allowed" : "pointer",
+                fontSize: 12,
+                width: "100%",
+              }}
+            >
+              {validationState.status === "validating"
+                ? (t.validating || "Validating...")
+                : (t.validate || "Validate")}
+            </button>
+            {validationState.status === "success" && (
+              <div
+                style={{
+                  marginTop: 8,
+                  padding: 8,
+                  background: "#dcfce7",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  color: "#166534",
+                }}
+              >
+                <div style={{ fontWeight: 500 }}>{validationState.message}</div>
+                {validationState.scriptName && (
+                  <div style={{ marginTop: 4, fontSize: 11 }}>
+                    {t.scriptName || "Script"}: {validationState.scriptName}
+                  </div>
+                )}
+              </div>
+            )}
+            {validationState.status === "error" && (
+              <div
+                style={{
+                  marginTop: 8,
+                  padding: 8,
+                  background: "#fef2f2",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  color: "#dc2626",
+                }}
+              >
+                {validationState.message}
               </div>
             )}
           </div>
