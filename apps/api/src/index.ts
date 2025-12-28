@@ -26,12 +26,27 @@ const writeLog: WriteLogFn = async (workflowId, executionId, nodeId, data) => {
   });
 };
 
+// Auth configuration
+const authConfig = getAuthConfig();
+const requireAuth = jwtAuth(authConfig);
+
+// OAuth routes
+const oauthRoutes = createOAuthRoutes(getOAuthConfig());
+
+// Protected API routes
+const apiRoutes = new Hono<{ Variables: AuthVariables }>()
+  .use("*", requireAuth)
+  .route("/", createWorkflowRoutes(writeLog))
+  .route("/gas", createGasRoutes());
+
+// Admin routes (protected + admin check)
+const adminRoutes = new Hono<{ Variables: AuthVariables }>()
+  .use("*", requireAuth)
+  .route("/", createAdminRoutes());
+
+// Main app with middleware
 const app = new Hono();
-
-// Logger middleware
 app.use("*", logger());
-
-// CORS configuration
 app.use(
   "*",
   cors({
@@ -40,60 +55,27 @@ app.use(
   })
 );
 
-// Auth configuration
-const authConfig = getAuthConfig();
-const requireAuth = jwtAuth(authConfig);
+// Build routes with type preservation
+const routes = app
+  .get("/", (c) => c.json({ message: "Flowit API", version: "0.1.0" }))
+  .get("/health", (c) => c.json({ status: "ok" }))
+  .route("/auth", oauthRoutes)
+  .get("/auth/me", requireAuth, (c) => {
+    const user = c.get("user");
+    return c.json({ user, isAdmin: isAdmin(user.sub) });
+  })
+  .route("/api", apiRoutes)
+  .route("/config", createConfigRoutes())
+  .route("/admin", adminRoutes)
+  .route("/webhooks", createWebhookRoutes(writeLog));
 
-// OAuth routes (login, callback, logout)
-const oauthConfig = getOAuthConfig();
-const oauthRoutes = createOAuthRoutes(oauthConfig);
-app.route("/auth", oauthRoutes);
-
-// Public endpoints
-app.get("/", (c) => {
-  return c.json({ message: "Flowit API", version: "0.1.0" });
-});
-
-app.get("/health", (c) => {
-  return c.json({ status: "ok" });
-});
-
-// Auth info endpoint (returns current user if authenticated)
-app.get("/auth/me", requireAuth, (c) => {
-  const user = c.get("user");
-  return c.json({ user, isAdmin: isAdmin(user.sub) });
-});
-
-// Protected API routes
-const api = new Hono<{ Variables: AuthVariables }>();
-api.use("*", requireAuth);
-
-// Mount workflow routes (includes /validate, /execute, /workflows/*)
-api.route("/", createWorkflowRoutes(writeLog));
-
-// Mount GAS routes
-api.route("/gas", createGasRoutes());
-
-// Mount protected API routes
-app.route("/api", api);
-
-// Public config routes
-app.route("/config", createConfigRoutes());
-
-// Admin routes (protected + admin check)
-const adminApp = new Hono<{ Variables: AuthVariables }>();
-adminApp.use("*", requireAuth);
-adminApp.route("/", createAdminRoutes());
-app.route("/admin", adminApp);
-
-// Webhook endpoints (public - no auth required)
-app.route("/webhooks", createWebhookRoutes(writeLog));
+export type AppType = typeof routes;
 
 const port = parseInt(process.env.PORT || "3001");
 
 console.log(`Flowit API running on http://localhost:${port}`);
 
 serve({
-  fetch: app.fetch,
+  fetch: routes.fetch,
   port,
 });
