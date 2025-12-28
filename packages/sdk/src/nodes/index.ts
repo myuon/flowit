@@ -21,6 +21,7 @@ export { llmNode, promptBuilderNode } from "./ai";
 // Integration nodes
 export { httpRequestNode } from "./http";
 export { slackMessageNode, slackBlockBuilderNode } from "./slack";
+export { gasNode } from "./gas";
 
 // Control nodes
 export { ifConditionNode, switchNode, mergeNode } from "./control";
@@ -43,6 +44,7 @@ import {
 import { llmNode, promptBuilderNode } from "./ai";
 import { httpRequestNode } from "./http";
 import { slackMessageNode, slackBlockBuilderNode } from "./slack";
+import { gasNode } from "./gas";
 import { ifConditionNode, switchNode, mergeNode } from "./control";
 import { logNode } from "./log";
 import { registerNode } from "../registry";
@@ -71,6 +73,7 @@ export const builtinNodes = [
   httpRequestNode,
   slackMessageNode,
   slackBlockBuilderNode,
+  gasNode,
   // Control
   ifConditionNode,
   switchNode,

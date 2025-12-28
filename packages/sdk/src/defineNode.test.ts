@@ -20,6 +20,7 @@ import {
   httpRequestNode,
   slackMessageNode,
   webhookTriggerNode,
+  gasNode,
 } from "./nodes";
 
 describe("defineNode", () => {
@@ -394,5 +395,54 @@ describe("webhookTriggerNode", () => {
     });
 
     expect(result.method).toBe("PUT");
+  });
+});
+
+describe("gasNode", () => {
+  const mockContext = {
+    nodeId: "gas-1",
+    executionId: "exec-1",
+    log: () => {},
+  };
+
+  it("should have correct structure", () => {
+    expect(gasNode.id).toBe("gas");
+    expect(gasNode.displayName).toBe("Google Apps Script");
+    expect(gasNode.display.category).toBe("integration");
+    expect(gasNode.paramsSchema.deploymentId).toBeDefined();
+    expect(gasNode.paramsSchema.accessToken).toBeDefined();
+    expect(gasNode.inputs.parameters).toBeDefined();
+    expect(gasNode.outputs.result).toBeDefined();
+  });
+
+  it("should throw error when accessToken is missing", async () => {
+    await expect(
+      gasNode.run({
+        inputs: { parameters: {} },
+        params: {
+          deploymentId: "test-deployment-id",
+          accessToken: "",
+        },
+        context: mockContext,
+      })
+    ).rejects.toThrow("Google access token is required");
+  });
+
+  it("should throw error when deploymentId is missing", async () => {
+    await expect(
+      gasNode.run({
+        inputs: { parameters: {} },
+        params: {
+          deploymentId: "",
+          accessToken: "test-token",
+        },
+        context: mockContext,
+      })
+    ).rejects.toThrow("Deployment ID is required");
+  });
+
+  it("should generate correct default params", () => {
+    const defaults = gasNode.getDefaultParams();
+    expect(defaults.accessToken).toEqual({ type: "secret", ref: "" });
   });
 });

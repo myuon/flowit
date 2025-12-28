@@ -70,6 +70,7 @@ export interface Translations {
   // Workflow Status
   draft: string;
   published: string;
+  publish: string;
   version: string;
   untitledWorkflow: string;
 
@@ -172,6 +173,7 @@ const en: Translations = {
   // Workflow Status
   draft: "Draft",
   published: "Published",
+  publish: "Publish",
   version: "v",
   untitledWorkflow: "Untitled Workflow",
 
@@ -274,6 +276,7 @@ const ja: Translations = {
   // Workflow Status
   draft: "下書き",
   published: "公開済み",
+  publish: "公開",
   version: "v",
   untitledWorkflow: "無題のワークフロー",
 

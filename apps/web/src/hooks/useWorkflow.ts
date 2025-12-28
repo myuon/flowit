@@ -3,7 +3,7 @@ import type { Edge } from "@xyflow/react";
 import { getNode, registerBuiltinNodes } from "@flowit/sdk";
 import type { WorkflowDSL, WorkflowNode, WorkflowEdge, WorkflowMeta } from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
-import { executeWorkflow as executeWorkflowApi, getWorkflow, updateWorkflow } from "../api/client";
+import { executeWorkflow as executeWorkflowApi, getWorkflow, updateWorkflow, publishWorkflow as publishWorkflowApi } from "../api/client";
 import type { ExecutionResult, ExecutionLog } from "../components/panels/ExecutionPanel";
 import type { WorkflowTemplate } from "../data/templates";
 
@@ -320,6 +320,40 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     }
   }, [workflowId, toDSL, nodes, workflowMeta, addLog]);
 
+  // Publish workflow to API (create a new version)
+  const publish = useCallback(async () => {
+    if (!workflowId) {
+      addLog("error", "No workflow ID - cannot publish");
+      return;
+    }
+
+    try {
+      const dsl = toDSL();
+      // Include positions in a custom field for persistence
+      const positions = nodes.map((n) => ({ id: n.id, position: n.position }));
+      const dslWithPositions = {
+        ...dsl,
+        _positions: positions,
+      };
+
+      const result = await publishWorkflowApi(workflowId, {
+        dsl: dslWithPositions,
+      });
+
+      // Update workflow meta to reflect published status
+      setWorkflowMeta((prev) => ({
+        ...prev,
+        version: String(result.version.version),
+        status: "published",
+      }));
+
+      addLog("success", `Workflow published as version ${result.version.version}`);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      addLog("error", `Failed to publish workflow: ${errorMessage}`);
+    }
+  }, [workflowId, toDSL, nodes, addLog]);
+
   // Load workflow from API on mount
   useEffect(() => {
     if (!workflowId) return;
@@ -390,5 +424,6 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     isLoading,
     loadError,
     saveToApi,
+    publish,
   };
 }

@@ -14,7 +14,12 @@ import { runWorkflow, validateWorkflow } from "./executor";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { db, appConfig } from "./db";
-import { workflowRepository, workflowVersionRepository, executionLogRepository, userTokenRepository } from "./db/repository";
+import {
+  workflowRepository,
+  workflowVersionRepository,
+  executionLogRepository,
+  userTokenRepository,
+} from "./db/repository";
 import type { WriteLogFn } from "./executor";
 
 // Create writeLog function for execution logs
@@ -33,10 +38,13 @@ const app = new Hono();
 app.use("*", logger());
 
 // CORS configuration
-app.use("*", cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
-  credentials: true,
-}));
+app.use(
+  "*",
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 // Auth configuration
 const authConfig = getAuthConfig();
@@ -59,7 +67,10 @@ app.get("/health", (c) => {
 // Check if user is admin
 function isAdmin(userId: string): boolean {
   const adminIds = process.env.ADMIN_USER_IDS || "";
-  const adminList = adminIds.split(",").map((id) => id.trim()).filter(Boolean);
+  const adminList = adminIds
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
   return adminList.includes(userId);
 }
 
@@ -75,7 +86,9 @@ api.use("*", requireAuth);
 
 // Validate a workflow without executing
 api.post("/validate", async (c) => {
-  const body = await c.req.json<{ workflow: ExecuteWorkflowRequest["workflow"] }>();
+  const body = await c.req.json<{
+    workflow: ExecuteWorkflowRequest["workflow"];
+  }>();
   const errors = validateWorkflow(body.workflow);
 
   return c.json({
@@ -108,7 +121,11 @@ api.get("/workflows/:id", async (c) => {
 
 // Create a new workflow
 api.post("/workflows", async (c) => {
-  const body = await c.req.json<{ name: string; description?: string; dsl?: ExecuteWorkflowRequest["workflow"] }>();
+  const body = await c.req.json<{
+    name: string;
+    description?: string;
+    dsl?: ExecuteWorkflowRequest["workflow"];
+  }>();
 
   const workflow = await workflowRepository.create({
     name: body.name || "Untitled Workflow",
@@ -126,7 +143,11 @@ api.post("/workflows", async (c) => {
 // Update a workflow
 api.put("/workflows/:id", async (c) => {
   const id = c.req.param("id");
-  const body = await c.req.json<{ name?: string; description?: string; dsl?: ExecuteWorkflowRequest["workflow"] }>();
+  const body = await c.req.json<{
+    name?: string;
+    description?: string;
+    dsl?: ExecuteWorkflowRequest["workflow"];
+  }>();
 
   const existing = await workflowRepository.findById(id);
   if (!existing) {
@@ -145,6 +166,33 @@ api.put("/workflows/:id", async (c) => {
   }
 
   return c.json({ workflow });
+});
+
+// Publish a workflow (create a new version and set it as current)
+api.post("/workflows/:id/publish", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json<{
+    dsl: ExecuteWorkflowRequest["workflow"];
+    changelog?: string;
+  }>();
+
+  const existing = await workflowRepository.findById(id);
+  if (!existing) {
+    return c.json({ error: "Workflow not found" }, 404);
+  }
+
+  if (!body.dsl) {
+    return c.json({ error: "DSL is required" }, 400);
+  }
+
+  // Create a new version (this also sets it as current)
+  const version = await workflowVersionRepository.create(
+    id,
+    body.dsl,
+    body.changelog
+  );
+
+  return c.json({ version });
 });
 
 // Delete a workflow
@@ -211,7 +259,10 @@ api.post("/execute", async (c) => {
   const secrets: Record<string, string> = { ...body.secrets };
 
   // Inject Google access token if available
-  const googleToken = await userTokenRepository.findByUserAndProvider(user.sub, "google");
+  const googleToken = await userTokenRepository.findByUserAndProvider(
+    user.sub,
+    "google"
+  );
   if (googleToken) {
     secrets._google_access_token = googleToken.accessToken;
   }
@@ -323,7 +374,9 @@ app.all("/webhooks/:workflowId", async (c) => {
     return c.json({ error: "Workflow has no published version" }, 400);
   }
 
-  const version = workflow.versions.find((v) => v.id === workflow.currentVersionId);
+  const version = workflow.versions.find(
+    (v) => v.id === workflow.currentVersionId
+  );
   if (!version) {
     return c.json({ error: "Workflow version not found" }, 404);
   }
@@ -337,9 +390,13 @@ app.all("/webhooks/:workflowId", async (c) => {
   }
 
   // Check if method matches
-  const allowedMethod = (webhookNode.params?.method as { value: string })?.value || "POST";
+  const allowedMethod =
+    (webhookNode.params?.method as { value: string })?.value || "POST";
   if (method !== allowedMethod && method !== "OPTIONS") {
-    return c.json({ error: `Method ${method} not allowed. Expected ${allowedMethod}` }, 405);
+    return c.json(
+      { error: `Method ${method} not allowed. Expected ${allowedMethod}` },
+      405
+    );
   }
 
   // Handle OPTIONS for CORS preflight

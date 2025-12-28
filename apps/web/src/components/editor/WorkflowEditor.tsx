@@ -57,6 +57,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     isLoading,
     loadError,
     saveToApi,
+    publish,
   } = useWorkflow({ workflowId });
 
   const handleSelectTemplate = useCallback(
@@ -342,6 +343,21 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
         >
           {t.save}
         </button>
+        {workflowId && (
+          <button
+            onClick={publish}
+            style={{
+              padding: "6px 12px",
+              background: "#16a34a",
+              color: "white",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            {t.publish}
+          </button>
+        )}
         <button
           onClick={load}
           style={{

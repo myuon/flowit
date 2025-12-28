@@ -298,6 +298,43 @@ export async function updateWorkflow(
 }
 
 /**
+ * Publish a workflow (create a new version)
+ */
+export async function publishWorkflow(
+  id: string,
+  data: { dsl: WorkflowDSL; changelog?: string }
+): Promise<{
+  version: {
+    id: string;
+    workflowId: string;
+    version: number;
+    createdAt: string;
+  };
+}> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}/publish`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (response.status === 401) {
+    throw new Error("Authentication required");
+  }
+
+  if (response.status === 404) {
+    throw new Error("Workflow not found");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to publish workflow: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Delete a workflow
  */
 export async function deleteWorkflow(id: string): Promise<void> {

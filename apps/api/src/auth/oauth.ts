@@ -28,8 +28,10 @@ export function getOAuthConfig(): OAuthConfig {
       "openid",
       "email",
       "profile",
-      // Google Apps Script API - required for scripts.run
-      "https://www.googleapis.com/auth/script.projects",
+      // Google Drive API - required to list Apps Script files
+      "https://www.googleapis.com/auth/drive.readonly",
+      // Google Apps Script API - required for script deployments
+      "https://www.googleapis.com/auth/script.projects.readonly",
     ],
     frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
   };
