@@ -84,6 +84,7 @@ export class WorkflowExecutor {
         nodeId: workflowNode.id,
         executionId: this.state.executionId,
         workflowId: this.state.workflowId,
+        workflowInputs: this.state.inputs,
         log: (msg: string) => this.log(msg),
         writeLog: nodeWriteLog,
       },

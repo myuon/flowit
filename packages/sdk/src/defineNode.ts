@@ -135,6 +135,8 @@ export interface NodeContext {
   log: (message: string) => void;
   /** Write a log entry to the execution log database */
   writeLog?: (data: unknown) => Promise<void>;
+  /** Workflow-level inputs (e.g., _webhook data) */
+  workflowInputs?: Record<string, unknown>;
 }
 
 // Node definition configuration

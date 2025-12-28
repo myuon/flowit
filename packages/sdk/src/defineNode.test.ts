@@ -19,6 +19,7 @@ import {
   filterNode,
   httpRequestNode,
   slackMessageNode,
+  webhookTriggerNode,
 } from "./nodes";
 
 describe("defineNode", () => {
@@ -301,5 +302,97 @@ describe("integration nodes structure", () => {
     expect(slackMessageNode.inputs.text).toBeDefined();
     expect(slackMessageNode.paramsSchema.webhookUrl).toBeDefined();
     expect(slackMessageNode.outputs.success).toBeDefined();
+  });
+});
+
+describe("webhookTriggerNode", () => {
+  const mockContext = {
+    nodeId: "webhook-1",
+    executionId: "exec-1",
+    log: () => {},
+  };
+
+  it("should have correct structure", () => {
+    expect(webhookTriggerNode.id).toBe("webhook-trigger");
+    expect(webhookTriggerNode.display.category).toBe("input");
+    expect(webhookTriggerNode.outputs.body).toBeDefined();
+    expect(webhookTriggerNode.outputs.headers).toBeDefined();
+    expect(webhookTriggerNode.outputs.query).toBeDefined();
+    expect(webhookTriggerNode.outputs.method).toBeDefined();
+    expect(webhookTriggerNode.paramsSchema.method).toBeDefined();
+  });
+
+  it("should return placeholder data when no workflowInputs provided", async () => {
+    const result = await webhookTriggerNode.run({
+      inputs: {},
+      params: { method: "POST" },
+      context: mockContext,
+    });
+
+    expect(result.body).toEqual({});
+    expect(result.headers).toEqual({});
+    expect(result.query).toEqual({});
+    expect(result.method).toBe("POST");
+  });
+
+  it("should return data from workflowInputs._webhook when available", async () => {
+    const webhookData = {
+      body: { message: "Hello from webhook" },
+      headers: { "content-type": "application/json" },
+      query: { id: "123" },
+      method: "POST",
+    };
+
+    const result = await webhookTriggerNode.run({
+      inputs: {},
+      params: { method: "POST" },
+      context: {
+        ...mockContext,
+        workflowInputs: { _webhook: webhookData },
+      },
+    });
+
+    expect(result.body).toEqual({ message: "Hello from webhook" });
+    expect(result.headers).toEqual({ "content-type": "application/json" });
+    expect(result.query).toEqual({ id: "123" });
+    expect(result.method).toBe("POST");
+  });
+
+  it("should handle partial webhook data", async () => {
+    const result = await webhookTriggerNode.run({
+      inputs: {},
+      params: { method: "GET" },
+      context: {
+        ...mockContext,
+        workflowInputs: {
+          _webhook: {
+            body: { data: "test" },
+            method: "GET",
+          },
+        },
+      },
+    });
+
+    expect(result.body).toEqual({ data: "test" });
+    expect(result.headers).toEqual({});
+    expect(result.query).toEqual({});
+    expect(result.method).toBe("GET");
+  });
+
+  it("should use method from webhook data over params", async () => {
+    const result = await webhookTriggerNode.run({
+      inputs: {},
+      params: { method: "POST" },
+      context: {
+        ...mockContext,
+        workflowInputs: {
+          _webhook: {
+            method: "PUT",
+          },
+        },
+      },
+    });
+
+    expect(result.method).toBe("PUT");
   });
 });

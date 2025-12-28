@@ -500,4 +500,60 @@ describe("runWorkflow", () => {
     expect(result.status).toBe("success");
     expect((result.outputs.transform1 as { result: string }).result).toBe("hello world");
   });
+
+  it("should pass workflowInputs to webhook trigger node", async () => {
+    // Webhook with no downstream nodes to test its direct output
+    const workflow = createWorkflow([
+      createNode("webhook1", "webhook-trigger", { method: "POST" }),
+    ]);
+
+    const result = await runWorkflow({
+      workflow,
+      inputs: {
+        _webhook: {
+          body: { message: "Hello from webhook!", userId: 123 },
+          headers: { "content-type": "application/json" },
+          query: { format: "json" },
+          method: "POST",
+        },
+      },
+    });
+
+    expect(result.status).toBe("success");
+    const webhookOutput = result.outputs.webhook1 as {
+      body: unknown;
+      headers: Record<string, string>;
+      query: Record<string, string>;
+      method: string;
+    };
+    expect(webhookOutput.body).toEqual({ message: "Hello from webhook!", userId: 123 });
+    expect(webhookOutput.headers).toEqual({ "content-type": "application/json" });
+    expect(webhookOutput.query).toEqual({ format: "json" });
+    expect(webhookOutput.method).toBe("POST");
+  });
+
+  it("should pass webhook body through to downstream nodes", async () => {
+    const workflow = createWorkflow(
+      [
+        createNode("webhook1", "webhook-trigger", { method: "POST" }),
+        createNode("transform1", "js-transform", {
+          expression: "data.message.toUpperCase()",
+        }),
+      ],
+      [createEdge("webhook1", "body", "transform1", "data")]
+    );
+
+    const result = await runWorkflow({
+      workflow,
+      inputs: {
+        _webhook: {
+          body: { message: "hello world" },
+          method: "POST",
+        },
+      },
+    });
+
+    expect(result.status).toBe("success");
+    expect((result.outputs.transform1 as { result: string }).result).toBe("HELLO WORLD");
+  });
 });
