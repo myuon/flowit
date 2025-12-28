@@ -17,18 +17,12 @@ export {
 } from "./workflow";
 
 // UserToken models
-export type { UserToken, UpsertUserTokenInput } from "./userToken";
-export {
-  userTokenFromDb,
-  upsertUserTokenInputFromRequest,
-} from "./userToken";
+export type { UserToken } from "./userToken";
+export { userTokenFromDb } from "./userToken";
 
 // ExecutionLog models
-export type { ExecutionLog, CreateExecutionLogInput } from "./executionLog";
-export {
-  executionLogFromDb,
-  createExecutionLogInputFromRequest,
-} from "./executionLog";
+export type { ExecutionLog } from "./executionLog";
+export { executionLogFromDb } from "./executionLog";
 
 // AppConfig models
 export type { AppConfig, UpdateSettingsInput } from "./appConfig";
