@@ -103,6 +103,11 @@ export const webhookTriggerNode = defineNode({
     method: io.string({ description: "The HTTP method used" }),
   },
   paramsSchema: {
+    name: param.string("Name", {
+      description: "Unique identifier for this webhook within the workflow",
+      placeholder: "my-webhook",
+      required: true,
+    }),
     method: param.select(
       "Allowed Method",
       [

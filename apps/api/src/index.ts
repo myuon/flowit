@@ -22,7 +22,7 @@ const writeLog: WriteLogFn = async (workflowId, executionId, nodeId, data) => {
     workflowId,
     executionId,
     nodeId,
-    data: data as string,
+    data: data ?? {},
   });
 };
 

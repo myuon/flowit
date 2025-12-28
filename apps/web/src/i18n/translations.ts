@@ -79,6 +79,7 @@ export interface Translations {
   copyUrl: string;
   webhookNote: string;
   saveWorkflowFirst: string;
+  setWebhookName: string;
 
   // Workflow List
   workflows: string;
@@ -191,6 +192,7 @@ const en: Translations = {
   copyUrl: "Copy URL",
   webhookNote: "Publish the workflow to enable webhook triggers",
   saveWorkflowFirst: "Save the workflow to get a webhook URL",
+  setWebhookName: "Set a webhook name first",
 
   // Workflow List
   workflows: "Workflows",
@@ -303,6 +305,7 @@ const ja: Translations = {
   copyUrl: "URLをコピー",
   webhookNote: "Webhookを有効にするにはワークフローを公開してください",
   saveWorkflowFirst: "Webhook URLを取得するにはワークフローを保存してください",
+  setWebhookName: "Webhook名を設定してください",
 
   // Workflow List
   workflows: "ワークフロー",

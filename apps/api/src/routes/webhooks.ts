@@ -9,8 +9,9 @@ import { workflowRepository } from "../db/repository";
 export function createWebhookRoutes(writeLog: WriteLogFn) {
   return new Hono()
     // Webhook trigger endpoint
-    .all("/:workflowId", async (c) => {
+    .all("/:workflowId/:webhookName", async (c) => {
       const workflowId = c.req.param("workflowId");
+      const webhookName = c.req.param("webhookName");
       const method = c.req.method;
 
       // Find the workflow
@@ -26,10 +27,17 @@ export function createWebhookRoutes(writeLog: WriteLogFn) {
 
       const dsl = workflow.currentVersion.dsl as ExecuteWorkflowRequest["workflow"];
 
-      // Check if workflow has a webhook trigger node
-      const webhookNode = dsl.nodes.find((n) => n.type === "webhook-trigger");
+      // Check if workflow has a webhook trigger node with matching name
+      const webhookNode = dsl.nodes.find(
+        (n) =>
+          n.type === "webhook-trigger" &&
+          (n.params?.name as { value: string })?.value === webhookName
+      );
       if (!webhookNode) {
-        return c.json({ error: "Workflow does not have a webhook trigger" }, 400);
+        return c.json(
+          { error: `Webhook trigger '${webhookName}' not found in workflow` },
+          404
+        );
       }
 
       // Check if method matches
