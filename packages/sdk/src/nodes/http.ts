@@ -137,9 +137,10 @@ export const httpRequestNode = defineNode({
 
     context.log(`HTTP ${params.method} ${url}`);
 
-    // Make request with timeout
+    // Make request with timeout (default 30 seconds)
+    const timeout = params.timeout ?? 30000;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), params.timeout);
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
       const response = await fetch(url, {
