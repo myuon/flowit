@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import type { WorkflowDSL, WorkflowNode, WorkflowEdge } from "@flowit/shared";
-import { clearRegistry, registerBuiltinNodes } from "@flowit/sdk";
+import { clearRegistry, registerBuiltinNodes } from "../index";
 import { runWorkflow, validateWorkflow } from "./runner";
 import {
   resolveParams,

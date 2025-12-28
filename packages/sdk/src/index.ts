@@ -39,3 +39,6 @@ export {
 
 // Re-export built-in nodes
 export * from "./nodes";
+
+// Re-export executor
+export * from "./executor";

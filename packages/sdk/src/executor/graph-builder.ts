@@ -1,5 +1,5 @@
 import type { WorkflowDSL, WorkflowNode } from "@flowit/shared";
-import { getNode } from "@flowit/sdk";
+import { getNode } from "../registry";
 import type { ExecutionState, WriteLogFn } from "./types";
 import {
   resolveParams,

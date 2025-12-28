@@ -10,7 +10,7 @@ import type {
   Language,
 } from "@flowit/shared";
 import { DEFAULT_APP_SETTINGS } from "@flowit/shared";
-import { runWorkflow, validateWorkflow } from "./executor";
+import { runWorkflow, validateWorkflow, type WriteLogFn } from "@flowit/sdk";
 import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { db, appConfig } from "./db";
@@ -20,7 +20,6 @@ import {
   executionLogRepository,
   userTokenRepository,
 } from "./db/repository";
-import type { WriteLogFn } from "./executor";
 
 // Create writeLog function for execution logs
 const writeLog: WriteLogFn = async (workflowId, executionId, nodeId, data) => {

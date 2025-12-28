@@ -1,5 +1,5 @@
 import type { WorkflowDSL } from "@flowit/shared";
-import { registerBuiltinNodes, getNode } from "@flowit/sdk";
+import { registerBuiltinNodes, getNode } from "../index";
 import { executeWorkflow } from "./graph-builder";
 import { buildExecutionOrder } from "./resolver";
 import type { WriteLogFn } from "./types";
