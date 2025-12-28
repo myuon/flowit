@@ -1,4 +1,5 @@
-import type { ExecutionLog as DbExecutionLog } from "../db/schema";
+// Re-export conversion function from schema
+export { executionLogFromDb } from "../db/schema";
 
 // ============================================
 // Domain Model
@@ -11,21 +12,6 @@ export interface ExecutionLog {
   nodeId: string;
   data: unknown;
   createdAt: string;
-}
-
-// ============================================
-// Conversion Functions from DB Entity
-// ============================================
-
-export function executionLogFromDb(dbLog: DbExecutionLog): ExecutionLog {
-  return {
-    id: dbLog.id,
-    workflowId: dbLog.workflowId,
-    executionId: dbLog.executionId,
-    nodeId: dbLog.nodeId,
-    data: dbLog.data,
-    createdAt: dbLog.createdAt,
-  };
 }
 
 // ============================================

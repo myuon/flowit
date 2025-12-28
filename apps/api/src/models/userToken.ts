@@ -1,4 +1,5 @@
-import type { UserToken as DbUserToken } from "../db/schema";
+// Re-export conversion function from schema
+export { userTokenFromDb } from "../db/schema";
 
 // ============================================
 // Domain Model
@@ -13,23 +14,6 @@ export interface UserToken {
   expiresAt: string | null;
   createdAt: string;
   updatedAt: string;
-}
-
-// ============================================
-// Conversion Functions from DB Entity
-// ============================================
-
-export function userTokenFromDb(dbToken: DbUserToken): UserToken {
-  return {
-    id: dbToken.id,
-    userId: dbToken.userId,
-    provider: dbToken.provider,
-    accessToken: dbToken.accessToken,
-    refreshToken: dbToken.refreshToken,
-    expiresAt: dbToken.expiresAt,
-    createdAt: dbToken.createdAt,
-    updatedAt: dbToken.updatedAt,
-  };
 }
 
 // ============================================

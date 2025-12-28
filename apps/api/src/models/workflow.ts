@@ -1,7 +1,10 @@
 import type { WorkflowDSL } from "@flowit/shared";
-import type {
-  Workflow as DbWorkflow,
-  WorkflowVersion as DbWorkflowVersion,
+
+// Re-export conversion functions from schema
+export {
+  workflowFromDb,
+  workflowVersionFromDb,
+  workflowWithVersionsFromDb,
 } from "../db/schema";
 
 // ============================================
@@ -28,50 +31,6 @@ export interface WorkflowVersion {
 export interface WorkflowWithVersions extends Workflow {
   versions: WorkflowVersion[];
   currentVersion: WorkflowVersion | null;
-}
-
-// ============================================
-// Conversion Functions from DB Entities
-// ============================================
-
-export function workflowFromDb(dbWorkflow: DbWorkflow): Workflow {
-  return {
-    id: dbWorkflow.id,
-    name: dbWorkflow.name,
-    description: dbWorkflow.description,
-    createdAt: dbWorkflow.createdAt,
-    updatedAt: dbWorkflow.updatedAt,
-  };
-}
-
-export function workflowVersionFromDb(
-  dbVersion: DbWorkflowVersion
-): WorkflowVersion {
-  return {
-    id: dbVersion.id,
-    workflowId: dbVersion.workflowId,
-    version: dbVersion.version,
-    dsl: dbVersion.dsl as WorkflowDSL,
-    changelog: dbVersion.changelog,
-    createdAt: dbVersion.createdAt,
-  };
-}
-
-export function workflowWithVersionsFromDb(
-  dbWorkflow: DbWorkflow,
-  dbVersions: DbWorkflowVersion[]
-): WorkflowWithVersions {
-  const versions = dbVersions.map(workflowVersionFromDb);
-  const currentVersion =
-    versions.length > 0
-      ? versions.reduce((latest, v) => (v.version > latest.version ? v : latest))
-      : null;
-
-  return {
-    ...workflowFromDb(dbWorkflow),
-    versions,
-    currentVersion,
-  };
 }
 
 // ============================================

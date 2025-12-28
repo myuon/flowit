@@ -1,6 +1,8 @@
-import type { AppConfig as DbAppConfig } from "../db/schema";
 import type { AppSettings, Language } from "@flowit/shared";
 import { DEFAULT_APP_SETTINGS } from "@flowit/shared";
+
+// Re-export conversion function from schema
+export { appConfigFromDb } from "../db/schema";
 
 // ============================================
 // Domain Model
@@ -10,18 +12,6 @@ export interface AppConfig {
   key: string;
   value: string;
   updatedAt: string;
-}
-
-// ============================================
-// Conversion Functions from DB Entity
-// ============================================
-
-export function appConfigFromDb(dbConfig: DbAppConfig): AppConfig {
-  return {
-    key: dbConfig.key,
-    value: dbConfig.value,
-    updatedAt: dbConfig.updatedAt,
-  };
 }
 
 // ============================================
