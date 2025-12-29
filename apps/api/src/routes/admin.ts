@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import type { AuthVariables } from "../auth";
+import type { AuthVariables } from "../middleware/auth";
 import { db, appConfig } from "../db";
 import { updateSettingsSchema } from "./schemas";
 import {

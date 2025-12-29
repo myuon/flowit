@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import type { AuthVariables } from "../auth";
+import type { AuthVariables } from "../middleware/auth";
 import { userTokenRepository } from "../db/repository";
 import { validateGasDeploymentSchema } from "./schemas";
 

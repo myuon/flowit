@@ -4,8 +4,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import type { WriteLogFn } from "@flowit/sdk";
-import { sessionAuth, type AuthVariables } from "./auth";
-import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
+import { sessionAuth, type AuthVariables } from "./middleware/auth";
+import { createOAuthRoutes, getOAuthConfig } from "./routes/oauth";
 import { executionLogRepository } from "./db/repository";
 import {
   createWorkflowRoutes,

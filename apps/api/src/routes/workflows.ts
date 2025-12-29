@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import type { ExecuteWorkflowResponse } from "@flowit/shared";
 import { runWorkflow, validateWorkflow, type WriteLogFn } from "@flowit/sdk";
-import type { AuthVariables } from "../auth";
+import type { AuthVariables } from "../middleware/auth";
 import {
   workflowRepository,
   workflowVersionRepository,
