@@ -244,6 +244,23 @@ export const userTokens = sqliteTable(
 );
 
 // ============================================
+// Sessions - User session management
+// ============================================
+export const sessions = sqliteTable(
+  "sessions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    expiresAt: text("expires_at").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [
+    index("sessions_user_id_idx").on(table.userId),
+    index("sessions_expires_at_idx").on(table.expiresAt),
+  ]
+);
+
+// ============================================
 // App Configuration - Key-value settings
 // ============================================
 export const appConfig = sqliteTable("app_config", {
@@ -346,5 +363,17 @@ export function userTokenFromDb(dbToken: UserToken) {
     expiresAt: dbToken.expiresAt,
     createdAt: dbToken.createdAt,
     updatedAt: dbToken.updatedAt,
+  };
+}
+
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
+
+export function sessionFromDb(dbSession: Session) {
+  return {
+    id: dbSession.id,
+    userId: dbSession.userId,
+    expiresAt: dbSession.expiresAt,
+    createdAt: dbSession.createdAt,
   };
 }

@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import type { WriteLogFn } from "@flowit/sdk";
-import { jwtAuth, getAuthConfig, type AuthVariables } from "./auth";
+import { sessionAuth, type AuthVariables } from "./auth";
 import { createOAuthRoutes, getOAuthConfig } from "./auth/oauth";
 import { executionLogRepository } from "./db/repository";
 import {
@@ -26,9 +26,8 @@ const writeLog: WriteLogFn = async (workflowId, executionId, nodeId, data) => {
   });
 };
 
-// Auth configuration
-const authConfig = getAuthConfig();
-const requireAuth = jwtAuth(authConfig);
+// Session-based authentication
+const requireAuth = sessionAuth();
 
 // OAuth routes
 const oauthRoutes = createOAuthRoutes(getOAuthConfig());

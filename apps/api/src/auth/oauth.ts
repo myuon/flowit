@@ -1,7 +1,10 @@
 import { Hono } from "hono";
 import * as jose from "jose";
 import type { AuthUser } from "@flowit/shared";
-import { userTokenRepository } from "../db/repository";
+import { userTokenRepository, sessionRepository } from "../db/repository";
+
+// Session duration: 7 days
+const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * OIDC Provider configuration
@@ -197,22 +200,33 @@ export function createOAuthRoutes(config: OAuthConfig) {
             ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
             : undefined,
         });
+
+        // Create a session
+        const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+        const session = await sessionRepository.create(user.sub, expiresAt);
+
+        // Set session cookie with security attributes
+        const isProduction = process.env.NODE_ENV === "production";
+        const cookieOptions = [
+          `session_id=${session.id}`,
+          `Path=/`,
+          `HttpOnly`,
+          `SameSite=Lax`,
+          `Expires=${expiresAt.toUTCString()}`,
+          ...(isProduction ? ["Secure"] : []),
+        ].join("; ");
+
+        // Redirect to frontend top page (session is in cookie)
+        return new Response(null, {
+          status: 302,
+          headers: {
+            Location: config.frontendUrl,
+            "Set-Cookie": cookieOptions,
+          },
+        });
       }
 
-      // Redirect to frontend with tokens
-      // In production, consider using httpOnly cookies instead
-      const params = new URLSearchParams({
-        access_token: tokens.access_token,
-        id_token: tokens.id_token,
-        expires_in: tokens.expires_in.toString(),
-        user: JSON.stringify(user),
-      });
-
-      if (tokens.refresh_token) {
-        params.set("refresh_token", tokens.refresh_token);
-      }
-
-      return c.redirect(`${config.frontendUrl}/auth/callback?${params}`);
+      return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("User ID not found")}`);
     } catch (err) {
       console.error("OAuth callback error:", err);
       return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("Authentication failed")}`);
@@ -220,10 +234,36 @@ export function createOAuthRoutes(config: OAuthConfig) {
   });
 
   // Logout
-  oauth.post("/logout", (c) => {
-    // For now, just return success
-    // In production with cookies, clear the cookie here
-    return c.json({ success: true });
+  oauth.post("/logout", async (c) => {
+    // Get session ID from cookie
+    const sessionId = c.req
+      .header("Cookie")
+      ?.split(";")
+      .find((cookie) => cookie.trim().startsWith("session_id="))
+      ?.split("=")[1];
+
+    if (sessionId) {
+      await sessionRepository.delete(sessionId);
+    }
+
+    // Clear the session cookie
+    const isProduction = process.env.NODE_ENV === "production";
+    const clearCookieOptions = [
+      "session_id=",
+      "Path=/",
+      "HttpOnly",
+      "SameSite=Lax",
+      "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+      ...(isProduction ? ["Secure"] : []),
+    ].join("; ");
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Set-Cookie": clearCookieOptions,
+      },
+    });
   });
 
   return oauth;

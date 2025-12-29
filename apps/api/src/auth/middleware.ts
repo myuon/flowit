@@ -1,6 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
 import type { AuthUser } from "@flowit/shared";
+import { sessionRepository } from "../db/repository";
 
 /**
  * OIDC Provider configuration for JWT verification
@@ -140,4 +141,52 @@ export function getAuthConfig(): JWTVerifyConfig {
     issuer: process.env.OIDC_ISSUER || "https://accounts.google.com",
     audience: process.env.OIDC_AUDIENCE || process.env.OIDC_CLIENT_ID || "",
   };
+}
+
+/**
+ * Session-based authentication middleware
+ *
+ * This middleware:
+ * 1. Extracts session ID from HttpOnly cookie
+ * 2. Looks up the session in the database
+ * 3. Validates session is not expired
+ * 4. Retrieves user info and adds to context
+ */
+export function sessionAuth() {
+  return createMiddleware<{ Variables: AuthVariables }>(async (c, next) => {
+    // Get session ID from cookie
+    const sessionId = c.req
+      .header("Cookie")
+      ?.split(";")
+      .find((cookie) => cookie.trim().startsWith("session_id="))
+      ?.split("=")[1];
+
+    if (!sessionId) {
+      return c.json({ error: "Missing session" }, 401);
+    }
+
+    try {
+      // Look up session
+      const session = await sessionRepository.findValidById(sessionId);
+      if (!session) {
+        return c.json({ error: "Invalid or expired session" }, 401);
+      }
+
+      // Create minimal user object from session
+      const user: AuthUser = {
+        sub: session.userId,
+        email: "",
+        iss: "session",
+      };
+
+      // Add to context
+      c.set("user", user);
+      c.set("token", sessionId);
+
+      await next();
+    } catch (error) {
+      console.error("Session auth error:", error);
+      return c.json({ error: "Authentication failed" }, 401);
+    }
+  });
 }

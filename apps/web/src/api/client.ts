@@ -5,53 +5,23 @@ import type {
   ExecuteWorkflowRequest,
   ExecuteWorkflowResponse,
   AuthUser,
-  AuthSession,
   AppSettings,
   WorkflowMeta,
 } from "@flowit/shared";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-const AUTH_STORAGE_KEY = "flowit-auth";
 
 /**
- * Get current access token from session storage
- */
-function getAccessToken(): string | null {
-  try {
-    const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    if (!stored) return null;
-
-    const session = JSON.parse(stored) as AuthSession;
-
-    // Check if expired
-    if (session.expiresAt < Date.now()) {
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-      return null;
-    }
-
-    // Use idToken for API calls (it's a JWT that can be verified)
-    // Google's access_token is opaque and cannot be verified with JWKS
-    return session.idToken;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Custom fetch that adds auth headers
+ * Custom fetch that includes credentials (cookies) for session-based auth
  */
 const authFetch: typeof fetch = (input, init) => {
-  const token = getAccessToken();
-  const headers = new Headers(init?.headers);
-
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  return fetch(input, { ...init, headers });
+  return fetch(input, {
+    ...init,
+    credentials: "include",
+  });
 };
 
-// Create hono client with auth
+// Create hono client with auth (cookies sent automatically)
 const client = hc<AppType>(API_BASE_URL, { fetch: authFetch });
 
 // ============================================
