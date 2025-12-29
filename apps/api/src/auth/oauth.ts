@@ -1,7 +1,12 @@
 import { Hono } from "hono";
+import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 import * as jose from "jose";
 import type { AuthUser } from "@flowit/shared";
-import { userTokenRepository, sessionRepository, userRepository } from "../db/repository";
+import {
+  userTokenRepository,
+  sessionRepository,
+  userRepository,
+} from "../db/repository";
 
 // Session duration: 7 days
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -26,7 +31,8 @@ export function getOAuthConfig(): OAuthConfig {
     issuer: process.env.OIDC_ISSUER || "https://accounts.google.com",
     clientId: process.env.OIDC_CLIENT_ID || "",
     clientSecret: process.env.OIDC_CLIENT_SECRET || "",
-    redirectUri: process.env.OIDC_REDIRECT_URI || "http://localhost:3001/auth/callback",
+    redirectUri:
+      process.env.OIDC_REDIRECT_URI || "http://localhost:3001/auth/callback",
     scopes: [
       "openid",
       "email",
@@ -69,13 +75,17 @@ async function getDiscovery(issuer: string): Promise<OIDCDiscovery> {
 }
 
 // State storage (in production, use Redis or similar)
-const stateStore = new Map<string, { createdAt: number; redirectTo?: string }>();
+const stateStore = new Map<
+  string,
+  { createdAt: number; redirectTo?: string }
+>();
 
 // Clean up old states periodically
 setInterval(() => {
   const now = Date.now();
   for (const [key, value] of stateStore) {
-    if (now - value.createdAt > 10 * 60 * 1000) { // 10 minutes
+    if (now - value.createdAt > 10 * 60 * 1000) {
+      // 10 minutes
       stateStore.delete(key);
     }
   }
@@ -87,7 +97,9 @@ setInterval(() => {
 function generateState(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    ""
+  );
 }
 
 /**
@@ -140,17 +152,23 @@ export function createOAuthRoutes(config: OAuthConfig) {
     // Handle error from provider
     if (error) {
       const errorDescription = c.req.query("error_description") || error;
-      return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent(errorDescription)}`);
+      return c.redirect(
+        `${config.frontendUrl}/auth/error?error=${encodeURIComponent(errorDescription)}`
+      );
     }
 
     // Validate state
     if (!state || !stateStore.has(state)) {
-      return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("Invalid state")}`);
+      return c.redirect(
+        `${config.frontendUrl}/auth/error?error=${encodeURIComponent("Invalid state")}`
+      );
     }
     stateStore.delete(state);
 
     if (!code) {
-      return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("Missing authorization code")}`);
+      return c.redirect(
+        `${config.frontendUrl}/auth/error?error=${encodeURIComponent("Missing authorization code")}`
+      );
     }
 
     try {
@@ -174,7 +192,9 @@ export function createOAuthRoutes(config: OAuthConfig) {
       if (!tokenResponse.ok) {
         const errorBody = await tokenResponse.text();
         console.error("Token exchange failed:", errorBody);
-        return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("Token exchange failed")}`);
+        return c.redirect(
+          `${config.frontendUrl}/auth/error?error=${encodeURIComponent("Token exchange failed")}`
+        );
       }
 
       const tokens = (await tokenResponse.json()) as {
@@ -215,40 +235,33 @@ export function createOAuthRoutes(config: OAuthConfig) {
 
         // Set session cookie with security attributes
         const isProduction = process.env.NODE_ENV === "production";
-        const cookieOptions = [
-          `session_id=${session.id}`,
-          `Path=/`,
-          `HttpOnly`,
-          `SameSite=Lax`,
-          `Expires=${expiresAt.toUTCString()}`,
-          ...(isProduction ? ["Secure"] : []),
-        ].join("; ");
+        setCookie(c, "session_id", session.id, {
+          path: "/",
+          httpOnly: true,
+          sameSite: "Lax",
+          expires: expiresAt,
+          secure: isProduction,
+        });
 
         // Redirect to frontend top page (session is in cookie)
-        return new Response(null, {
-          status: 302,
-          headers: {
-            Location: config.frontendUrl,
-            "Set-Cookie": cookieOptions,
-          },
-        });
+        return c.redirect(config.frontendUrl);
       }
 
-      return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("User ID not found")}`);
+      return c.redirect(
+        `${config.frontendUrl}/auth/error?error=${encodeURIComponent("User ID not found")}`
+      );
     } catch (err) {
       console.error("OAuth callback error:", err);
-      return c.redirect(`${config.frontendUrl}/auth/error?error=${encodeURIComponent("Authentication failed")}`);
+      return c.redirect(
+        `${config.frontendUrl}/auth/error?error=${encodeURIComponent("Authentication failed")}`
+      );
     }
   });
 
   // Logout
   oauth.post("/logout", async (c) => {
     // Get session ID from cookie
-    const sessionId = c.req
-      .header("Cookie")
-      ?.split(";")
-      .find((cookie) => cookie.trim().startsWith("session_id="))
-      ?.split("=")[1];
+    const sessionId = getCookie(c, "session_id");
 
     if (sessionId) {
       await sessionRepository.delete(sessionId);
@@ -256,22 +269,14 @@ export function createOAuthRoutes(config: OAuthConfig) {
 
     // Clear the session cookie
     const isProduction = process.env.NODE_ENV === "production";
-    const clearCookieOptions = [
-      "session_id=",
-      "Path=/",
-      "HttpOnly",
-      "SameSite=Lax",
-      "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
-      ...(isProduction ? ["Secure"] : []),
-    ].join("; ");
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Set-Cookie": clearCookieOptions,
-      },
+    deleteCookie(c, "session_id", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: isProduction,
     });
+
+    return c.json({ success: true });
   });
 
   return oauth;

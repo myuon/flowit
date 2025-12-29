@@ -1,6 +1,11 @@
 import { createMiddleware } from "hono/factory";
+import { getCookie } from "hono/cookie";
 import type { AuthUser } from "@flowit/shared";
-import { sessionRepository, userRepository, userTokenRepository } from "../db/repository";
+import {
+  sessionRepository,
+  userRepository,
+  userTokenRepository,
+} from "../db/repository";
 
 // Token refresh leeway in seconds (refresh if token expires within this time)
 const TOKEN_REFRESH_LEEWAY_SECONDS = 300;
@@ -64,7 +69,10 @@ async function refreshAccessToken(
  * Check if token needs refresh and refresh if necessary
  */
 async function refreshTokenIfNeeded(userId: string): Promise<void> {
-  const userToken = await userTokenRepository.findByUserAndProvider(userId, "google");
+  const userToken = await userTokenRepository.findByUserAndProvider(
+    userId,
+    "google"
+  );
   if (!userToken) {
     return;
   }
@@ -79,10 +87,17 @@ async function refreshTokenIfNeeded(userId: string): Promise<void> {
       // Token is about to expire, refresh it
       if (userToken.refreshToken) {
         const remainingSeconds = Math.floor((expiresAt - now) / 1000);
-        console.log(`[Token Refresh] Refreshing token for user ${userId} (expires in ${remainingSeconds}s)`);
-        const success = await refreshAccessToken(userId, userToken.refreshToken);
+        console.log(
+          `[Token Refresh] Refreshing token for user ${userId} (expires in ${remainingSeconds}s)`
+        );
+        const success = await refreshAccessToken(
+          userId,
+          userToken.refreshToken
+        );
         if (success) {
-          console.log(`[Token Refresh] Successfully refreshed token for user ${userId}`);
+          console.log(
+            `[Token Refresh] Successfully refreshed token for user ${userId}`
+          );
         }
       }
     }
@@ -110,11 +125,7 @@ export interface AuthVariables {
 export function sessionAuth() {
   return createMiddleware<{ Variables: AuthVariables }>(async (c, next) => {
     // Get session ID from cookie
-    const sessionId = c.req
-      .header("Cookie")
-      ?.split(";")
-      .find((cookie) => cookie.trim().startsWith("session_id="))
-      ?.split("=")[1];
+    const sessionId = getCookie(c, "session_id");
 
     if (!sessionId) {
       return c.json({ error: "Missing session" }, 401);
