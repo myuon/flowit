@@ -72,7 +72,15 @@ function UserMenuComponent() {
             {user.name?.[0] || user.email[0]}
           </div>
         )}
-        <span style={{ color: "#333", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span
+          style={{
+            color: "#333",
+            maxWidth: 120,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
           {user.name || user.email}
         </span>
         <svg

@@ -55,7 +55,10 @@ export const workflowTemplates: WorkflowTemplate[] = [
           type: "js-transform",
           label: "Transform Data",
           params: {
-            expression: { type: "static", value: "`API returned: ${JSON.stringify(data)}`" },
+            expression: {
+              type: "static",
+              value: "`API returned: ${JSON.stringify(data)}`",
+            },
           },
           inputs: {
             data: { type: "any", required: true },
@@ -142,7 +145,10 @@ export const workflowTemplates: WorkflowTemplate[] = [
           label: "AI Response",
           params: {
             model: { type: "static", value: "gpt-4o-mini" },
-            systemPrompt: { type: "static", value: "You are a helpful assistant." },
+            systemPrompt: {
+              type: "static",
+              value: "You are a helpful assistant.",
+            },
             temperature: { type: "static", value: 0.7 },
             maxTokens: { type: "static", value: 1000 },
           },
@@ -225,7 +231,10 @@ export const workflowTemplates: WorkflowTemplate[] = [
           type: "template",
           label: "Format Message",
           params: {
-            template: { type: "static", value: "Hello, {{name}}! Count is {{count}}." },
+            template: {
+              type: "static",
+              value: "Hello, {{name}}! Count is {{count}}.",
+            },
           },
           inputs: {
             variables: { type: "object" },

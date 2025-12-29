@@ -147,9 +147,7 @@ function TemplateSelectorComponent({
               <span style={{ fontWeight: 500, color: "#333" }}>
                 {t.blankWorkflow}
               </span>
-              <span
-                style={{ fontSize: 12, color: "#888", marginTop: 4 }}
-              >
+              <span style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
                 {t.startFromScratch}
               </span>
             </div>

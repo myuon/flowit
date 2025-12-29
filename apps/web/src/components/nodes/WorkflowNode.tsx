@@ -120,7 +120,9 @@ function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
 
         {/* Show message if no I/O */}
         {inputKeys.length === 0 && outputKeys.length === 0 && (
-          <div style={{ padding: "4px 10px", color: "#999", fontStyle: "italic" }}>
+          <div
+            style={{ padding: "4px 10px", color: "#999", fontStyle: "italic" }}
+          >
             No I/O
           </div>
         )}

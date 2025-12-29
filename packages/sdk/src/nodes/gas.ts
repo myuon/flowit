@@ -33,29 +33,38 @@ async function findScriptIdForDeployment(
 ): Promise<{ scriptId: string; scriptName: string } | null> {
   // First, list all Apps Script files using Drive API
   const driveUrl = new URL("https://www.googleapis.com/drive/v3/files");
-  driveUrl.searchParams.set("q", "mimeType='application/vnd.google-apps.script'");
+  driveUrl.searchParams.set(
+    "q",
+    "mimeType='application/vnd.google-apps.script'"
+  );
   driveUrl.searchParams.set("fields", "files(id,name),nextPageToken");
   driveUrl.searchParams.set("pageSize", "100");
 
   const driveResponse = await fetch(driveUrl.toString(), {
     headers: {
-      "Authorization": `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
     signal,
   });
 
   if (!driveResponse.ok) {
     if (driveResponse.status === 401) {
-      throw new Error("Access token is invalid or expired. Please re-authenticate with Google.");
+      throw new Error(
+        "Access token is invalid or expired. Please re-authenticate with Google."
+      );
     }
-    throw new Error(`Failed to list Apps Script files: ${driveResponse.status} ${driveResponse.statusText}`);
+    throw new Error(
+      `Failed to list Apps Script files: ${driveResponse.status} ${driveResponse.statusText}`
+    );
   }
 
-  const driveData = await driveResponse.json() as DriveFilesResponse;
+  const driveData = (await driveResponse.json()) as DriveFilesResponse;
   const scriptFiles = driveData.files || [];
 
   if (scriptFiles.length === 0) {
-    throw new Error("No Apps Script files found in your Google Drive. Please make sure you have access to the script containing this deployment.");
+    throw new Error(
+      "No Apps Script files found in your Google Drive. Please make sure you have access to the script containing this deployment."
+    );
   }
 
   // Check each script for the deployment
@@ -64,7 +73,7 @@ async function findScriptIdForDeployment(
 
     const deploymentsResponse = await fetch(deploymentsUrl, {
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       signal,
     });
@@ -74,7 +83,8 @@ async function findScriptIdForDeployment(
       continue;
     }
 
-    const deploymentsData = await deploymentsResponse.json() as DeploymentsResponse;
+    const deploymentsData =
+      (await deploymentsResponse.json()) as DeploymentsResponse;
     const deployments = deploymentsData.deployments || [];
 
     const found = deployments.find((d) => d.deploymentId === deploymentId);
@@ -120,7 +130,9 @@ export const gasNode = defineNode({
   },
   async run({ inputs, params, context }) {
     if (!params.accessToken) {
-      throw new Error("Google access token is required. Please authenticate with Google first.");
+      throw new Error(
+        "Google access token is required. Please authenticate with Google first."
+      );
     }
 
     if (!params.deploymentId) {
@@ -139,14 +151,16 @@ export const gasNode = defineNode({
     if (!scriptInfo) {
       throw new Error(
         `Deployment not found: ${params.deploymentId}. ` +
-        "Please verify that:\n" +
-        "1. The deployment ID is correct\n" +
-        "2. You have access to the script containing this deployment\n" +
-        "3. The script is deployed as a Web App"
+          "Please verify that:\n" +
+          "1. The deployment ID is correct\n" +
+          "2. You have access to the script containing this deployment\n" +
+          "3. The script is deployed as a Web App"
       );
     }
 
-    context.log(`Found script: ${scriptInfo.scriptName} (${scriptInfo.scriptId})`);
+    context.log(
+      `Found script: ${scriptInfo.scriptName} (${scriptInfo.scriptId})`
+    );
 
     // Build the Web App URL
     const url = `https://script.google.com/macros/s/${params.deploymentId}/exec`;
@@ -156,7 +170,7 @@ export const gasNode = defineNode({
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${params.accessToken}`,
+        Authorization: `Bearer ${params.accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(inputs.parameters ?? {}),
@@ -165,7 +179,9 @@ export const gasNode = defineNode({
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`GAS execution failed: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `GAS execution failed: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
 
     // Try to parse as JSON, fall back to text

@@ -294,9 +294,7 @@ describe("validateWorkflow", () => {
   });
 
   it("should detect unknown node types", () => {
-    const workflow = createWorkflow([
-      createNode("n1", "unknown-node-type"),
-    ]);
+    const workflow = createWorkflow([createNode("n1", "unknown-node-type")]);
 
     const errors = validateWorkflow(workflow);
 
@@ -316,10 +314,7 @@ describe("validateWorkflow", () => {
 
   it("should detect cycles", () => {
     const workflow = createWorkflow(
-      [
-        createNode("a", "template"),
-        createNode("b", "template"),
-      ],
+      [createNode("a", "template"), createNode("b", "template")],
       [
         createEdge("a", "result", "b", "variables"),
         createEdge("b", "result", "a", "variables"),
@@ -350,13 +345,17 @@ describe("runWorkflow", () => {
 
     expect(result.status).toBe("success");
     expect(result.outputs.input1).toBeDefined();
-    expect((result.outputs.input1 as { value: string }).value).toBe("Hello, World!");
+    expect((result.outputs.input1 as { value: string }).value).toBe(
+      "Hello, World!"
+    );
   });
 
   it("should execute template workflow with inputs", async () => {
     const workflow = createWorkflow(
       [
-        createNode("input1", "json-input", { json: { name: "Alice", age: 30 } }),
+        createNode("input1", "json-input", {
+          json: { name: "Alice", age: 30 },
+        }),
         createNode("template1", "template", {
           template: "Hello, {{name}}! You are {{age}} years old.",
         }),
@@ -378,7 +377,9 @@ describe("runWorkflow", () => {
   it("should execute js-transform node", async () => {
     const workflow = createWorkflow(
       [
-        createNode("input1", "json-input", { json: { items: [1, 2, 3, 4, 5] } }),
+        createNode("input1", "json-input", {
+          json: { items: [1, 2, 3, 4, 5] },
+        }),
         createNode("transform1", "js-transform", {
           expression: "data.items.filter(x => x > 2)",
         }),
@@ -435,9 +436,9 @@ describe("runWorkflow", () => {
     });
 
     expect(result.status).toBe("success");
-    expect((result.outputs.filter1 as { result: number[]; count: number }).result).toEqual([
-      2, 4, 6,
-    ]);
+    expect(
+      (result.outputs.filter1 as { result: number[]; count: number }).result
+    ).toEqual([2, 4, 6]);
     expect((result.outputs.filter1 as { count: number }).count).toBe(3);
   });
 
@@ -474,7 +475,9 @@ describe("runWorkflow", () => {
     });
 
     expect(result.status).toBe("success");
-    expect((result.outputs.input1 as { value: string }).value).toBe("secret-value");
+    expect((result.outputs.input1 as { value: string }).value).toBe(
+      "secret-value"
+    );
   });
 
   it("should chain multiple nodes", async () => {
@@ -498,7 +501,9 @@ describe("runWorkflow", () => {
     });
 
     expect(result.status).toBe("success");
-    expect((result.outputs.transform1 as { result: string }).result).toBe("hello world");
+    expect((result.outputs.transform1 as { result: string }).result).toBe(
+      "hello world"
+    );
   });
 
   it("should pass workflowInputs to webhook trigger node", async () => {
@@ -526,8 +531,13 @@ describe("runWorkflow", () => {
       query: Record<string, string>;
       method: string;
     };
-    expect(webhookOutput.body).toEqual({ message: "Hello from webhook!", userId: 123 });
-    expect(webhookOutput.headers).toEqual({ "content-type": "application/json" });
+    expect(webhookOutput.body).toEqual({
+      message: "Hello from webhook!",
+      userId: 123,
+    });
+    expect(webhookOutput.headers).toEqual({
+      "content-type": "application/json",
+    });
     expect(webhookOutput.query).toEqual({ format: "json" });
     expect(webhookOutput.method).toBe("POST");
   });
@@ -554,6 +564,8 @@ describe("runWorkflow", () => {
     });
 
     expect(result.status).toBe("success");
-    expect((result.outputs.transform1 as { result: string }).result).toBe("HELLO WORLD");
+    expect((result.outputs.transform1 as { result: string }).result).toBe(
+      "HELLO WORLD"
+    );
   });
 });

@@ -10,10 +10,14 @@ export const slackMessageNode = defineNode({
   description: "Sends a message to a Slack channel",
   inputs: {
     text: io.string({ description: "Message text", required: true }),
-    blocks: io.array(io.any(), { description: "Slack Block Kit blocks (optional)" }),
+    blocks: io.array(io.any(), {
+      description: "Slack Block Kit blocks (optional)",
+    }),
   },
   outputs: {
-    success: io.boolean({ description: "Whether the message was sent successfully" }),
+    success: io.boolean({
+      description: "Whether the message was sent successfully",
+    }),
     response: io.any({ description: "Slack API response" }),
   },
   paramsSchema: {
@@ -211,12 +215,18 @@ export const slackBlockBuilderNode = defineNode({
     const data = inputs.data as Record<string, unknown> | undefined;
 
     if (data) {
-      const flattenData = (obj: Record<string, unknown>, prefix = ""): Record<string, unknown> => {
+      const flattenData = (
+        obj: Record<string, unknown>,
+        prefix = ""
+      ): Record<string, unknown> => {
         const result: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(obj)) {
           const newKey = prefix ? `${prefix}.${key}` : key;
           if (value && typeof value === "object" && !Array.isArray(value)) {
-            Object.assign(result, flattenData(value as Record<string, unknown>, newKey));
+            Object.assign(
+              result,
+              flattenData(value as Record<string, unknown>, newKey)
+            );
           } else {
             result[newKey] = value;
           }
@@ -226,7 +236,10 @@ export const slackBlockBuilderNode = defineNode({
 
       const flattened = flattenData(data);
       for (const [key, value] of Object.entries(flattened)) {
-        text = text.replace(new RegExp(`{{\\s*data\\.${key}\\s*}}`, "g"), String(value));
+        text = text.replace(
+          new RegExp(`{{\\s*data\\.${key}\\s*}}`, "g"),
+          String(value)
+        );
       }
     }
 

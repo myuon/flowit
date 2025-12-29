@@ -229,7 +229,10 @@ export const io = {
   boolean(options?: Partial<Omit<IOSchema, "type">>): IOSchema {
     return { type: "boolean", ...options };
   },
-  array(items: IOSchema, options?: Partial<Omit<IOSchema, "type" | "items">>): IOSchema {
+  array(
+    items: IOSchema,
+    options?: Partial<Omit<IOSchema, "type" | "items">>
+  ): IOSchema {
     return { type: "array", items, ...options };
   },
   object(

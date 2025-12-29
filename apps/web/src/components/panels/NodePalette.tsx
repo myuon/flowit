@@ -19,8 +19,16 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
   const filteredGroups = Object.entries(groupedCatalog).reduce(
     (acc, [category, nodes]) => {
       const filtered = nodes.filter((node) => {
-        const displayName = getNodeDisplayName(node.id, language, node.displayName);
-        const description = getNodeDescription(node.id, language, node.description);
+        const displayName = getNodeDisplayName(
+          node.id,
+          language,
+          node.displayName
+        );
+        const description = getNodeDescription(
+          node.id,
+          language,
+          node.description
+        );
         const searchLower = searchTerm.toLowerCase();
         return (
           displayName.toLowerCase().includes(searchLower) ||
@@ -92,8 +100,16 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
               {getCategoryName(category, language)}
             </div>
             {nodes.map((node) => {
-              const displayName = getNodeDisplayName(node.id, language, node.displayName);
-              const description = getNodeDescription(node.id, language, node.description);
+              const displayName = getNodeDisplayName(
+                node.id,
+                language,
+                node.displayName
+              );
+              const description = getNodeDescription(
+                node.id,
+                language,
+                node.description
+              );
               return (
                 <div
                   key={node.id}

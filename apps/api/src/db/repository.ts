@@ -44,7 +44,9 @@ import {
 // Workflow Repository
 // ============================================
 export const workflowRepository = {
-  async create(data: Omit<NewWorkflow, "id" | "createdAt" | "updatedAt">): Promise<Workflow> {
+  async create(
+    data: Omit<NewWorkflow, "id" | "createdAt" | "updatedAt">
+  ): Promise<Workflow> {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const [result] = await db
@@ -66,7 +68,9 @@ export const workflowRepository = {
     return result ? workflowFromDb(result) : undefined;
   },
 
-  async findByIdWithVersions(id: string): Promise<WorkflowWithVersions | undefined> {
+  async findByIdWithVersions(
+    id: string
+  ): Promise<WorkflowWithVersions | undefined> {
     const result = await db.query.workflows.findFirst({
       where: eq(workflows.id, id),
       with: {
@@ -184,7 +188,9 @@ export const workflowVersionRepository = {
     return result ? workflowVersionFromDb(result) : undefined;
   },
 
-  async getLatestVersion(workflowId: string): Promise<WorkflowVersion | undefined> {
+  async getLatestVersion(
+    workflowId: string
+  ): Promise<WorkflowVersion | undefined> {
     const result = await db.query.workflowVersions.findFirst({
       where: eq(workflowVersions.workflowId, workflowId),
       orderBy: [desc(workflowVersions.version)],
@@ -197,9 +203,7 @@ export const workflowVersionRepository = {
 // Run Repository
 // ============================================
 export const runRepository = {
-  async create(
-    data: Omit<NewRun, "id" | "createdAt">
-  ): Promise<Run> {
+  async create(data: Omit<NewRun, "id" | "createdAt">): Promise<Run> {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const [result] = await db
@@ -298,9 +302,7 @@ export const runStepRepository = {
     return result;
   },
 
-  async createMany(
-    steps: Omit<NewRunStep, "id">[]
-  ): Promise<RunStep[]> {
+  async createMany(steps: Omit<NewRunStep, "id">[]): Promise<RunStep[]> {
     if (steps.length === 0) return [];
     const stepsWithIds = steps.map((step) => ({
       id: crypto.randomUUID(),
@@ -517,7 +519,10 @@ export const userTokenRepository = {
     const now = new Date().toISOString();
 
     // Check if token already exists for this user/provider
-    const existing = await this.findByUserAndProvider(data.userId, data.provider);
+    const existing = await this.findByUserAndProvider(
+      data.userId,
+      data.provider
+    );
 
     if (existing) {
       // Update existing token
@@ -622,17 +627,13 @@ export const sessionRepository = {
   },
 
   async deleteByUserId(userId: string): Promise<number> {
-    const result = await db
-      .delete(sessions)
-      .where(eq(sessions.userId, userId));
+    const result = await db.delete(sessions).where(eq(sessions.userId, userId));
     return result.rowsAffected;
   },
 
   async deleteExpired(): Promise<number> {
     const now = new Date().toISOString();
-    const result = await db
-      .delete(sessions)
-      .where(lt(sessions.expiresAt, now));
+    const result = await db.delete(sessions).where(lt(sessions.expiresAt, now));
     return result.rowsAffected;
   },
 };

@@ -201,7 +201,7 @@ const en: Translations = {
   createFirstWorkflow: "Create your first workflow",
   lastUpdated: "Last updated",
   delete: "Delete",
-  confirmDelete: "Are you sure you want to delete \"{name}\"?",
+  confirmDelete: 'Are you sure you want to delete "{name}"?',
 
   // Log Viewer
   refresh: "Refresh",
@@ -209,7 +209,8 @@ const en: Translations = {
   confirmClearLogs: "Are you sure you want to clear all execution logs?",
   executionLogsHistory: "Execution Logs History",
   noExecutionLogs: "No execution logs yet",
-  noExecutionLogsDescription: "Execute a workflow with log nodes to see logs here.",
+  noExecutionLogsDescription:
+    "Execute a workflow with log nodes to see logs here.",
   executionId: "Execution",
   logs: "logs",
 
@@ -322,7 +323,8 @@ const ja: Translations = {
   confirmClearLogs: "すべての実行ログを削除してもよろしいですか？",
   executionLogsHistory: "実行ログ履歴",
   noExecutionLogs: "実行ログがありません",
-  noExecutionLogsDescription: "ログノードを含むワークフローを実行すると、ここにログが表示されます。",
+  noExecutionLogsDescription:
+    "ログノードを含むワークフローを実行すると、ここにログが表示されます。",
   executionId: "実行",
   logs: "件",
 

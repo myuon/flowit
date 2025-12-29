@@ -65,16 +65,17 @@ export class WorkflowExecutor {
     const params = resolveParams(workflowNode.params, this.state);
 
     // Build writeLog function for this node
-    const nodeWriteLog = this.state.writeLog && this.state.workflowId
-      ? async (data: unknown) => {
-          await this.state.writeLog!(
-            this.state.workflowId!,
-            this.state.executionId,
-            workflowNode.id,
-            data
-          );
-        }
-      : undefined;
+    const nodeWriteLog =
+      this.state.writeLog && this.state.workflowId
+        ? async (data: unknown) => {
+            await this.state.writeLog!(
+              this.state.workflowId!,
+              this.state.executionId,
+              workflowNode.id,
+              data
+            );
+          }
+        : undefined;
 
     // Execute the node
     const result = await nodeDef.run({
@@ -111,7 +112,9 @@ export class WorkflowExecutor {
     const conditionResult = output?.result as boolean | undefined;
 
     // Find edges from this node
-    const outgoingEdges = this.workflow.edges.filter((e) => e.source === nodeId);
+    const outgoingEdges = this.workflow.edges.filter(
+      (e) => e.source === nodeId
+    );
 
     // For if-condition, route based on true/false handles
     if (conditionResult === true) {
@@ -235,7 +238,14 @@ export async function executeWorkflow(
   workflowId?: string,
   writeLog?: WriteLogFn
 ): Promise<ExecutionState> {
-  const executor = new WorkflowExecutor(workflow, inputs, secrets, executionId, workflowId, writeLog);
+  const executor = new WorkflowExecutor(
+    workflow,
+    inputs,
+    secrets,
+    executionId,
+    workflowId,
+    writeLog
+  );
   return executor.execute();
 }
 

@@ -270,9 +270,7 @@ function LogViewerComponent({ workflowId }: LogViewerProps) {
                         >
                           <span
                             style={{
-                              transform: isExpanded
-                                ? "rotate(90deg)"
-                                : "none",
+                              transform: isExpanded ? "rotate(90deg)" : "none",
                               transition: "transform 0.2s",
                               fontSize: 12,
                               color: "#666",

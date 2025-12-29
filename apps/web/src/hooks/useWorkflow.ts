@@ -1,10 +1,23 @@
 import { useCallback, useState, useEffect } from "react";
 import type { Edge } from "@xyflow/react";
 import { getNode, registerBuiltinNodes } from "@flowit/sdk";
-import type { WorkflowDSL, WorkflowNode, WorkflowEdge, WorkflowMeta } from "@flowit/shared";
+import type {
+  WorkflowDSL,
+  WorkflowNode,
+  WorkflowEdge,
+  WorkflowMeta,
+} from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
-import { executeWorkflow as executeWorkflowApi, getWorkflow, updateWorkflow, publishWorkflow as publishWorkflowApi } from "../api/client";
-import type { ExecutionResult, ExecutionLog } from "../components/panels/ExecutionPanel";
+import {
+  executeWorkflow as executeWorkflowApi,
+  getWorkflow,
+  updateWorkflow,
+  publishWorkflow as publishWorkflowApi,
+} from "../api/client";
+import type {
+  ExecutionResult,
+  ExecutionLog,
+} from "../components/panels/ExecutionPanel";
 import type { WorkflowTemplate } from "../data/templates";
 
 // Register builtin nodes on module load
@@ -33,8 +46,12 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
   const { workflowId } = options;
   const [nodes, setNodes] = useState<WorkflowNodeType[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [selectedNode, setSelectedNode] = useState<WorkflowNodeType | null>(null);
-  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>(createDefaultWorkflowMeta);
+  const [selectedNode, setSelectedNode] = useState<WorkflowNodeType | null>(
+    null
+  );
+  const [workflowMeta, setWorkflowMeta] = useState<WorkflowMeta>(
+    createDefaultWorkflowMeta
+  );
   const [execution, setExecution] = useState<ExecutionResult>({
     status: "idle",
     logs: [],
@@ -97,7 +114,10 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
       id: node.id,
       type: node.data.nodeType,
       label: node.data.label,
-      params: node.data.params as Record<string, { type: "static"; value: unknown }>,
+      params: node.data.params as Record<
+        string,
+        { type: "static"; value: unknown }
+      >,
       inputs: node.data.inputs,
       outputs: node.data.outputs,
     }));
@@ -128,7 +148,10 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
       return {
         id: node.id,
         type: "workflow",
-        position: { x: 100 + (index % 3) * 200, y: 100 + Math.floor(index / 3) * 150 },
+        position: {
+          x: 100 + (index % 3) * 200,
+          y: 100 + Math.floor(index / 3) * 150,
+        },
         data: {
           label: node.label || nodeDef?.displayName || node.type,
           nodeType: node.type,
@@ -203,12 +226,15 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
   }, [fromDSL]);
 
   // Add log entry
-  const addLog = useCallback((type: ExecutionLog["type"], message: string, nodeId?: string) => {
-    setExecution((prev) => ({
-      ...prev,
-      logs: [...prev.logs, { type, message, timestamp: new Date(), nodeId }],
-    }));
-  }, []);
+  const addLog = useCallback(
+    (type: ExecutionLog["type"], message: string, nodeId?: string) => {
+      setExecution((prev) => ({
+        ...prev,
+        logs: [...prev.logs, { type, message, timestamp: new Date(), nodeId }],
+      }));
+    },
+    []
+  );
 
   // Clear logs
   const clearLogs = useCallback(() => {
@@ -347,7 +373,10 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
         status: "published",
       }));
 
-      addLog("success", `Workflow published as version ${result.version.version}`);
+      addLog(
+        "success",
+        `Workflow published as version ${result.version.version}`
+      );
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       addLog("error", `Failed to publish workflow: ${errorMessage}`);
@@ -369,7 +398,12 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
         const currentVersion = workflow.currentVersion;
 
         if (currentVersion) {
-          const dsl = currentVersion.dsl as WorkflowDSL & { _positions?: Array<{ id: string; position: { x: number; y: number } }> };
+          const dsl = currentVersion.dsl as WorkflowDSL & {
+            _positions?: Array<{
+              id: string;
+              position: { x: number; y: number };
+            }>;
+          };
           fromDSL(dsl);
 
           // Apply saved positions if available

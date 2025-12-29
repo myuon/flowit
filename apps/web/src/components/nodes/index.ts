@@ -1,4 +1,8 @@
-import { WorkflowNode, type WorkflowNodeData, type WorkflowNodeType } from "./WorkflowNode";
+import {
+  WorkflowNode,
+  type WorkflowNodeData,
+  type WorkflowNodeType,
+} from "./WorkflowNode";
 
 export const nodeTypes = {
   workflow: WorkflowNode,

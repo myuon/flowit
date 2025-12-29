@@ -113,7 +113,10 @@ export async function healthCheck(): Promise<{ status: string }> {
 /**
  * Get current authenticated user from API
  */
-export async function getCurrentUser(): Promise<{ user: AuthUser; isAdmin: boolean }> {
+export async function getCurrentUser(): Promise<{
+  user: AuthUser;
+  isAdmin: boolean;
+}> {
   const res = await client.auth.me.$get();
 
   if (res.status === 401) {
@@ -170,7 +173,9 @@ export async function updateAppSettings(
 /**
  * List all workflows
  */
-export async function listWorkflows(): Promise<{ workflows: WorkflowListItem[] }> {
+export async function listWorkflows(): Promise<{
+  workflows: WorkflowListItem[];
+}> {
   const res = await client.api.workflows.$get();
 
   if (res.status === 401) {
@@ -187,7 +192,9 @@ export async function listWorkflows(): Promise<{ workflows: WorkflowListItem[] }
 /**
  * Get a single workflow with its versions
  */
-export async function getWorkflow(id: string): Promise<{ workflow: WorkflowWithVersions }> {
+export async function getWorkflow(
+  id: string
+): Promise<{ workflow: WorkflowWithVersions }> {
   const res = await client.api.workflows[":id"].$get({ param: { id } });
 
   if (res.status === 401) {
@@ -229,7 +236,10 @@ export async function updateWorkflow(
   id: string,
   data: { name?: string; description?: string; dsl?: WorkflowDSL }
 ): Promise<{ workflow: WorkflowListItem }> {
-  const res = await client.api.workflows[":id"].$put({ param: { id }, json: data });
+  const res = await client.api.workflows[":id"].$put({
+    param: { id },
+    json: data,
+  });
 
   if (res.status === 404) {
     throw new Error("Workflow not found");
@@ -261,7 +271,10 @@ export async function publishWorkflow(
     createdAt: string;
   };
 }> {
-  const res = await client.api.workflows[":id"].publish.$post({ param: { id }, json: data });
+  const res = await client.api.workflows[":id"].publish.$post({
+    param: { id },
+    json: data,
+  });
 
   if (res.status === 401) {
     throw new Error("Authentication required");

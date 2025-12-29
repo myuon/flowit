@@ -7,7 +7,8 @@ import { defineNode, io, param } from "../defineNode";
 export const ifConditionNode = defineNode({
   id: "if-condition",
   displayName: "If Condition",
-  description: "Evaluates a condition and routes execution to true or false branch",
+  description:
+    "Evaluates a condition and routes execution to true or false branch",
   inputs: {
     value: io.any({ description: "Value to evaluate", required: true }),
     context: io.object({}, { description: "Additional context for condition" }),
@@ -91,7 +92,8 @@ export const ifConditionNode = defineNode({
           );
           result = fn(value, ctx);
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
+          const message =
+            error instanceof Error ? error.message : String(error);
           throw new Error(`Expression error: ${message}`);
         }
         break;
@@ -115,7 +117,10 @@ export const switchNode = defineNode({
   displayName: "Switch",
   description: "Routes execution based on matching a value to multiple cases",
   inputs: {
-    value: io.any({ description: "Value to match against cases", required: true }),
+    value: io.any({
+      description: "Value to match against cases",
+      required: true,
+    }),
   },
   outputs: {
     matchedCase: io.string({ description: "The case that matched" }),
@@ -123,11 +128,13 @@ export const switchNode = defineNode({
   },
   paramsSchema: {
     cases: param.json("Cases", {
-      description: 'JSON array of case values, e.g., ["case1", "case2", "default"]',
+      description:
+        'JSON array of case values, e.g., ["case1", "case2", "default"]',
       default: ["default"],
     }),
     matchPath: param.string("Match Path", {
-      description: "Path to value for matching (dot notation), leave empty to use value directly",
+      description:
+        "Path to value for matching (dot notation), leave empty to use value directly",
       placeholder: "status.code",
     }),
   },
@@ -209,9 +216,12 @@ export const mergeNode = defineNode({
     tags: ["merge", "join", "combine"],
   },
   async run({ inputs, params }) {
-    const values = [inputs.input1, inputs.input2, inputs.input3, inputs.input4].filter(
-      (v) => v !== undefined && v !== null
-    );
+    const values = [
+      inputs.input1,
+      inputs.input2,
+      inputs.input3,
+      inputs.input4,
+    ].filter((v) => v !== undefined && v !== null);
 
     let result: unknown;
 

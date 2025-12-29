@@ -140,7 +140,9 @@ export function AdminPage() {
             marginBottom: 24,
           }}
         >
-          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>{t.currentUser}</h2>
+          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>
+            {t.currentUser}
+          </h2>
           <div style={{ display: "grid", gap: 8 }}>
             <div>
               <strong>{t.userId}:</strong> {user?.sub}

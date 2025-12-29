@@ -1,5 +1,10 @@
 // Input nodes
-export { textInputNode, numberInputNode, jsonInputNode, webhookTriggerNode } from "./input";
+export {
+  textInputNode,
+  numberInputNode,
+  jsonInputNode,
+  webhookTriggerNode,
+} from "./input";
 
 // Output nodes
 export { outputNode, debugNode } from "./output";
@@ -30,7 +35,12 @@ export { ifConditionNode, switchNode, mergeNode } from "./control";
 export { logNode } from "./log";
 
 // All built-in nodes
-import { textInputNode, numberInputNode, jsonInputNode, webhookTriggerNode } from "./input";
+import {
+  textInputNode,
+  numberInputNode,
+  jsonInputNode,
+  webhookTriggerNode,
+} from "./input";
 import { outputNode, debugNode } from "./output";
 import {
   templateNode,

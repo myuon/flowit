@@ -128,12 +128,14 @@ export const webhookTriggerNode = defineNode({
   },
   async run({ params, context }) {
     // When triggered by actual webhook, data comes from workflowInputs._webhook
-    const webhookData = context.workflowInputs?._webhook as {
-      body?: unknown;
-      headers?: Record<string, string>;
-      query?: Record<string, string>;
-      method?: string;
-    } | undefined;
+    const webhookData = context.workflowInputs?._webhook as
+      | {
+          body?: unknown;
+          headers?: Record<string, string>;
+          query?: Record<string, string>;
+          method?: string;
+        }
+      | undefined;
 
     if (webhookData) {
       context.log(`Webhook trigger received (${webhookData.method})`);
@@ -146,7 +148,9 @@ export const webhookTriggerNode = defineNode({
     }
 
     // For manual execution, return placeholder data
-    context.log(`Webhook trigger (${params.method}) - waiting for external request`);
+    context.log(
+      `Webhook trigger (${params.method}) - waiting for external request`
+    );
     return {
       body: {},
       headers: {},

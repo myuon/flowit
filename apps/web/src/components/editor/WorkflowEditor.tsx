@@ -170,7 +170,9 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
         }}
       >
         <div style={{ textAlign: "center" }}>
-          <p style={{ color: "#dc2626", marginBottom: 16 }}>{t.error}: {loadError}</p>
+          <p style={{ color: "#dc2626", marginBottom: 16 }}>
+            {t.error}: {loadError}
+          </p>
           <a
             href="/"
             style={{
@@ -295,7 +297,8 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
               fontSize: 13,
               fontWeight: viewMode === "editor" ? 500 : 400,
               color: viewMode === "editor" ? "#333" : "#666",
-              boxShadow: viewMode === "editor" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+              boxShadow:
+                viewMode === "editor" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
             }}
           >
             {t.editor}
@@ -311,7 +314,8 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
               fontSize: 13,
               fontWeight: viewMode === "logs" ? 500 : 400,
               color: viewMode === "logs" ? "#333" : "#666",
-              boxShadow: viewMode === "logs" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+              boxShadow:
+                viewMode === "logs" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
             }}
           >
             {t.executionLogs}

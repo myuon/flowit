@@ -88,23 +88,17 @@
       "indexes": {
         "node_catalog_cache_node_type_unique": {
           "name": "node_catalog_cache_node_type_unique",
-          "columns": [
-            "node_type"
-          ],
+          "columns": ["node_type"],
           "isUnique": true
         },
         "node_catalog_category_idx": {
           "name": "node_catalog_category_idx",
-          "columns": [
-            "category"
-          ],
+          "columns": ["category"],
           "isUnique": false
         },
         "node_catalog_cached_at_idx": {
           "name": "node_catalog_cached_at_idx",
-          "columns": [
-            "cached_at"
-          ],
+          "columns": ["cached_at"],
           "isUnique": false
         }
       },
@@ -204,24 +198,17 @@
       "indexes": {
         "run_steps_run_id_idx": {
           "name": "run_steps_run_id_idx",
-          "columns": [
-            "run_id"
-          ],
+          "columns": ["run_id"],
           "isUnique": false
         },
         "run_steps_node_id_idx": {
           "name": "run_steps_node_id_idx",
-          "columns": [
-            "node_id"
-          ],
+          "columns": ["node_id"],
           "isUnique": false
         },
         "run_steps_order_idx": {
           "name": "run_steps_order_idx",
-          "columns": [
-            "run_id",
-            "step_order"
-          ],
+          "columns": ["run_id", "step_order"],
           "isUnique": false
         }
       },
@@ -230,12 +217,8 @@
           "name": "run_steps_run_id_runs_id_fk",
           "tableFrom": "run_steps",
           "tableTo": "runs",
-          "columnsFrom": [
-            "run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["run_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -321,30 +304,22 @@
       "indexes": {
         "runs_workflow_id_idx": {
           "name": "runs_workflow_id_idx",
-          "columns": [
-            "workflow_id"
-          ],
+          "columns": ["workflow_id"],
           "isUnique": false
         },
         "runs_version_id_idx": {
           "name": "runs_version_id_idx",
-          "columns": [
-            "version_id"
-          ],
+          "columns": ["version_id"],
           "isUnique": false
         },
         "runs_status_idx": {
           "name": "runs_status_idx",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "runs_created_at_idx": {
           "name": "runs_created_at_idx",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -353,12 +328,8 @@
           "name": "runs_workflow_id_workflows_id_fk",
           "tableFrom": "runs",
           "tableTo": "workflows",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -366,12 +337,8 @@
           "name": "runs_version_id_workflow_versions_id_fk",
           "tableFrom": "runs",
           "tableTo": "workflow_versions",
-          "columnsFrom": [
-            "version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -429,17 +396,12 @@
       "indexes": {
         "versions_workflow_id_idx": {
           "name": "versions_workflow_id_idx",
-          "columns": [
-            "workflow_id"
-          ],
+          "columns": ["workflow_id"],
           "isUnique": false
         },
         "versions_workflow_version_idx": {
           "name": "versions_workflow_version_idx",
-          "columns": [
-            "workflow_id",
-            "version"
-          ],
+          "columns": ["workflow_id", "version"],
           "isUnique": false
         }
       },
@@ -448,12 +410,8 @@
           "name": "workflow_versions_workflow_id_workflows_id_fk",
           "tableFrom": "workflow_versions",
           "tableTo": "workflows",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -511,16 +469,12 @@
       "indexes": {
         "workflows_name_idx": {
           "name": "workflows_name_idx",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": false
         },
         "workflows_updated_at_idx": {
           "name": "workflows_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },

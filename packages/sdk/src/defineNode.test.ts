@@ -261,7 +261,9 @@ describe("transform nodes", () => {
         data: { user: { name: "John", age: 30 } },
         context: {},
       },
-      params: { expression: "({ ...data.user, isAdult: data.user.age >= 18 })" },
+      params: {
+        expression: "({ ...data.user, isAdult: data.user.age >= 18 })",
+      },
       context: mockContext,
     });
     expect(result.result).toEqual({ name: "John", age: 30, isAdult: true });

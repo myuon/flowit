@@ -34,7 +34,13 @@ function AppRouter() {
 /**
  * Protected route - shows login if not authenticated
  */
-function ProtectedRoute({ page, workflowId }: { page: "list" | "editor" | "admin"; workflowId?: string }) {
+function ProtectedRoute({
+  page,
+  workflowId,
+}: {
+  page: "list" | "editor" | "admin";
+  workflowId?: string;
+}) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {

@@ -144,12 +144,19 @@ export function findDependentNodes(
   nodeId: string,
   edges: WorkflowEdge[]
 ): string[] {
-  return edges.filter((edge) => edge.source === nodeId).map((edge) => edge.target);
+  return edges
+    .filter((edge) => edge.source === nodeId)
+    .map((edge) => edge.target);
 }
 
 /**
  * Find nodes that a given node depends on
  */
-export function findDependencies(nodeId: string, edges: WorkflowEdge[]): string[] {
-  return edges.filter((edge) => edge.target === nodeId).map((edge) => edge.source);
+export function findDependencies(
+  nodeId: string,
+  edges: WorkflowEdge[]
+): string[] {
+  return edges
+    .filter((edge) => edge.target === nodeId)
+    .map((edge) => edge.source);
 }

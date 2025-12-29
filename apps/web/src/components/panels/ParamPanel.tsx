@@ -17,7 +17,11 @@ interface ParamPanelProps {
   workflowId?: string;
 }
 
-function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: ParamPanelProps) {
+function ParamPanelComponent({
+  selectedNode,
+  onUpdateParams,
+  workflowId,
+}: ParamPanelProps) {
   const { t, language } = useI18n();
   const [validationState, setValidationState] = useState<{
     status: "idle" | "validating" | "success" | "error";
@@ -29,12 +33,18 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
     if (!selectedNode) return;
 
     const deploymentIdParam = selectedNode.data.params.deploymentId;
-    const deploymentId = typeof deploymentIdParam === "object" && deploymentIdParam !== null && "value" in deploymentIdParam
-      ? String((deploymentIdParam as { value: unknown }).value)
-      : "";
+    const deploymentId =
+      typeof deploymentIdParam === "object" &&
+      deploymentIdParam !== null &&
+      "value" in deploymentIdParam
+        ? String((deploymentIdParam as { value: unknown }).value)
+        : "";
 
     if (!deploymentId) {
-      setValidationState({ status: "error", message: t.deploymentIdRequired || "Deployment ID is required" });
+      setValidationState({
+        status: "error",
+        message: t.deploymentIdRequired || "Deployment ID is required",
+      });
       return;
     }
 
@@ -46,18 +56,19 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
         setValidationState({
           status: "success",
           message: t.deploymentValid || "Deployment is valid",
-          scriptName: result.scriptName
+          scriptName: result.scriptName,
         });
       } else {
         setValidationState({
           status: "error",
-          message: result.error || t.deploymentInvalid || "Deployment is invalid"
+          message:
+            result.error || t.deploymentInvalid || "Deployment is invalid",
         });
       }
     } catch (error) {
       setValidationState({
         status: "error",
-        message: error instanceof Error ? error.message : String(error)
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }, [selectedNode, t]);
@@ -193,7 +204,12 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
             multiline?: boolean;
           };
           const nodeType = selectedNode.data.nodeType;
-          const label = getParamLabel(nodeType, key, language, paramSchema.label || key);
+          const label = getParamLabel(
+            nodeType,
+            key,
+            language,
+            paramSchema.label || key
+          );
           const description = getParamDescription(
             nodeType,
             key,
@@ -241,12 +257,20 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
                   <option value="">{t.selectOption}</option>
                   {paramSchema.options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
-                      {getParamOptionLabel(nodeType, key, opt.value, language, opt.label)}
+                      {getParamOptionLabel(
+                        nodeType,
+                        key,
+                        opt.value,
+                        language,
+                        opt.label
+                      )}
                     </option>
                   ))}
                 </select>
               ) : paramSchema.type === "boolean" ? (
-                <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <label
+                  style={{ display: "flex", alignItems: "center", gap: 8 }}
+                >
                   <input
                     type="checkbox"
                     checked={Boolean(getParamValue(key))}
@@ -328,87 +352,86 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
         })}
 
         {Object.keys(paramsSchema).length === 0 && (
-          <div style={{ color: "#888", fontSize: 13 }}>
-            {t.noParameters}
-          </div>
+          <div style={{ color: "#888", fontSize: 13 }}>{t.noParameters}</div>
         )}
 
         {/* Webhook URL for webhook-trigger nodes */}
-        {selectedNode.data.nodeType === "webhook-trigger" && (() => {
-          const webhookName = String(getParamValue("name") || "");
-          const baseUrl = window.location.origin.replace(/:\d+$/, ":3001");
-          const webhookUrl = webhookName
-            ? `${baseUrl}/webhooks/${workflowId}/${webhookName}`
-            : null;
+        {selectedNode.data.nodeType === "webhook-trigger" &&
+          (() => {
+            const webhookName = String(getParamValue("name") || "");
+            const baseUrl = window.location.origin.replace(/:\d+$/, ":3001");
+            const webhookUrl = webhookName
+              ? `${baseUrl}/webhooks/${workflowId}/${webhookName}`
+              : null;
 
-          return (
-            <div style={{ marginTop: 16 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "#666",
-                  textTransform: "uppercase",
-                  marginBottom: 8,
-                }}
-              >
-                {t.webhookUrl}
+            return (
+              <div style={{ marginTop: 16 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#666",
+                    textTransform: "uppercase",
+                    marginBottom: 8,
+                  }}
+                >
+                  {t.webhookUrl}
+                </div>
+                {!workflowId ? (
+                  <div style={{ color: "#888", fontSize: 12 }}>
+                    {t.saveWorkflowFirst}
+                  </div>
+                ) : !webhookName ? (
+                  <div style={{ color: "#888", fontSize: 12 }}>
+                    {t.setWebhookName}
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        padding: "8px",
+                        background: "#f0f0f0",
+                        borderRadius: 4,
+                        fontSize: 11,
+                        fontFamily: "monospace",
+                        wordBreak: "break-all",
+                        marginBottom: 8,
+                      }}
+                    >
+                      {webhookUrl}
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (webhookUrl) {
+                          navigator.clipboard.writeText(webhookUrl);
+                        }
+                      }}
+                      style={{
+                        padding: "6px 12px",
+                        background: "#333",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 4,
+                        cursor: "pointer",
+                        fontSize: 12,
+                      }}
+                    >
+                      {t.copyUrl}
+                    </button>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "#888",
+                        marginTop: 8,
+                      }}
+                    >
+                      {t.webhookNote}
+                    </div>
+                  </>
+                )}
               </div>
-              {!workflowId ? (
-                <div style={{ color: "#888", fontSize: 12 }}>
-                  {t.saveWorkflowFirst}
-                </div>
-              ) : !webhookName ? (
-                <div style={{ color: "#888", fontSize: 12 }}>
-                  {t.setWebhookName}
-                </div>
-              ) : (
-                <>
-                  <div
-                    style={{
-                      padding: "8px",
-                      background: "#f0f0f0",
-                      borderRadius: 4,
-                      fontSize: 11,
-                      fontFamily: "monospace",
-                      wordBreak: "break-all",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {webhookUrl}
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (webhookUrl) {
-                        navigator.clipboard.writeText(webhookUrl);
-                      }
-                    }}
-                    style={{
-                      padding: "6px 12px",
-                      background: "#333",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 4,
-                      cursor: "pointer",
-                      fontSize: 12,
-                    }}
-                  >
-                    {t.copyUrl}
-                  </button>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#888",
-                      marginTop: 8,
-                    }}
-                  >
-                    {t.webhookNote}
-                  </div>
-                </>
-              )}
-            </div>
-          );
-        })()}
+            );
+          })()}
 
         {/* Validate deployment for GAS nodes */}
         {selectedNode.data.nodeType === "gas" && (
@@ -429,18 +452,22 @@ function ParamPanelComponent({ selectedNode, onUpdateParams, workflowId }: Param
               disabled={validationState.status === "validating"}
               style={{
                 padding: "6px 12px",
-                background: validationState.status === "validating" ? "#ccc" : "#333",
+                background:
+                  validationState.status === "validating" ? "#ccc" : "#333",
                 color: "white",
                 border: "none",
                 borderRadius: 4,
-                cursor: validationState.status === "validating" ? "not-allowed" : "pointer",
+                cursor:
+                  validationState.status === "validating"
+                    ? "not-allowed"
+                    : "pointer",
                 fontSize: 12,
                 width: "100%",
               }}
             >
               {validationState.status === "validating"
-                ? (t.validating || "Validating...")
-                : (t.validate || "Validate")}
+                ? t.validating || "Validating..."
+                : t.validate || "Validate"}
             </button>
             {validationState.status === "success" && (
               <div

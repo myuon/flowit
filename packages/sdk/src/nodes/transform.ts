@@ -32,7 +32,10 @@ export const templateNode = defineNode({
     let result = params.template;
     const vars = inputs.variables as Record<string, unknown>;
     for (const [key, value] of Object.entries(vars)) {
-      result = result.replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), String(value));
+      result = result.replace(
+        new RegExp(`{{\\s*${key}\\s*}}`, "g"),
+        String(value)
+      );
     }
     return { result };
   },
@@ -104,7 +107,10 @@ export const getPropertyNode = defineNode({
   displayName: "Get Property",
   description: "Gets a property from an object using a path",
   inputs: {
-    object: io.any({ description: "The object to get property from", required: true }),
+    object: io.any({
+      description: "The object to get property from",
+      required: true,
+    }),
   },
   outputs: {
     value: io.any({ description: "The property value" }),
@@ -142,8 +148,14 @@ export const jsTransformNode = defineNode({
   displayName: "JS Transform",
   description: "Transforms data using a JavaScript expression",
   inputs: {
-    data: io.any({ description: "Input data (available as `data`)", required: true }),
-    context: io.object({}, { description: "Additional context (available as `ctx`)" }),
+    data: io.any({
+      description: "Input data (available as `data`)",
+      required: true,
+    }),
+    context: io.object(
+      {},
+      { description: "Additional context (available as `ctx`)" }
+    ),
   },
   outputs: {
     result: io.any({ description: "Transformed result" }),
@@ -190,7 +202,10 @@ export const jsTransformNode = defineNode({
       // Create function from expression
       const keys = Object.keys(evalContext);
       const values = Object.values(evalContext);
-      const fn = new Function(...keys, `"use strict"; return (${params.expression});`);
+      const fn = new Function(
+        ...keys,
+        `"use strict"; return (${params.expression});`
+      );
       const result = fn(...values);
 
       context.log(`Transform completed`);
@@ -211,7 +226,10 @@ export const mapNode = defineNode({
   displayName: "Map",
   description: "Maps over an array and transforms each element",
   inputs: {
-    array: io.array(io.any(), { description: "Array to map over", required: true }),
+    array: io.array(io.any(), {
+      description: "Array to map over",
+      required: true,
+    }),
   },
   outputs: {
     result: io.array(io.any(), { description: "Mapped array" }),
@@ -254,7 +272,10 @@ export const filterNode = defineNode({
   displayName: "Filter",
   description: "Filters an array based on a condition",
   inputs: {
-    array: io.array(io.any(), { description: "Array to filter", required: true }),
+    array: io.array(io.any(), {
+      description: "Array to filter",
+      required: true,
+    }),
   },
   outputs: {
     result: io.array(io.any(), { description: "Filtered array" }),

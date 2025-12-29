@@ -19,20 +19,18 @@ export function isAdmin(userId: string): boolean {
 }
 
 export function createAdminRoutes() {
-  return new Hono<{ Variables: AuthVariables }>()
-    // Middleware to check admin status
-    .use("*", async (c, next) => {
-      const user = c.get("user");
-      if (!isAdmin(user.sub)) {
-        return c.json({ error: "Admin access required" }, 403);
-      }
-      await next();
-    })
-    // Update app settings
-    .put(
-      "/settings",
-      zValidator("json", updateSettingsSchema),
-      async (c) => {
+  return (
+    new Hono<{ Variables: AuthVariables }>()
+      // Middleware to check admin status
+      .use("*", async (c, next) => {
+        const user = c.get("user");
+        if (!isAdmin(user.sub)) {
+          return c.json({ error: "Admin access required" }, 403);
+        }
+        await next();
+      })
+      // Update app settings
+      .put("/settings", zValidator("json", updateSettingsSchema), async (c) => {
         const body = c.req.valid("json");
         const input = updateSettingsInputFromRequest(body);
         const now = new Date().toISOString();
@@ -53,6 +51,6 @@ export function createAdminRoutes() {
         const settings = appSettingsFromConfigs(configs);
 
         return c.json(settings);
-      }
-    );
+      })
+  );
 }

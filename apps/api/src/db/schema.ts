@@ -330,7 +330,9 @@ export function workflowWithVersionsFromDb(
   const versions = dbVersions.map(workflowVersionFromDb);
   const currentVersion =
     versions.length > 0
-      ? versions.reduce((latest, v) => (v.version > latest.version ? v : latest))
+      ? versions.reduce((latest, v) =>
+          v.version > latest.version ? v : latest
+        )
       : null;
 
   return {

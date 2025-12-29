@@ -52,7 +52,8 @@ const en: NodeTranslationsData = {
     },
     "webhook-trigger": {
       displayName: "Webhook Trigger",
-      description: "Triggers workflow when an external HTTP request is received",
+      description:
+        "Triggers workflow when an external HTTP request is received",
       params: {
         method: {
           label: "Allowed Method",
@@ -89,7 +90,10 @@ const en: NodeTranslationsData = {
       displayName: "JSON Stringify",
       description: "Converts a value to a JSON string",
       params: {
-        pretty: { label: "Pretty Print", description: "Format with indentation" },
+        pretty: {
+          label: "Pretty Print",
+          description: "Format with indentation",
+        },
       },
     },
     "get-property": {
@@ -141,9 +145,18 @@ const en: NodeTranslationsData = {
       description: "Calls a Large Language Model API",
       params: {
         model: { label: "Model", description: "The model to use" },
-        apiKey: { label: "API Key", description: "API key for the LLM provider" },
-        temperature: { label: "Temperature", description: "Sampling temperature (0-2)" },
-        maxTokens: { label: "Max Tokens", description: "Maximum tokens in response" },
+        apiKey: {
+          label: "API Key",
+          description: "API key for the LLM provider",
+        },
+        temperature: {
+          label: "Temperature",
+          description: "Sampling temperature (0-2)",
+        },
+        maxTokens: {
+          label: "Max Tokens",
+          description: "Maximum tokens in response",
+        },
       },
     },
     "prompt-builder": {
@@ -230,12 +243,18 @@ const en: NodeTranslationsData = {
           description: "Slack Bot OAuth Token",
         },
         channel: { label: "Channel", description: "Channel ID or name" },
-        username: { label: "Username", description: "Override the bot username" },
+        username: {
+          label: "Username",
+          description: "Override the bot username",
+        },
         iconEmoji: {
           label: "Icon Emoji",
           description: "Override the bot icon with an emoji",
         },
-        unfurlLinks: { label: "Unfurl Links", description: "Enable link previews" },
+        unfurlLinks: {
+          label: "Unfurl Links",
+          description: "Enable link previews",
+        },
       },
     },
     "slack-block-builder": {
@@ -261,7 +280,8 @@ const en: NodeTranslationsData = {
     // Control nodes
     "if-condition": {
       displayName: "If Condition",
-      description: "Evaluates a condition and routes execution to true or false branch",
+      description:
+        "Evaluates a condition and routes execution to true or false branch",
       params: {
         conditionType: {
           label: "Condition Type",
@@ -281,13 +301,15 @@ const en: NodeTranslationsData = {
         },
         expression: {
           label: "Expression",
-          description: "JavaScript expression. Use `value` and `ctx` variables.",
+          description:
+            "JavaScript expression. Use `value` and `ctx` variables.",
         },
       },
     },
     switch: {
       displayName: "Switch",
-      description: "Routes execution based on matching a value to multiple cases",
+      description:
+        "Routes execution based on matching a value to multiple cases",
       params: {
         cases: { label: "Cases", description: "JSON array of case values" },
         matchPath: {
@@ -413,7 +435,8 @@ const ja: NodeTranslationsData = {
       params: {
         expression: {
           label: "式",
-          description: "JavaScript式。入力には`data`、コンテキストには`ctx`を使用",
+          description:
+            "JavaScript式。入力には`data`、コンテキストには`ctx`を使用",
         },
       },
     },
@@ -575,7 +598,8 @@ const ja: NodeTranslationsData = {
     // Control nodes
     "if-condition": {
       displayName: "条件分岐",
-      description: "条件を評価し、trueまたはfalseの分岐に実行をルーティングします",
+      description:
+        "条件を評価し、trueまたはfalseの分岐に実行をルーティングします",
       params: {
         conditionType: {
           label: "条件タイプ",
@@ -657,10 +681,7 @@ export function getNodeDescription(
   return t.nodes[nodeId]?.description || fallback || "";
 }
 
-export function getCategoryName(
-  category: string,
-  language: Language
-): string {
+export function getCategoryName(category: string, language: Language): string {
   const t = getNodeTranslations(language);
   return t.categories[category] || category;
 }

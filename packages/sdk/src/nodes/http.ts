@@ -81,7 +81,9 @@ export const httpRequestNode = defineNode({
   async run({ inputs, params, context }) {
     // Build URL with query params
     let url = params.url;
-    const queryParams = inputs.queryParams as Record<string, string> | undefined;
+    const queryParams = inputs.queryParams as
+      | Record<string, string>
+      | undefined;
     if (queryParams && Object.keys(queryParams).length > 0) {
       const searchParams = new URLSearchParams();
       for (const [key, value] of Object.entries(queryParams)) {
@@ -100,8 +102,14 @@ export const httpRequestNode = defineNode({
     // Add auth headers
     if (params.authType === "bearer" && params.authValue) {
       headers["Authorization"] = `Bearer ${params.authValue}`;
-    } else if (params.authType === "basic" && params.authUsername && params.authValue) {
-      const encoded = Buffer.from(`${params.authUsername}:${params.authValue}`).toString("base64");
+    } else if (
+      params.authType === "basic" &&
+      params.authUsername &&
+      params.authValue
+    ) {
+      const encoded = Buffer.from(
+        `${params.authUsername}:${params.authValue}`
+      ).toString("base64");
       headers["Authorization"] = `Basic ${encoded}`;
     } else if (params.authType === "api-key" && params.authValue) {
       headers[params.apiKeyHeader || "X-API-Key"] = params.authValue;
@@ -126,7 +134,9 @@ export const httpRequestNode = defineNode({
         options.body = JSON.stringify(inputs.body);
       } else if (params.contentType === "application/x-www-form-urlencoded") {
         const formData = new URLSearchParams();
-        for (const [key, value] of Object.entries(inputs.body as Record<string, unknown>)) {
+        for (const [key, value] of Object.entries(
+          inputs.body as Record<string, unknown>
+        )) {
           formData.append(key, String(value));
         }
         options.body = formData.toString();

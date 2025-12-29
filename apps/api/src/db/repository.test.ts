@@ -13,13 +13,8 @@ const testDb = drizzle(testClient, { schema });
 
 // Create test-specific repository functions
 const createTestRepositories = (db: typeof testDb) => {
-  const {
-    workflows,
-    workflowVersions,
-    runs,
-    runSteps,
-    nodeCatalogCache,
-  } = schema;
+  const { workflows, workflowVersions, runs, runSteps, nodeCatalogCache } =
+    schema;
 
   return {
     workflow: {

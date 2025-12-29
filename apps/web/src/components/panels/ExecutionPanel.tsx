@@ -133,9 +133,7 @@ function ExecutionPanelComponent({
         }}
       >
         {execution.logs.length === 0 ? (
-          <div style={{ color: "#666" }}>
-            {t.runWorkflow}
-          </div>
+          <div style={{ color: "#666" }}>{t.runWorkflow}</div>
         ) : (
           execution.logs.map((log, index) => (
             <div
@@ -173,9 +171,7 @@ function ExecutionPanelComponent({
         {/* Show outputs if success */}
         {execution.status === "success" && execution.outputs && (
           <div style={{ marginTop: 12 }}>
-            <div style={{ color: "#4CAF50", marginBottom: 4 }}>
-              {t.output}
-            </div>
+            <div style={{ color: "#4CAF50", marginBottom: 4 }}>{t.output}</div>
             <pre
               style={{
                 background: "#2d2d2d",

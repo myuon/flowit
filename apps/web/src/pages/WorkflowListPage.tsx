@@ -2,7 +2,12 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../auth";
 import { useI18n } from "../i18n";
 import { UserMenu } from "../components/UserMenu";
-import { listWorkflows, createWorkflow, deleteWorkflow, type WorkflowListItem } from "../api/client";
+import {
+  listWorkflows,
+  createWorkflow,
+  deleteWorkflow,
+  type WorkflowListItem,
+} from "../api/client";
 import { TemplateSelector } from "../components/panels/TemplateSelector";
 import type { WorkflowTemplate } from "../data/templates";
 
@@ -46,7 +51,9 @@ export function WorkflowListPage() {
       // Navigate to the new workflow
       window.location.href = `/workflows/${result.workflow.id}`;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create workflow");
+      setError(
+        err instanceof Error ? err.message : "Failed to create workflow"
+      );
       setCreating(false);
     }
   };
@@ -59,7 +66,9 @@ export function WorkflowListPage() {
       // Navigate to the new workflow
       window.location.href = `/workflows/${result.workflow.id}`;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create workflow");
+      setError(
+        err instanceof Error ? err.message : "Failed to create workflow"
+      );
       setCreating(false);
     }
   };
@@ -72,7 +81,9 @@ export function WorkflowListPage() {
       await deleteWorkflow(id);
       setWorkflows((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete workflow");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete workflow"
+      );
     }
   };
 
@@ -250,7 +261,8 @@ export function WorkflowListPage() {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "#9ca3af";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 8px rgba(0,0,0,0.08)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "#e5e7eb";
