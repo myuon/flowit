@@ -244,6 +244,19 @@ export const userTokens = sqliteTable(
 );
 
 // ============================================
+// Users - User profile information
+// ============================================
+export const users = sqliteTable("users", {
+  // User identifier (sub from OIDC)
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  name: text("name"),
+  picture: text("picture"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+// ============================================
 // Sessions - User session management
 // ============================================
 export const sessions = sqliteTable(
@@ -375,5 +388,19 @@ export function sessionFromDb(dbSession: Session) {
     userId: dbSession.userId,
     expiresAt: dbSession.expiresAt,
     createdAt: dbSession.createdAt,
+  };
+}
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+export function userFromDb(dbUser: User) {
+  return {
+    id: dbUser.id,
+    email: dbUser.email,
+    name: dbUser.name,
+    picture: dbUser.picture,
+    createdAt: dbUser.createdAt,
+    updatedAt: dbUser.updatedAt,
   };
 }

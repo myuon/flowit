@@ -1,4 +1,4 @@
-import { AuthProvider, useAuth, AuthCallback, LoginPage } from "./auth";
+import { AuthProvider, useAuth, AuthError, LoginPage } from "./auth";
 import { I18nProvider } from "./i18n";
 import { WorkflowEditor } from "./components/editor/WorkflowEditor";
 import { AdminPage } from "./pages/AdminPage";
@@ -10,9 +10,9 @@ import { WorkflowListPage } from "./pages/WorkflowListPage";
 function AppRouter() {
   const path = window.location.pathname;
 
-  // Handle OAuth callback
-  if (path === "/auth/callback") {
-    return <AuthCallback />;
+  // Handle OAuth error
+  if (path === "/auth/error") {
+    return <AuthError />;
   }
 
   // Admin page

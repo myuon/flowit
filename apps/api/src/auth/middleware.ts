@@ -1,7 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
 import type { AuthUser } from "@flowit/shared";
-import { sessionRepository } from "../db/repository";
+import { sessionRepository, userRepository } from "../db/repository";
 
 /**
  * OIDC Provider configuration for JWT verification
@@ -172,10 +172,18 @@ export function sessionAuth() {
         return c.json({ error: "Invalid or expired session" }, 401);
       }
 
-      // Create minimal user object from session
+      // Look up user profile
+      const userProfile = await userRepository.findById(session.userId);
+      if (!userProfile) {
+        return c.json({ error: "User not found" }, 401);
+      }
+
+      // Create user object from profile
       const user: AuthUser = {
-        sub: session.userId,
-        email: "",
+        sub: userProfile.id,
+        email: userProfile.email,
+        name: userProfile.name ?? undefined,
+        picture: userProfile.picture ?? undefined,
         iss: "session",
       };
 

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import * as jose from "jose";
 import type { AuthUser } from "@flowit/shared";
-import { userTokenRepository, sessionRepository } from "../db/repository";
+import { userTokenRepository, sessionRepository, userRepository } from "../db/repository";
 
 // Session duration: 7 days
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -199,6 +199,14 @@ export function createOAuthRoutes(config: OAuthConfig) {
           expiresAt: tokens.expires_in
             ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
             : undefined,
+        });
+
+        // Upsert user profile
+        await userRepository.upsert({
+          id: user.sub,
+          email: user.email,
+          name: user.name,
+          picture: user.picture,
         });
 
         // Create a session

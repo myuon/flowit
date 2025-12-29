@@ -35,3 +35,7 @@ export {
 // Session models
 export type { Session } from "./session";
 export { sessionFromDb } from "./session";
+
+// User models
+export type { User } from "./user";
+export { userFromDb } from "./user";
