@@ -73,6 +73,17 @@ export function AIChatPanel({
       .join("");
   };
 
+  // Helper to get tool calls from message parts
+  const getToolCalls = (message: (typeof messages)[number]): Array<{ toolName: string; args: unknown }> => {
+    if (!message.parts || message.role !== "assistant") return [];
+    return message.parts
+      .filter((part) => part.type === "tool-call")
+      .map((part) => {
+        const toolPart = part as unknown as { type: "tool-call"; toolName: string; args: unknown };
+        return { toolName: toolPart.toolName, args: toolPart.args };
+      });
+  };
+
   // Helper to extract workflow DSL from message parts
   const getWorkflowFromMessage = (message: (typeof messages)[number]): WorkflowDSL | null => {
     if (!message.parts || message.role !== "assistant") return null;
@@ -145,6 +156,8 @@ export function AIChatPanel({
         )}
         {messages.map((message) => {
           const workflow = getWorkflowFromMessage(message);
+          const toolCalls = getToolCalls(message);
+          const textContent = getMessageText(message);
           return (
             <div
               key={message.id}
@@ -154,15 +167,31 @@ export function AIChatPanel({
                   : "bg-white border border-gray-200 mr-4"
               }`}
             >
-              {workflow ? (
-                <div className="space-y-2">
+              {/* Text content */}
+              {textContent && <div>{textContent}</div>}
+
+              {/* Tool calls */}
+              {toolCalls.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {toolCalls.map((tc, idx) => (
+                    <div key={idx} className="text-xs bg-gray-100 p-1.5 rounded border border-gray-200">
+                      <span className="font-medium text-purple-700">{tc.toolName}</span>
+                      <pre className="mt-1 text-gray-600 overflow-auto max-h-20 whitespace-pre-wrap">
+                        {JSON.stringify(tc.args, null, 2)}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Workflow result */}
+              {workflow && (
+                <div className="mt-2 space-y-2">
                   <div className="font-medium text-green-700">{t.workflowGenerated}</div>
                   <pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-60 whitespace-pre-wrap">
                     {JSON.stringify(workflow, null, 2)}
                   </pre>
                 </div>
-              ) : (
-                getMessageText(message)
               )}
             </div>
           );

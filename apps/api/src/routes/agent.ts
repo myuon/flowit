@@ -6,7 +6,6 @@ import {
   createAgentUIStreamResponse,
   tool,
   Output,
-  stepCountIs,
   hasToolCall,
 } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -221,10 +220,7 @@ function createWorkflowBuilderAgent(apiKey: string) {
     output: Output.object({
       schema: workflowDSLSchema,
     }),
-    stopWhen: [
-      stepCountIs(20), // Maximum 20 steps
-      hasToolCall("validateWorkflow"), // Stop after calling validateWorkflow
-    ],
+    stopWhen: [hasToolCall("validateWorkflow")],
   });
 }
 
