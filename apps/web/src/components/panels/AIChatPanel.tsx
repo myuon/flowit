@@ -1,23 +1,18 @@
 import { useRef, useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import type { WorkflowDSL } from "@flowit/shared";
 import { useI18n } from "../../i18n";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 interface AIChatPanelProps {
-  onPreviewWorkflow?: (workflow: WorkflowDSL) => void;
-  onApproveWorkflow?: () => void;
-  onRejectWorkflow?: () => void;
-  hasPreview?: boolean;
+  workflowId: string;
+  onWorkflowUpdated?: () => void;
 }
 
 export function AIChatPanel({
-  onPreviewWorkflow,
-  onApproveWorkflow,
-  onRejectWorkflow,
-  hasPreview,
+  workflowId,
+  onWorkflowUpdated,
 }: AIChatPanelProps) {
   const { t } = useI18n();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,6 +20,7 @@ export function AIChatPanel({
 
   const transport = new DefaultChatTransport({
     api: `${API_BASE_URL}/api/agent/chat`,
+    body: { workflowId },
     fetch: (url: string | URL | Request, options?: RequestInit) =>
       fetch(url, { ...options, credentials: "include" }),
   });
@@ -35,6 +31,7 @@ export function AIChatPanel({
 
   const isLoading = status === "streaming" || status === "submitted";
   const [localError, setLocalError] = useState<string | null>(null);
+  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,7 +59,6 @@ export function AIChatPanel({
   };
 
   const displayError = localError || error?.message;
-  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<string | null>(null);
 
   // Helper to get text content from message parts
   const getMessageText = (message: (typeof messages)[number]): string => {
@@ -84,60 +80,19 @@ export function AIChatPanel({
       });
   };
 
-  // Helper to extract workflow DSL from message parts
-  const getWorkflowFromMessage = (message: (typeof messages)[number]): WorkflowDSL | null => {
-    if (!message.parts || message.role !== "assistant") return null;
-    for (const part of message.parts) {
-      // Check for data-* type parts which may contain structured output
-      if (part.type.startsWith("data-")) {
-        const dataPart = part as { type: string; data?: unknown };
-        if (dataPart.data && typeof dataPart.data === "object") {
-          const obj = dataPart.data as Record<string, unknown>;
-          if (obj.dslVersion === "0.1.0" && obj.nodes && obj.edges) {
-            return obj as unknown as WorkflowDSL;
-          }
-        }
-      }
-      // Also try to parse text parts as JSON (fallback)
-      if (part.type === "text") {
-        const textPart = part as { type: "text"; text: string };
-        try {
-          const parsed = JSON.parse(textPart.text);
-          if (parsed.dslVersion === "0.1.0" && parsed.nodes && parsed.edges) {
-            return parsed as WorkflowDSL;
-          }
-        } catch {
-          // Not valid JSON, continue
-        }
-      }
-    }
-    return null;
-  };
-
-  // Check the latest assistant message for a workflow and show preview
+  // Check for editCurrentWorkflow tool call and trigger refetch
   useEffect(() => {
     if (isLoading) return;
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant" && lastMessage.id !== lastProcessedMessageId) {
-      const workflow = getWorkflowFromMessage(lastMessage);
-      if (workflow && onPreviewWorkflow) {
-        onPreviewWorkflow(workflow);
+      const toolCalls = getToolCalls(lastMessage);
+      const hasEditWorkflow = toolCalls.some((tc) => tc.toolName === "editCurrentWorkflow");
+      if (hasEditWorkflow && onWorkflowUpdated) {
+        onWorkflowUpdated();
         setLastProcessedMessageId(lastMessage.id);
       }
     }
-  }, [messages, isLoading, lastProcessedMessageId, onPreviewWorkflow]);
-
-  const handleApprove = () => {
-    if (onApproveWorkflow) {
-      onApproveWorkflow();
-    }
-  };
-
-  const handleReject = () => {
-    if (onRejectWorkflow) {
-      onRejectWorkflow();
-    }
-  };
+  }, [messages, isLoading, lastProcessedMessageId, onWorkflowUpdated]);
 
   return (
     <div className="w-60 border-r border-gray-200 bg-gray-50 h-full flex flex-col">
@@ -155,7 +110,6 @@ export function AIChatPanel({
           </div>
         )}
         {messages.map((message) => {
-          const workflow = getWorkflowFromMessage(message);
           const toolCalls = getToolCalls(message);
           const textContent = getMessageText(message);
           return (
@@ -176,21 +130,13 @@ export function AIChatPanel({
                   {toolCalls.map((tc, idx) => (
                     <div key={idx} className="text-xs bg-gray-100 p-1.5 rounded border border-gray-200">
                       <span className="font-medium text-purple-700">{tc.toolName}</span>
-                      <pre className="mt-1 text-gray-600 overflow-auto max-h-20 whitespace-pre-wrap">
-                        {JSON.stringify(tc.args, null, 2)}
-                      </pre>
+                      {tc.toolName !== "editCurrentWorkflow" && (
+                        <pre className="mt-1 text-gray-600 overflow-auto max-h-20 whitespace-pre-wrap">
+                          {JSON.stringify(tc.args, null, 2)}
+                        </pre>
+                      )}
                     </div>
                   ))}
-                </div>
-              )}
-
-              {/* Workflow result */}
-              {workflow && (
-                <div className="mt-2 space-y-2">
-                  <div className="font-medium text-green-700">{t.workflowGenerated}</div>
-                  <pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-60 whitespace-pre-wrap">
-                    {JSON.stringify(workflow, null, 2)}
-                  </pre>
                 </div>
               )}
             </div>
@@ -209,24 +155,6 @@ export function AIChatPanel({
         )}
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Approve/Reject buttons */}
-      {hasPreview && (
-        <div className="p-3 border-t border-gray-200 bg-white flex gap-2">
-          <button
-            onClick={handleApprove}
-            className="flex-1 py-2 px-3 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600"
-          >
-            {t.approveWorkflow}
-          </button>
-          <button
-            onClick={handleReject}
-            className="flex-1 py-2 px-3 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300"
-          >
-            {t.rejectWorkflow}
-          </button>
-        </div>
-      )}
 
       {/* Input */}
       <form onSubmit={onSubmit} className="p-3 border-t border-gray-200">

@@ -488,6 +488,56 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     }
   }, [workflowId, toDSL, nodes, addLog]);
 
+  // Refetch workflow from API
+  const refetch = useCallback(async () => {
+    if (!workflowId) return;
+
+    try {
+      const res = await client.api.workflows[":id"].$get({
+        param: { id: workflowId },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to load workflow: ${res.statusText}`);
+      }
+      const result = await res.json();
+      const workflow = result.workflow;
+
+      // Get the current version's DSL
+      const currentVersion = workflow.currentVersion;
+
+      if (currentVersion) {
+        const dsl = currentVersion.dsl as WorkflowDSL & {
+          _positions?: Array<{
+            id: string;
+            position: { x: number; y: number };
+          }>;
+        };
+        fromDSL(dsl);
+
+        // Apply saved positions if available
+        if (dsl._positions) {
+          setNodes((nds) =>
+            nds.map((node) => {
+              const pos = dsl._positions?.find((p) => p.id === node.id);
+              return pos ? { ...node, position: pos.position } : node;
+            })
+          );
+        }
+
+        // Always use the actual workflow ID from the API
+        setWorkflowMeta((prev) => ({
+          ...prev,
+          id: workflow.id,
+          name: workflow.name,
+          version: String(currentVersion.version),
+        }));
+      }
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      addLog("error", `Failed to refetch workflow: ${errorMessage}`);
+    }
+  }, [workflowId, fromDSL, addLog]);
+
   // Load workflow from API on mount
   useEffect(() => {
     if (!workflowId) return;
@@ -576,5 +626,6 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     loadError,
     saveToApi,
     publish,
+    refetch,
   };
 }
