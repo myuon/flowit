@@ -10,6 +10,7 @@ import {
   getParamOptionLabel,
 } from "../../i18n";
 import { validateGasDeployment } from "../../api/client";
+import { PanelHeader, PanelContent } from "../ui/Panel";
 
 interface ParamPanelProps {
   selectedNode: Node<WorkflowNodeData> | null;
@@ -87,9 +88,7 @@ export const ParamPanel = ({
   if (!selectedNode) {
     return (
       <div>
-        <div className="p-3 border-b border-gray-200 font-semibold text-sm">
-          {t.properties}
-        </div>
+        <PanelHeader>{t.properties}</PanelHeader>
         <div className="py-10 px-3 text-center text-gray-500 text-sm">
           {t.selectNode}
         </div>
@@ -111,13 +110,10 @@ export const ParamPanel = ({
 
   return (
     <div>
-      {/* Header */}
-      <div className="p-3 border-b border-gray-200 font-semibold text-sm">
-        {t.properties}
-      </div>
+      <PanelHeader>{t.properties}</PanelHeader>
 
       {/* Node Info */}
-      <div className="p-3 border-b border-gray-200">
+      <PanelContent>
         <div className="flex items-center gap-2">
           <span className="text-xl">{selectedNode.data.icon || "📦"}</span>
           <div>
@@ -133,10 +129,10 @@ export const ParamPanel = ({
             </div>
           </div>
         </div>
-      </div>
+      </PanelContent>
 
       {/* Parameters */}
-      <div className="p-3">
+      <PanelContent>
         <div className="text-xs font-semibold text-gray-500 uppercase mb-3">
           {t.parameters}
         </div>
@@ -329,7 +325,7 @@ export const ParamPanel = ({
             )}
           </div>
         )}
-      </div>
+      </PanelContent>
     </div>
   );
 };

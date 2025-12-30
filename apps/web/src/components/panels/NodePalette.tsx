@@ -6,6 +6,7 @@ import {
   getNodeDisplayName,
   getNodeDescription,
 } from "../../i18n";
+import { PanelHeader } from "../ui/Panel";
 
 interface NodePaletteProps {
   onAddNode: (nodeType: string) => void;
@@ -46,10 +47,7 @@ export const NodePalette = ({ onAddNode }: NodePaletteProps) => {
 
   return (
     <div className="w-60 border-r border-gray-200 bg-gray-50 flex flex-col h-full">
-      {/* Header */}
-      <div className="p-3 border-b border-gray-200 font-semibold text-sm">
-        {t.nodes}
-      </div>
+      <PanelHeader>{t.nodes}</PanelHeader>
 
       {/* Search */}
       <div className="px-3 py-2">
