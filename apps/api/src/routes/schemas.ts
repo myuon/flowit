@@ -130,3 +130,10 @@ export const logsQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(1000).default(100),
   offset: z.coerce.number().int().nonnegative().default(0),
 });
+
+export const executeQuerySchema = z.object({
+  sse: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((val) => val === "true"),
+});

@@ -1,3 +1,8 @@
 export { runWorkflow, validateWorkflow } from "./runner";
 export type { RunWorkflowOptions, RunWorkflowResult } from "./runner";
-export type { ExecutionState, ExecutionContext, WriteLogFn } from "./types";
+export type {
+  ExecutionState,
+  ExecutionContext,
+  WriteLogFn,
+  OnNodeCompleteFn,
+} from "./types";

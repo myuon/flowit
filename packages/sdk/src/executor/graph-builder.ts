@@ -1,6 +1,6 @@
 import type { WorkflowDSL, WorkflowNode } from "@flowit/shared";
 import { getNode } from "../registry";
-import type { ExecutionState, WriteLogFn } from "./types";
+import type { ExecutionState, WriteLogFn, OnNodeCompleteFn } from "./types";
 import {
   resolveParams,
   resolveNodeInputs,
@@ -22,7 +22,8 @@ export class WorkflowExecutor {
     secrets: Record<string, string>,
     executionId: string,
     workflowId?: string,
-    writeLog?: WriteLogFn
+    writeLog?: WriteLogFn,
+    onNodeComplete?: OnNodeCompleteFn
   ) {
     this.workflow = workflow;
     this.nodeMap = new Map(workflow.nodes.map((n) => [n.id, n]));
@@ -34,6 +35,7 @@ export class WorkflowExecutor {
       workflowId,
       logs: [],
       writeLog,
+      onNodeComplete,
     };
   }
 
@@ -94,6 +96,11 @@ export class WorkflowExecutor {
     // Store outputs
     this.state.outputs[nodeId] = result;
     this.log(`Completed`);
+
+    // Call onNodeComplete callback if provided
+    if (this.state.onNodeComplete) {
+      this.state.onNodeComplete(nodeId, workflowNode.type);
+    }
   }
 
   /**
@@ -236,7 +243,8 @@ export async function executeWorkflow(
   secrets: Record<string, string>,
   executionId: string,
   workflowId?: string,
-  writeLog?: WriteLogFn
+  writeLog?: WriteLogFn,
+  onNodeComplete?: OnNodeCompleteFn
 ): Promise<ExecutionState> {
   const executor = new WorkflowExecutor(
     workflow,
@@ -244,7 +252,8 @@ export async function executeWorkflow(
     secrets,
     executionId,
     workflowId,
-    writeLog
+    writeLog,
+    onNodeComplete
   );
   return executor.execute();
 }

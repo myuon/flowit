@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
 import { zValidator } from "@hono/zod-validator";
 import type { ExecuteWorkflowResponse } from "@flowit/shared";
 import { runWorkflow, validateWorkflow, type WriteLogFn } from "@flowit/sdk";
@@ -15,6 +16,7 @@ import {
   updateWorkflowSchema,
   publishWorkflowSchema,
   executeWorkflowSchema,
+  executeQuerySchema,
   logsQuerySchema,
 } from "./schemas";
 import {
@@ -176,8 +178,10 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
       // Execute a workflow
       .post(
         "/execute",
+        zValidator("query", executeQuerySchema),
         zValidator("json", executeWorkflowSchema),
         async (c) => {
+          const { sse } = c.req.valid("query");
           const body = c.req.valid("json");
           const user = c.get("user");
 
@@ -208,7 +212,43 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
             secrets._google_access_token = googleToken.accessToken;
           }
 
-          // Run the workflow
+          // SSE mode: stream node completion events
+          if (sse) {
+            return streamSSE(c, async (stream) => {
+              let eventId = 0;
+
+              const result = await runWorkflow({
+                workflow: body.workflow,
+                inputs: body.inputs,
+                secrets,
+                workflowId,
+                writeLog: workflowId ? writeLog : undefined,
+                onNodeComplete: (nodeId, nodeType) => {
+                  stream.writeSSE({
+                    data: JSON.stringify({ nodeId, nodeType }),
+                    event: "node-complete",
+                    id: String(eventId++),
+                  });
+                },
+              });
+
+              // Send final result
+              const response: ExecuteWorkflowResponse = {
+                outputs: result.outputs,
+                executionId: result.executionId,
+                status: result.status,
+                error: result.error,
+              };
+
+              await stream.writeSSE({
+                data: JSON.stringify(response),
+                event: "complete",
+                id: String(eventId++),
+              });
+            });
+          }
+
+          // Normal mode: return JSON response
           const result = await runWorkflow({
             workflow: body.workflow,
             inputs: body.inputs,

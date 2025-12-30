@@ -6,6 +6,7 @@ import type {
   WorkflowNode,
   WorkflowEdge,
   WorkflowMeta,
+  ExecuteWorkflowResponse,
 } from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
 import { client } from "../api/client";
@@ -271,9 +272,10 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
       addLog("info", `Executing ${dsl.nodes.length} nodes...`);
 
       const res = await client.api.execute.$post({
+        query: {},
         json: { workflow: dsl, inputs: {}, secrets: {} },
       });
-      const result = await res.json();
+      const result = (await res.json()) as ExecuteWorkflowResponse;
 
       if (res.ok && result.status === "success") {
         setExecution((prev) => ({

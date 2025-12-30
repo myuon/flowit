@@ -8,6 +8,9 @@ export type WriteLogFn = (
   data: unknown
 ) => Promise<void>;
 
+// Callback type for node completion events
+export type OnNodeCompleteFn = (nodeId: string, nodeType: string) => void;
+
 // Execution state passed through the graph
 export interface ExecutionState {
   // Node outputs: nodeId -> outputName -> value
@@ -27,6 +30,8 @@ export interface ExecutionState {
   error?: string;
   // Optional log writer function
   writeLog?: WriteLogFn;
+  // Optional callback for node completion
+  onNodeComplete?: OnNodeCompleteFn;
 }
 
 // Resolved parameter value
