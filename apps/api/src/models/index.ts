@@ -30,6 +30,8 @@ export {
   appConfigFromDb,
   appSettingsFromConfigs,
   updateSettingsInputFromRequest,
+  getAnthropicApiKey,
+  hasAnthropicApiKey,
 } from "./appConfig";
 
 // Session models

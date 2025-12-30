@@ -120,6 +120,7 @@ export const validateGasDeploymentSchema = z.object({
 
 export const updateSettingsSchema = z.object({
   language: z.enum(["en", "ja"]).optional(),
+  anthropicApiKey: z.string().optional(),
 });
 
 // ============================================

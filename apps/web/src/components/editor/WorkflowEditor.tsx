@@ -60,6 +60,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     save,
     load,
     loadFromTemplate,
+    fromDSL,
     workflowMeta,
     isLoading,
     loadError,
@@ -310,7 +311,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             {leftPanelMode === "nodes" ? (
               <NodePalette onAddNode={addNode} />
             ) : (
-              <AIChatPanel />
+              <AIChatPanel onApproveWorkflow={fromDSL} />
             )}
 
             {/* Center - Flow Editor */}

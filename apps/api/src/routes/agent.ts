@@ -1,13 +1,8 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import {
-  ToolLoopAgent,
-  createAgentUIStreamResponse,
-  tool,
-  Output,
-} from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { ToolLoopAgent, createAgentUIStreamResponse, tool, Output } from "ai";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import {
   getNodeCatalog,
   getGroupedCatalog,
@@ -15,6 +10,8 @@ import {
   registerBuiltinNodes,
 } from "@flowit/sdk";
 import type { AuthVariables } from "../middleware/auth";
+import { db, appConfig } from "../db";
+import { appConfigFromDb, getAnthropicApiKey } from "../models";
 
 // Register builtin nodes on module load
 registerBuiltinNodes();
@@ -88,10 +85,17 @@ const workflowNodeSchema = z.object({
   type: z.string().describe("The node type ID from the registry"),
   label: z.string().optional().describe("Optional display label"),
   params: z
-    .record(z.string(), nodeParamSchema)
-    .describe("Node parameters"),
-  inputs: z.record(z.string(), ioSchema).describe("Node inputs schema"),
-  outputs: z.record(z.string(), ioSchema).describe("Node outputs schema"),
+    .object({})
+    .catchall(nodeParamSchema)
+    .describe("Node parameters as key-value pairs"),
+  inputs: z
+    .object({})
+    .catchall(ioSchema)
+    .describe("Node inputs schema as key-value pairs"),
+  outputs: z
+    .object({})
+    .catchall(ioSchema)
+    .describe("Node outputs schema as key-value pairs"),
 });
 
 const workflowEdgeSchema = z.object({
@@ -110,12 +114,16 @@ const workflowDSLSchema = z.object({
     version: z.string().describe("Version number"),
     status: z.enum(["draft", "published"]),
   }),
-  inputs: z.record(z.string(), ioSchema).describe("Workflow-level inputs"),
-  outputs: z.record(z.string(), ioSchema).describe("Workflow-level outputs"),
-  secrets: z.array(z.object({
-    key: z.string(),
-    env: z.string().optional(),
-  })).describe("Required secrets"),
+  inputs: z.object({}).catchall(ioSchema).describe("Workflow-level inputs"),
+  outputs: z.object({}).catchall(ioSchema).describe("Workflow-level outputs"),
+  secrets: z
+    .array(
+      z.object({
+        key: z.string(),
+        env: z.string().optional(),
+      })
+    )
+    .describe("Required secrets"),
   nodes: z.array(workflowNodeSchema).describe("Workflow nodes"),
   edges: z.array(workflowEdgeSchema).describe("Workflow edges"),
 });
@@ -169,28 +177,48 @@ const getNodeDetailsTool = tool({
   },
 });
 
-// Define the workflow builder agent with structured output
-const workflowBuilderAgent = new ToolLoopAgent({
-  model: anthropic("claude-sonnet-4-5-20241022"),
-  instructions: SYSTEM_PROMPT,
-  tools: {
-    listAvailableNodes: listAvailableNodesTool,
-    getNodeDetails: getNodeDetailsTool,
-  },
-  output: Output.object({
-    schema: workflowDSLSchema,
-  }),
-});
+// Create the workflow builder agent with a given API key
+function createWorkflowBuilderAgent(apiKey: string) {
+  const anthropic = createAnthropic({ apiKey });
+
+  return new ToolLoopAgent({
+    model: anthropic("claude-sonnet-4-5"),
+    instructions: SYSTEM_PROMPT,
+    tools: {
+      listAvailableNodes: listAvailableNodesTool,
+      getNodeDetails: getNodeDetailsTool,
+    },
+    output: Output.object({
+      schema: workflowDSLSchema,
+    }),
+  });
+}
 
 export function createAgentRoutes() {
   return new Hono<{ Variables: AuthVariables }>().post(
     "/chat",
     zValidator("json", agentRequestSchema),
     async (c) => {
+      // Get API key from database
+      const rows = await db.select().from(appConfig);
+      const configs = rows.map(appConfigFromDb);
+      const apiKey = getAnthropicApiKey(configs);
+
+      if (!apiKey) {
+        return c.json(
+          {
+            error:
+              "API key not found. Please set the Anthropic API key in admin settings.",
+          },
+          400
+        );
+      }
+
       const { messages } = c.req.valid("json");
+      const agent = createWorkflowBuilderAgent(apiKey);
 
       return createAgentUIStreamResponse({
-        agent: workflowBuilderAgent,
+        agent,
         uiMessages: messages,
       });
     }

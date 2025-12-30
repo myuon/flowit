@@ -7,6 +7,7 @@ import {
   appConfigFromDb,
   appSettingsFromConfigs,
   updateSettingsInputFromRequest,
+  hasAnthropicApiKey,
 } from "../models";
 
 export function isAdmin(userId: string): boolean {
@@ -45,12 +46,23 @@ export function createAdminRoutes() {
             });
         }
 
-        // Return updated settings
+        if (input.anthropicApiKey !== undefined) {
+          await db
+            .insert(appConfig)
+            .values({ key: "anthropicApiKey", value: input.anthropicApiKey, updatedAt: now })
+            .onConflictDoUpdate({
+              target: appConfig.key,
+              set: { value: input.anthropicApiKey, updatedAt: now },
+            });
+        }
+
+        // Return updated settings (without exposing API key value)
         const rows = await db.select().from(appConfig);
         const configs = rows.map(appConfigFromDb);
         const settings = appSettingsFromConfigs(configs);
+        const hasApiKey = hasAnthropicApiKey(configs);
 
-        return c.json(settings);
+        return c.json({ ...settings, hasAnthropicApiKey: hasApiKey });
       })
   );
 }

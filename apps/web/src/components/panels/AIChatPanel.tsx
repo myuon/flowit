@@ -1,11 +1,16 @@
 import { useRef, useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import type { WorkflowDSL } from "@flowit/shared";
 import { useI18n } from "../../i18n";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-export function AIChatPanel() {
+interface AIChatPanelProps {
+  onApproveWorkflow?: (workflow: WorkflowDSL) => void;
+}
+
+export function AIChatPanel({ onApproveWorkflow }: AIChatPanelProps) {
   const { t } = useI18n();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
@@ -16,11 +21,12 @@ export function AIChatPanel() {
       fetch(url, { ...options, credentials: "include" }),
   });
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport,
   });
 
   const isLoading = status === "streaming" || status === "submitted";
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,11 +42,19 @@ export function AIChatPanel() {
 
     const text = input;
     setInput("");
-    await sendMessage({
-      role: "user",
-      parts: [{ type: "text", text }],
-    });
+    setLocalError(null);
+    try {
+      await sendMessage({
+        role: "user",
+        parts: [{ type: "text", text }],
+      });
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : t.aiAgentError);
+    }
   };
+
+  const displayError = localError || error?.message;
+  const [pendingWorkflow, setPendingWorkflow] = useState<WorkflowDSL | null>(null);
 
   // Helper to get text content from message parts
   const getMessageText = (message: (typeof messages)[number]): string => {
@@ -49,6 +63,59 @@ export function AIChatPanel() {
       .filter((part) => part.type === "text")
       .map((part) => (part as { type: "text"; text: string }).text)
       .join("");
+  };
+
+  // Helper to extract workflow DSL from message parts
+  const getWorkflowFromMessage = (message: (typeof messages)[number]): WorkflowDSL | null => {
+    if (!message.parts || message.role !== "assistant") return null;
+    for (const part of message.parts) {
+      // Check for data-* type parts which may contain structured output
+      if (part.type.startsWith("data-")) {
+        const dataPart = part as { type: string; data?: unknown };
+        if (dataPart.data && typeof dataPart.data === "object") {
+          const obj = dataPart.data as Record<string, unknown>;
+          if (obj.dslVersion === "0.1.0" && obj.nodes && obj.edges) {
+            return obj as unknown as WorkflowDSL;
+          }
+        }
+      }
+      // Also try to parse text parts as JSON (fallback)
+      if (part.type === "text") {
+        const textPart = part as { type: "text"; text: string };
+        try {
+          const parsed = JSON.parse(textPart.text);
+          if (parsed.dslVersion === "0.1.0" && parsed.nodes && parsed.edges) {
+            return parsed as WorkflowDSL;
+          }
+        } catch {
+          // Not valid JSON, continue
+        }
+      }
+    }
+    return null;
+  };
+
+  // Check the latest assistant message for a workflow
+  useEffect(() => {
+    if (isLoading) return;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      const workflow = getWorkflowFromMessage(lastMessage);
+      if (workflow) {
+        setPendingWorkflow(workflow);
+      }
+    }
+  }, [messages, isLoading]);
+
+  const handleApprove = () => {
+    if (pendingWorkflow && onApproveWorkflow) {
+      onApproveWorkflow(pendingWorkflow);
+      setPendingWorkflow(null);
+    }
+  };
+
+  const handleReject = () => {
+    setPendingWorkflow(null);
   };
 
   return (
@@ -66,26 +133,61 @@ export function AIChatPanel() {
             {t.aiChatEmpty}
           </div>
         )}
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`p-2 rounded-lg text-sm ${
-              message.role === "user"
-                ? "bg-blue-100 text-blue-900 ml-4"
-                : "bg-white border border-gray-200 mr-4"
-            }`}
-          >
-            {getMessageText(message)}
-          </div>
-        ))}
+        {messages.map((message) => {
+          const workflow = getWorkflowFromMessage(message);
+          return (
+            <div
+              key={message.id}
+              className={`p-2 rounded-lg text-sm ${
+                message.role === "user"
+                  ? "bg-blue-100 text-blue-900 ml-4"
+                  : "bg-white border border-gray-200 mr-4"
+              }`}
+            >
+              {workflow ? (
+                <div className="space-y-2">
+                  <div className="font-medium text-green-700">{t.workflowGenerated}</div>
+                  <pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-60 whitespace-pre-wrap">
+                    {JSON.stringify(workflow, null, 2)}
+                  </pre>
+                </div>
+              ) : (
+                getMessageText(message)
+              )}
+            </div>
+          );
+        })}
         {isLoading && (
           <div className="flex items-center gap-2 text-gray-400 text-xs">
             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" />
             {t.aiThinking}
           </div>
         )}
+        {displayError && (
+          <div className="p-2 rounded-lg text-sm bg-red-50 border border-red-200 text-red-600 mr-4">
+            {displayError}
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Approve/Reject buttons */}
+      {pendingWorkflow && (
+        <div className="p-3 border-t border-gray-200 bg-white flex gap-2">
+          <button
+            onClick={handleApprove}
+            className="flex-1 py-2 px-3 bg-green-500 text-white rounded-md text-sm font-medium hover:bg-green-600"
+          >
+            {t.approveWorkflow}
+          </button>
+          <button
+            onClick={handleReject}
+            className="flex-1 py-2 px-3 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300"
+          >
+            {t.rejectWorkflow}
+          </button>
+        </div>
+      )}
 
       {/* Input */}
       <form onSubmit={onSubmit} className="p-3 border-t border-gray-200">

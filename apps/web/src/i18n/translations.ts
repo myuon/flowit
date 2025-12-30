@@ -133,6 +133,19 @@ export interface Translations {
   aiAgentPlaceholder: string;
   aiAgentError: string;
   send: string;
+
+  // API Keys
+  apiKeys: string;
+  anthropicApiKey: string;
+  apiKeySet: string;
+  apiKeyNotSet: string;
+  apiKeyPlaceholder: string;
+  apiKeyUpdated: string;
+
+  // AI Workflow Approval
+  approveWorkflow: string;
+  rejectWorkflow: string;
+  workflowGenerated: string;
 }
 
 const en: Translations = {
@@ -269,6 +282,19 @@ const en: Translations = {
   aiAgentPlaceholder: "I can help you build workflows. This feature is coming soon!",
   aiAgentError: "Sorry, something went wrong. Please try again.",
   send: "Send",
+
+  // API Keys
+  apiKeys: "API Keys",
+  anthropicApiKey: "Anthropic API Key",
+  apiKeySet: "Set",
+  apiKeyNotSet: "Not set",
+  apiKeyPlaceholder: "sk-ant-...",
+  apiKeyUpdated: "API key updated",
+
+  // AI Workflow Approval
+  approveWorkflow: "Approve",
+  rejectWorkflow: "Reject",
+  workflowGenerated: "Workflow Generated",
 };
 
 const ja: Translations = {
@@ -405,6 +431,19 @@ const ja: Translations = {
   aiAgentPlaceholder: "ワークフローの構築をお手伝いします。この機能は近日公開予定です！",
   aiAgentError: "エラーが発生しました。もう一度お試しください。",
   send: "送信",
+
+  // API Keys
+  apiKeys: "APIキー",
+  anthropicApiKey: "Anthropic APIキー",
+  apiKeySet: "設定済み",
+  apiKeyNotSet: "未設定",
+  apiKeyPlaceholder: "sk-ant-...",
+  apiKeyUpdated: "APIキーを更新しました",
+
+  // AI Workflow Approval
+  approveWorkflow: "承認",
+  rejectWorkflow: "却下",
+  workflowGenerated: "ワークフロー生成完了",
 };
 
 export const translations: Record<Language, Translations> = {

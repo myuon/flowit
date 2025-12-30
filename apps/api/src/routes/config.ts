@@ -9,6 +9,7 @@ export function createConfigRoutes() {
       // Get app settings (public - needed for i18n before login)
       .get("/settings", async (c) => {
         const settings: AppSettings = { ...DEFAULT_APP_SETTINGS };
+        let hasAnthropicApiKey = false;
 
         const rows = await db.select().from(appConfig);
         for (const row of rows) {
@@ -18,9 +19,12 @@ export function createConfigRoutes() {
           ) {
             settings.language = row.value as Language;
           }
+          if (row.key === "anthropicApiKey" && row.value.length > 0) {
+            hasAnthropicApiKey = true;
+          }
         }
 
-        return c.json(settings);
+        return c.json({ ...settings, hasAnthropicApiKey });
       })
   );
 }

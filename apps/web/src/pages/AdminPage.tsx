@@ -5,12 +5,18 @@ import { useI18n } from "../i18n";
 import { UserMenu } from "../components/UserMenu";
 import { client } from "../api/client";
 
+interface SettingsWithApiKey extends AppSettings {
+  hasAnthropicApiKey: boolean;
+}
+
 export function AdminPage() {
   const { user, isAdmin } = useAuth();
   const { t, refresh: refreshI18n } = useI18n();
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<SettingsWithApiKey | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [apiKeySaved, setApiKeySaved] = useState(false);
 
   useEffect(() => {
     client.config.settings
@@ -19,7 +25,7 @@ export function AdminPage() {
         if (!res.ok) throw new Error(`Failed to get settings: ${res.statusText}`);
         return res.json();
       })
-      .then(setSettings)
+      .then((data) => setSettings(data as SettingsWithApiKey))
       .catch((err) => setError(err.message));
   }, []);
 
@@ -32,8 +38,30 @@ export function AdminPage() {
         throw new Error(`Failed to save settings: ${res.statusText}`);
       }
       const updated = await res.json();
-      setSettings(updated);
+      setSettings(updated as SettingsWithApiKey);
       await refreshI18n();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleApiKeySave = async () => {
+    if (!apiKey.trim()) return;
+    setSaving(true);
+    setError(null);
+    setApiKeySaved(false);
+    try {
+      const res = await client.admin.settings.$put({ json: { anthropicApiKey: apiKey } });
+      if (!res.ok) {
+        throw new Error(`Failed to save API key: ${res.statusText}`);
+      }
+      const updated = await res.json();
+      setSettings(updated as SettingsWithApiKey);
+      setApiKey("");
+      setApiKeySaved(true);
+      setTimeout(() => setApiKeySaved(false), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
     } finally {
@@ -122,6 +150,47 @@ export function AdminPage() {
               <option value="ja">日本語</option>
             </select>
             {saving && <span className="text-gray-500 text-sm">{t.saving}</span>}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <h2 className="m-0 mb-4 text-lg">{t.apiKeys}</h2>
+
+          <div className="flex items-center gap-4 mb-4">
+            <label htmlFor="anthropicApiKey" className="font-medium min-w-25">
+              {t.anthropicApiKey}
+            </label>
+            <span
+              className={`px-2 py-1 rounded text-xs ${
+                settings?.hasAnthropicApiKey
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              {settings?.hasAnthropicApiKey ? t.apiKeySet : t.apiKeyNotSet}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              id="anthropicApiKey"
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={t.apiKeyPlaceholder}
+              disabled={saving}
+              className="flex-1 py-2 px-3 border border-gray-300 rounded-md text-sm max-w-md"
+            />
+            <button
+              onClick={handleApiKeySave}
+              disabled={saving || !apiKey.trim()}
+              className="py-2 px-4 bg-blue-500 text-white rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600"
+            >
+              {t.save}
+            </button>
+            {apiKeySaved && (
+              <span className="text-green-600 text-sm">{t.apiKeyUpdated}</span>
+            )}
           </div>
         </div>
       </div>

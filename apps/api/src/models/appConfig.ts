@@ -40,12 +40,28 @@ function isValidLanguage(value: string): value is Language {
 
 export interface UpdateSettingsInput {
   language?: Language;
+  anthropicApiKey?: string;
 }
 
 export function updateSettingsInputFromRequest(body: {
   language?: Language;
+  anthropicApiKey?: string;
 }): UpdateSettingsInput {
   return {
     language: body.language,
+    anthropicApiKey: body.anthropicApiKey,
   };
+}
+
+// ============================================
+// API Key Helper Functions
+// ============================================
+
+export function getAnthropicApiKey(configs: AppConfig[]): string | null {
+  const config = configs.find((c) => c.key === "anthropicApiKey");
+  return config?.value ?? null;
+}
+
+export function hasAnthropicApiKey(configs: AppConfig[]): boolean {
+  return configs.some((c) => c.key === "anthropicApiKey" && c.value.length > 0);
 }
