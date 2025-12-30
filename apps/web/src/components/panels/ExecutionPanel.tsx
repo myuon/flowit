@@ -1,4 +1,5 @@
 import { useI18n } from "../../i18n";
+import { Button } from "../ui/Button";
 
 export interface ExecutionLog {
   type: "info" | "success" | "error" | "node";
@@ -33,13 +34,12 @@ export const ExecutionPanel = ({
     <div className="h-50 border-t border-gray-200 bg-[#1e1e1e] flex flex-col">
       {/* Toolbar */}
       <div className="py-2 px-3 border-b border-gray-700 flex items-center gap-2">
-        <button
+        <Button
+          color="success"
           onClick={onExecute}
           disabled={isRunning}
-          className={`py-1.5 px-4 text-white border-none rounded font-medium flex items-center gap-1.5 ${
-            isRunning
-              ? "bg-gray-600 cursor-not-allowed"
-              : "bg-green-600 cursor-pointer"
+          className={`font-medium flex items-center gap-1.5 ${
+            isRunning ? "bg-gray-600 cursor-not-allowed" : ""
           }`}
         >
           {isRunning ? (
@@ -53,14 +53,11 @@ export const ExecutionPanel = ({
               {t.execute}
             </>
           )}
-        </button>
+        </Button>
 
-        <button
-          onClick={onClear}
-          className="py-1.5 px-3 bg-gray-800 text-gray-400 border border-gray-600 rounded cursor-pointer"
-        >
+        <Button color="dark" onClick={onClear}>
           {t.clear}
-        </button>
+        </Button>
 
         <div className="flex-1" />
 
