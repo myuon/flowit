@@ -1,14 +1,23 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { ToolLoopAgent, createAgentUIStreamResponse, tool, Output } from "ai";
+import {
+  ToolLoopAgent,
+  createAgentUIStreamResponse,
+  tool,
+  Output,
+  stepCountIs,
+  hasToolCall,
+} from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import {
   getNodeCatalog,
   getGroupedCatalog,
   getNode,
   registerBuiltinNodes,
+  validateWorkflow,
 } from "@flowit/sdk";
+import type { WorkflowDSL } from "@flowit/shared";
 import type { AuthVariables } from "../middleware/auth";
 import { db, appConfig } from "../db";
 import { appConfigFromDb, getAnthropicApiKey } from "../models";
@@ -41,12 +50,14 @@ const SYSTEM_PROMPT = `You are a workflow builder assistant that helps users cre
 You have access to tools to:
 1. List available node types (listAvailableNodes)
 2. Get detailed information about specific nodes (getNodeDetails)
+3. Validate a workflow (validateWorkflow)
 
 When helping users build workflows:
 1. First understand what the user wants to accomplish
 2. List and explore available nodes to find the right ones
 3. Get details about specific nodes to understand their parameters
 4. Build the workflow by connecting nodes appropriately
+5. IMPORTANT: Before completing, you MUST call validateWorkflow to verify the workflow is valid
 
 Key concepts:
 - Nodes are connected via edges
@@ -54,7 +65,7 @@ Key concepts:
 - Parameters can be static values or reference secrets
 - Workflows flow from input/trigger nodes to output nodes
 
-Always explore the available nodes first to understand what's possible. When you have gathered enough information, output the complete workflow DSL.
+Always explore the available nodes first to understand what's possible. When you have gathered enough information and built the workflow, call validateWorkflow to check for errors. If there are validation errors, fix them before completing.
 
 Your final output MUST be a valid WorkflowDSL object with:
 - dslVersion: "0.1.0"
@@ -177,6 +188,28 @@ const getNodeDetailsTool = tool({
   },
 });
 
+const validateWorkflowTool = tool({
+  description:
+    "Validate a workflow DSL to check for errors before completing. You MUST call this tool before finishing to ensure the workflow is valid. Returns validation errors if any, or confirms the workflow is valid.",
+  inputSchema: z.object({
+    workflow: workflowDSLSchema.describe("The workflow DSL to validate"),
+  }),
+  execute: async ({ workflow }) => {
+    const errors = validateWorkflow(workflow as WorkflowDSL);
+    if (errors.length === 0) {
+      return { valid: true, message: "Workflow is valid" };
+    }
+    return { valid: false, errors };
+  },
+});
+
+// Define agent tools
+const agentTools = {
+  listAvailableNodes: listAvailableNodesTool,
+  getNodeDetails: getNodeDetailsTool,
+  validateWorkflow: validateWorkflowTool,
+};
+
 // Create the workflow builder agent with a given API key
 function createWorkflowBuilderAgent(apiKey: string) {
   const anthropic = createAnthropic({ apiKey });
@@ -184,13 +217,14 @@ function createWorkflowBuilderAgent(apiKey: string) {
   return new ToolLoopAgent({
     model: anthropic("claude-sonnet-4-5"),
     instructions: SYSTEM_PROMPT,
-    tools: {
-      listAvailableNodes: listAvailableNodesTool,
-      getNodeDetails: getNodeDetailsTool,
-    },
+    tools: agentTools,
     output: Output.object({
       schema: workflowDSLSchema,
     }),
+    stopWhen: [
+      stepCountIs(20), // Maximum 20 steps
+      hasToolCall("validateWorkflow"), // Stop after calling validateWorkflow
+    ],
   });
 }
 
