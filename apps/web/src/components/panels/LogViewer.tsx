@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useI18n } from "../../i18n";
 import {
   getExecutionLogs,
@@ -10,7 +10,7 @@ interface LogViewerProps {
   workflowId: string;
 }
 
-function LogViewerComponent({ workflowId }: LogViewerProps) {
+export const LogViewer = ({ workflowId }: LogViewerProps) => {
   const { t } = useI18n();
   const [logs, setLogs] = useState<ExecutionLogItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,6 +201,4 @@ function LogViewerComponent({ workflowId }: LogViewerProps) {
       </div>
     </div>
   );
-}
-
-export const LogViewer = memo(LogViewerComponent);
+};

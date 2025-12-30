@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import { getGroupedCatalog, type NodeCatalogItem } from "@flowit/sdk";
 import {
   useI18n,
@@ -11,7 +11,7 @@ interface NodePaletteProps {
   onAddNode: (nodeType: string) => void;
 }
 
-function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
+export const NodePalette = ({ onAddNode }: NodePaletteProps) => {
   const { t, language } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const groupedCatalog = getGroupedCatalog();
@@ -103,6 +103,4 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
       </div>
     </div>
   );
-}
-
-export const NodePalette = memo(NodePaletteComponent);
+};

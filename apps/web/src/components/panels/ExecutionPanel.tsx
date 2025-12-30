@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { useI18n } from "../../i18n";
 
 export interface ExecutionLog {
@@ -22,11 +21,11 @@ interface ExecutionPanelProps {
   onClear: () => void;
 }
 
-function ExecutionPanelComponent({
+export const ExecutionPanel = ({
   execution,
   onExecute,
   onClear,
-}: ExecutionPanelProps) {
+}: ExecutionPanelProps) => {
   const { t } = useI18n();
   const isRunning = execution.status === "running";
 
@@ -132,6 +131,4 @@ function ExecutionPanelComponent({
       </div>
     </div>
   );
-}
-
-export const ExecutionPanel = memo(ExecutionPanelComponent);
+};

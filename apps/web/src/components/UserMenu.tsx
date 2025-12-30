@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, memo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../auth";
 
-function UserMenuComponent() {
+export const UserMenu = () => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -80,6 +80,4 @@ function UserMenuComponent() {
       )}
     </div>
   );
-}
-
-export const UserMenu = memo(UserMenuComponent);
+};

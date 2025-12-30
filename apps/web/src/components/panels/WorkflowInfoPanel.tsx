@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 import type { Node } from "@xyflow/react";
 import type { WorkflowDSL } from "@flowit/shared";
 import { getNode, validateWorkflow } from "@flowit/sdk";
@@ -11,11 +11,11 @@ interface WorkflowInfoPanelProps {
   edges: Array<{ source: string; target: string; sourceHandle?: string | null; targetHandle?: string | null }>;
 }
 
-function WorkflowInfoPanelComponent({
+export const WorkflowInfoPanel = ({
   workflowId,
   nodes,
   edges,
-}: WorkflowInfoPanelProps) {
+}: WorkflowInfoPanelProps) => {
   const { t, language } = useI18n();
   const [validationResult, setValidationResult] = useState<{
     status: "idle" | "valid" | "invalid";
@@ -222,6 +222,4 @@ function WorkflowInfoPanelComponent({
       </div>
     </div>
   );
-}
-
-export const WorkflowInfoPanel = memo(WorkflowInfoPanelComponent);
+};

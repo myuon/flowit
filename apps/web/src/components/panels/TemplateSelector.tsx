@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import {
   workflowTemplates,
   getTemplatesByCategory,
@@ -11,10 +11,10 @@ interface TemplateSelectorProps {
   onStartBlank: () => void;
 }
 
-function TemplateSelectorComponent({
+export const TemplateSelector = ({
   onSelectTemplate,
   onStartBlank,
-}: TemplateSelectorProps) {
+}: TemplateSelectorProps) => {
   const { t } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categories = getTemplatesByCategory();
@@ -113,6 +113,4 @@ function TemplateSelectorComponent({
       </div>
     </div>
   );
-}
-
-export const TemplateSelector = memo(TemplateSelectorComponent);
+};

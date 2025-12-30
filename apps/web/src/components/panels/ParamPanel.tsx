@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import type { Node } from "@xyflow/react";
 import { getNode } from "@flowit/sdk";
 import type { WorkflowNodeData } from "../nodes";
@@ -17,11 +17,11 @@ interface ParamPanelProps {
   workflowId?: string;
 }
 
-function ParamPanelComponent({
+export const ParamPanel = ({
   selectedNode,
   onUpdateParams,
   workflowId,
-}: ParamPanelProps) {
+}: ParamPanelProps) => {
   const { t, language } = useI18n();
   const [validationState, setValidationState] = useState<{
     status: "idle" | "validating" | "success" | "error";
@@ -332,6 +332,4 @@ function ParamPanelComponent({
       </div>
     </div>
   );
-}
-
-export const ParamPanel = memo(ParamPanelComponent);
+};

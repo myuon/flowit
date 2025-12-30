@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Handle, Position, type Node } from "@xyflow/react";
 import type { IOSchema } from "@flowit/shared";
 import { useI18n, getNodeDisplayName } from "../../i18n";
@@ -26,7 +25,7 @@ const handleStyle = {
   borderRadius: 2,
 };
 
-function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
+export const WorkflowNode = ({ data, selected }: WorkflowNodeProps) => {
   const { language } = useI18n();
   const inputKeys = Object.keys(data.inputs || {});
   const outputKeys = Object.keys(data.outputs || {});
@@ -109,6 +108,4 @@ function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
       </div>
     </div>
   );
-}
-
-export const WorkflowNode = memo(WorkflowNodeComponent);
+};
