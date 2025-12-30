@@ -52,6 +52,7 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     status: "idle",
     logs: [],
   });
+  const [executingNodeId, setExecutingNodeId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(!!workflowId);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -257,7 +258,7 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     [fromDSL, addLog]
   );
 
-  // Execute workflow
+  // Execute workflow with SSE for real-time node progress
   const execute = useCallback(async () => {
     if (nodes.length === 0) {
       addLog("error", "No nodes in workflow");
@@ -265,34 +266,91 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     }
 
     setExecution({ status: "running", logs: [] });
+    setExecutingNodeId(null);
     addLog("info", "Starting workflow execution...");
 
     try {
       const dsl = toDSL();
       addLog("info", `Executing ${dsl.nodes.length} nodes...`);
 
-      const res = await client.api.execute.$post({
-        query: {},
-        json: { workflow: dsl, inputs: {}, secrets: {} },
-      });
-      const result = (await res.json()) as ExecuteWorkflowResponse;
+      const API_BASE_URL =
+        import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-      if (res.ok && result.status === "success") {
-        setExecution((prev) => ({
-          ...prev,
-          status: "success",
-          executionId: result.executionId,
-          outputs: result.outputs,
-        }));
-        addLog("success", "Workflow completed successfully");
-      } else {
-        setExecution((prev) => ({
-          ...prev,
-          status: "error",
-          executionId: result.executionId,
-          error: result.error,
-        }));
-        addLog("error", result.error || "Unknown error occurred");
+      // Use fetch with SSE for streaming node progress
+      const res = await fetch(`${API_BASE_URL}/api/execute?sse=true`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ workflow: dsl, inputs: {}, secrets: {} }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error: ${res.status}`);
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Parse SSE events from buffer
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+        let currentEvent = "";
+        let currentData = "";
+
+        for (const line of lines) {
+          if (line.startsWith("event:")) {
+            currentEvent = line.slice(6).trim();
+          } else if (line.startsWith("data:")) {
+            currentData = line.slice(5).trim();
+          } else if (line === "" && currentEvent && currentData) {
+            // End of event, process it
+            try {
+              const data = JSON.parse(currentData);
+
+              if (currentEvent === "node-complete") {
+                setExecutingNodeId(data.nodeId);
+                addLog("info", `Node completed: ${data.nodeId}`, data.nodeId);
+              } else if (currentEvent === "complete") {
+                setExecutingNodeId(null);
+                const result = data as ExecuteWorkflowResponse;
+
+                if (result.status === "success") {
+                  setExecution((prev) => ({
+                    ...prev,
+                    status: "success",
+                    executionId: result.executionId,
+                    outputs: result.outputs,
+                  }));
+                  addLog("success", "Workflow completed successfully");
+                } else {
+                  setExecution((prev) => ({
+                    ...prev,
+                    status: "error",
+                    executionId: result.executionId,
+                    error: result.error,
+                  }));
+                  addLog("error", result.error || "Unknown error occurred");
+                }
+              }
+            } catch {
+              // Ignore parse errors
+            }
+            currentEvent = "";
+            currentData = "";
+          }
+        }
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
@@ -301,6 +359,7 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
         status: "error",
         error: errorMessage,
       }));
+      setExecutingNodeId(null);
       addLog("error", `Execution failed: ${errorMessage}`);
     }
   }, [nodes, toDSL, addLog]);
@@ -464,6 +523,7 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     addNode,
     updateNodeParams,
     execution,
+    executingNodeId,
     execute,
     clearLogs,
     save,

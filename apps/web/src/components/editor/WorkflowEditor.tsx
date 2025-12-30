@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import {
   ReactFlow,
   Controls,
@@ -51,6 +51,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     addNode,
     updateNodeParams,
     execution,
+    executingNodeId,
     execute,
     clearLogs,
     save,
@@ -62,6 +63,19 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     saveToApi,
     publish,
   } = useWorkflow({ workflowId });
+
+  // Add isExecuting flag to nodes for visual feedback during execution
+  const nodesWithExecutionState = useMemo(
+    () =>
+      nodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isExecuting: node.id === executingNodeId,
+        },
+      })),
+    [nodes, executingNodeId]
+  );
 
   const handleSelectTemplate = useCallback(
     (template: WorkflowTemplate) => {
@@ -239,7 +253,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             <div className="flex-1 flex flex-col">
               <div className="flex-1">
                 <ReactFlow
-                  nodes={nodes}
+                  nodes={nodesWithExecutionState}
                   edges={edges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
