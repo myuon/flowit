@@ -80,18 +80,21 @@ export function AIChatPanel({
       });
   };
 
-  // Helper to get tool approval requests
-  interface ToolApprovalRequest {
-    type: "tool-approval-request";
-    approvalId: string;
+  // Helper to get tool parts that need approval (type is "tool-{toolName}")
+  interface ToolPart {
+    type: string;
     toolCallId: string;
+    state: "approval-requested" | "output-available" | string;
+    input: unknown;
+    approval?: { id: string };
+    output?: unknown;
   }
 
-  const getToolApprovalRequests = (message: (typeof messages)[number]): ToolApprovalRequest[] => {
+  const getEditWorkflowParts = (message: (typeof messages)[number]): ToolPart[] => {
     if (!message.parts || message.role !== "assistant") return [];
     return message.parts
-      .filter((part) => part.type === "tool-approval-request")
-      .map((part) => part as unknown as ToolApprovalRequest);
+      .filter((part) => part.type === "tool-editCurrentWorkflow")
+      .map((part) => part as unknown as ToolPart);
   };
 
   // Check for editCurrentWorkflow tool call and trigger refetch
@@ -125,7 +128,7 @@ export function AIChatPanel({
         )}
         {messages.map((message) => {
           const toolCalls = getToolCalls(message);
-          const approvalRequests = getToolApprovalRequests(message);
+          const editWorkflowParts = getEditWorkflowParts(message);
           const textContent = getMessageText(message);
           return (
             <div
@@ -155,38 +158,45 @@ export function AIChatPanel({
                 </div>
               )}
 
-              {/* Tool approval requests */}
-              {approvalRequests.length > 0 && (
+              {/* Tool parts that need approval */}
+              {editWorkflowParts.length > 0 && (
                 <div className="mt-2 space-y-2">
-                  {approvalRequests.map((approval) => (
-                    <div key={approval.approvalId} className="text-xs bg-amber-50 p-2 rounded border border-amber-200">
+                  {editWorkflowParts.map((part) => (
+                    <div key={part.toolCallId} className="text-xs bg-amber-50 p-2 rounded border border-amber-200">
                       <div className="font-medium text-amber-800 mb-1">
                         {t.workflowGenerated}
                       </div>
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() =>
-                            addToolApprovalResponse({
-                              id: approval.approvalId,
-                              approved: true,
-                            })
-                          }
-                          className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
-                        >
-                          {t.approveWorkflow}
-                        </button>
-                        <button
-                          onClick={() =>
-                            addToolApprovalResponse({
-                              id: approval.approvalId,
-                              approved: false,
-                            })
-                          }
-                          className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-                        >
-                          {t.rejectWorkflow}
-                        </button>
-                      </div>
+                      {part.state === "approval-requested" && part.approval && (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() =>
+                              addToolApprovalResponse({
+                                id: part.approval!.id,
+                                approved: true,
+                              })
+                            }
+                            className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                          >
+                            {t.approveWorkflow}
+                          </button>
+                          <button
+                            onClick={() =>
+                              addToolApprovalResponse({
+                                id: part.approval!.id,
+                                approved: false,
+                              })
+                            }
+                            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                          >
+                            {t.rejectWorkflow}
+                          </button>
+                        </div>
+                      )}
+                      {part.state === "output-available" && (
+                        <div className="text-green-700 mt-1">
+                          {t.approveWorkflow} ✓
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
