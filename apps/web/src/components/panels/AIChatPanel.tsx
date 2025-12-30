@@ -1,6 +1,9 @@
 import { useRef, useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+} from "ai";
 import { useI18n } from "../../i18n";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -25,14 +28,18 @@ export function AIChatPanel({
       fetch(url, { ...options, credentials: "include" }),
   });
 
-  const { messages, sendMessage, status, error, addToolApprovalResponse } = useChat({
-    transport,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
-  });
+  const { messages, sendMessage, status, error, addToolApprovalResponse } =
+    useChat({
+      transport,
+      sendAutomaticallyWhen:
+        lastAssistantMessageIsCompleteWithApprovalResponses,
+    });
 
   const isLoading = status === "streaming" || status === "submitted";
   const [localError, setLocalError] = useState<string | null>(null);
-  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<string | null>(null);
+  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<
+    string | null
+  >(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,50 +68,35 @@ export function AIChatPanel({
 
   const displayError = localError || error?.message;
 
-  // Helper to get text content from message parts
-  const getMessageText = (message: (typeof messages)[number]): string => {
-    if (!message.parts) return "";
-    return message.parts
-      .filter((part) => part.type === "text")
-      .map((part) => (part as { type: "text"; text: string }).text)
-      .join("");
-  };
-
-  // Helper to get tool calls from message parts
-  const getToolCalls = (message: (typeof messages)[number]): Array<{ toolName: string; args: unknown }> => {
+  // Helper to get tool calls from message parts (for useEffect check)
+  const getToolCalls = (
+    message: (typeof messages)[number]
+  ): Array<{ toolName: string; args: unknown }> => {
     if (!message.parts || message.role !== "assistant") return [];
     return message.parts
       .filter((part) => part.type === "tool-call")
       .map((part) => {
-        const toolPart = part as unknown as { type: "tool-call"; toolName: string; args: unknown };
+        const toolPart = part as unknown as {
+          type: "tool-call";
+          toolName: string;
+          args: unknown;
+        };
         return { toolName: toolPart.toolName, args: toolPart.args };
       });
-  };
-
-  // Helper to get tool parts that need approval (type is "tool-{toolName}")
-  interface ToolPart {
-    type: string;
-    toolCallId: string;
-    state: "approval-requested" | "output-available" | string;
-    input: unknown;
-    approval?: { id: string };
-    output?: unknown;
-  }
-
-  const getEditWorkflowParts = (message: (typeof messages)[number]): ToolPart[] => {
-    if (!message.parts || message.role !== "assistant") return [];
-    return message.parts
-      .filter((part) => part.type === "tool-editCurrentWorkflow")
-      .map((part) => part as unknown as ToolPart);
   };
 
   // Check for editCurrentWorkflow tool call and trigger refetch
   useEffect(() => {
     if (isLoading) return;
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant" && lastMessage.id !== lastProcessedMessageId) {
+    if (
+      lastMessage?.role === "assistant" &&
+      lastMessage.id !== lastProcessedMessageId
+    ) {
       const toolCalls = getToolCalls(lastMessage);
-      const hasEditWorkflow = toolCalls.some((tc) => tc.toolName === "editCurrentWorkflow");
+      const hasEditWorkflow = toolCalls.some(
+        (tc) => tc.toolName === "editCurrentWorkflow"
+      );
       if (hasEditWorkflow && onWorkflowUpdated) {
         onWorkflowUpdated();
         setLastProcessedMessageId(lastMessage.id);
@@ -127,84 +119,150 @@ export function AIChatPanel({
             {t.aiChatEmpty}
           </div>
         )}
-        {messages.map((message) => {
-          const toolCalls = getToolCalls(message);
-          const editWorkflowParts = getEditWorkflowParts(message);
-          const textContent = getMessageText(message);
-          return (
-            <div
-              key={message.id}
-              className={`p-2 rounded-lg text-sm ${
-                message.role === "user"
-                  ? "bg-blue-100 text-blue-900 ml-4"
-                  : "bg-white border border-gray-200 mr-4"
-              }`}
-            >
-              {/* Text content */}
-              {textContent && <div>{textContent}</div>}
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`p-2 rounded-lg text-sm ${
+              message.role === "user"
+                ? "bg-blue-100 text-blue-900 ml-4"
+                : "bg-white border border-gray-200 mr-4"
+            }`}
+          >
+            {message.parts?.map((part, idx) => {
+              switch (part.type) {
+                case "text":
+                  return <div key={idx}>{part.text}</div>;
 
-              {/* Tool calls */}
-              {toolCalls.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {toolCalls.map((tc, idx) => (
-                    <div key={idx} className="text-xs bg-gray-100 p-1.5 rounded border border-gray-200">
-                      <span className="font-medium text-purple-700">{tc.toolName}</span>
-                      {tc.toolName !== "editCurrentWorkflow" && (
-                        <pre className="mt-1 text-gray-600 overflow-auto max-h-20 whitespace-pre-wrap">
-                          {JSON.stringify(tc.args, null, 2)}
-                        </pre>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                case "tool-editCurrentWorkflow": {
+                  const toolPart = part as unknown as {
+                    type: string;
+                    toolCallId: string;
+                    state: string;
+                    input: unknown;
+                    approval?: { id: string };
+                    output?: unknown;
+                  };
+                  const callId = toolPart.toolCallId;
 
-              {/* Tool parts that need approval */}
-              {editWorkflowParts.length > 0 && (
-                <div className="mt-2 space-y-2">
-                  {editWorkflowParts.map((part) => (
-                    <div key={part.toolCallId} className="text-xs bg-amber-50 p-2 rounded border border-amber-200">
-                      <div className="font-medium text-amber-800 mb-1">
-                        {t.workflowGenerated}
+                  switch (toolPart.state) {
+                    case "input-streaming":
+                      return (
+                        <div
+                          key={callId}
+                          className="text-xs text-gray-500 mt-1"
+                        >
+                          {t.aiThinking}
+                        </div>
+                      );
+                    case "input-available":
+                      return (
+                        <div
+                          key={callId}
+                          className="text-xs bg-gray-100 p-1.5 rounded border border-gray-200 mt-1"
+                        >
+                          <span className="font-medium text-purple-700">
+                            editCurrentWorkflow
+                          </span>
+                          <div className="text-gray-600 mt-1">
+                            {t.workflowGenerated}
+                          </div>
+                        </div>
+                      );
+                    case "approval-requested":
+                      return (
+                        <div
+                          key={callId}
+                          className="text-xs bg-amber-50 p-2 rounded border border-amber-200 mt-1"
+                        >
+                          <div className="font-medium text-amber-800 mb-1">
+                            {t.workflowGenerated}
+                          </div>
+                          {toolPart.approval && (
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={() =>
+                                  addToolApprovalResponse({
+                                    id: toolPart.approval!.id,
+                                    approved: true,
+                                  })
+                                }
+                                className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                              >
+                                {t.approveWorkflow}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  addToolApprovalResponse({
+                                    id: toolPart.approval!.id,
+                                    approved: false,
+                                  })
+                                }
+                                className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                              >
+                                {t.rejectWorkflow}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    case "output-available":
+                      return (
+                        <div
+                          key={callId}
+                          className="text-xs bg-green-50 p-2 rounded border border-green-200 mt-1"
+                        >
+                          <div className="text-green-700">
+                            {t.approveWorkflow} ✓
+                          </div>
+                        </div>
+                      );
+                    case "output-error":
+                      return (
+                        <div
+                          key={callId}
+                          className="text-xs bg-red-50 p-2 rounded border border-red-200 mt-1"
+                        >
+                          <div className="text-red-700">
+                            Error:{" "}
+                            {(toolPart as { errorText?: string }).errorText}
+                          </div>
+                        </div>
+                      );
+                    default:
+                      return null;
+                  }
+                }
+
+                default:
+                  // Handle other tool-* parts generically
+                  if (part.type.startsWith("tool-")) {
+                    const toolPart = part as unknown as {
+                      type: string;
+                      toolCallId: string;
+                      state: string;
+                      input: unknown;
+                    };
+                    return (
+                      <div
+                        key={toolPart.toolCallId}
+                        className="text-xs bg-gray-100 p-1.5 rounded border border-gray-200 mt-1"
+                      >
+                        <span className="font-medium text-purple-700">
+                          {part.type.replace("tool-", "")}
+                        </span>
+                        {toolPart.state === "input-available" && (
+                          <pre className="mt-1 text-gray-600 overflow-auto max-h-20 whitespace-pre-wrap">
+                            {JSON.stringify(toolPart.input, null, 2)}
+                          </pre>
+                        )}
                       </div>
-                      {part.state === "approval-requested" && part.approval && (
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            onClick={() =>
-                              addToolApprovalResponse({
-                                id: part.approval!.id,
-                                approved: true,
-                              })
-                            }
-                            className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
-                          >
-                            {t.approveWorkflow}
-                          </button>
-                          <button
-                            onClick={() =>
-                              addToolApprovalResponse({
-                                id: part.approval!.id,
-                                approved: false,
-                              })
-                            }
-                            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-                          >
-                            {t.rejectWorkflow}
-                          </button>
-                        </div>
-                      )}
-                      {part.state === "output-available" && (
-                        <div className="text-green-700 mt-1">
-                          {t.approveWorkflow} ✓
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                    );
+                  }
+                  return null;
+              }
+            })}
+          </div>
+        ))}
         {isLoading && (
           <div className="flex items-center gap-2 text-gray-400 text-xs">
             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" />
