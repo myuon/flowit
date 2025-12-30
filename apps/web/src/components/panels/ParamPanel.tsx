@@ -86,16 +86,7 @@ function ParamPanelComponent({
 
   if (!selectedNode) {
     return (
-      <div
-        style={{
-          width: 280,
-          borderLeft: "1px solid #e0e0e0",
-          background: "#fafafa",
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-        }}
-      >
+      <div>
         <div
           style={{
             padding: "12px",
@@ -108,10 +99,8 @@ function ParamPanelComponent({
         </div>
         <div
           style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            padding: "40px 12px",
+            textAlign: "center",
             color: "#888",
             fontSize: 13,
           }}
@@ -135,16 +124,7 @@ function ParamPanelComponent({
   };
 
   return (
-    <div
-      style={{
-        width: 280,
-        borderLeft: "1px solid #e0e0e0",
-        background: "#fafafa",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-      }}
-    >
+    <div>
       {/* Header */}
       <div
         style={{
@@ -182,7 +162,7 @@ function ParamPanelComponent({
       </div>
 
       {/* Parameters */}
-      <div style={{ flex: 1, overflow: "auto", padding: "12px" }}>
+      <div style={{ padding: "12px" }}>
         <div
           style={{
             fontSize: 11,

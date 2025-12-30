@@ -17,6 +17,7 @@ import "@xyflow/react/dist/style.css";
 import { nodeTypes, type WorkflowNodeType } from "../nodes";
 import { NodePalette } from "../panels/NodePalette";
 import { ParamPanel } from "../panels/ParamPanel";
+import { WorkflowInfoPanel } from "../panels/WorkflowInfoPanel";
 import { ExecutionPanel } from "../panels/ExecutionPanel";
 import { TemplateSelector } from "../panels/TemplateSelector";
 import { LogViewer } from "../panels/LogViewer";
@@ -427,12 +428,27 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
               />
             </div>
 
-            {/* Right Panel - Properties */}
-            <ParamPanel
-              selectedNode={selectedNode}
-              onUpdateParams={updateNodeParams}
-              workflowId={workflowMeta.id}
-            />
+            {/* Right Panel - Workflow Info & Properties */}
+            <div
+              style={{
+                width: 280,
+                borderLeft: "1px solid #e0e0e0",
+                background: "#fafafa",
+                height: "100%",
+                overflow: "auto",
+              }}
+            >
+              <WorkflowInfoPanel
+                workflowId={workflowMeta.id}
+                nodes={nodes}
+                edges={edges}
+              />
+              <ParamPanel
+                selectedNode={selectedNode}
+                onUpdateParams={updateNodeParams}
+                workflowId={workflowMeta.id}
+              />
+            </div>
           </>
         ) : (
           <LogViewer workflowId={workflowMeta.id || workflowId || ""} />

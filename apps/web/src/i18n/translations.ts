@@ -111,6 +111,18 @@ export interface Translations {
   deploymentInvalid: string;
   deploymentIdRequired: string;
   scriptName: string;
+
+  // Workflow Info Panel
+  workflowInfo: string;
+  workflowId: string;
+  notSavedYet: string;
+  inputNodes: string;
+  outputNodes: string;
+  noInputNodes: string;
+  noOutputNodes: string;
+  validateWorkflow: string;
+  workflowValid: string;
+  workflowInvalid: string;
 }
 
 const en: Translations = {
@@ -225,6 +237,18 @@ const en: Translations = {
   deploymentInvalid: "Deployment is invalid",
   deploymentIdRequired: "Deployment ID is required",
   scriptName: "Script",
+
+  // Workflow Info Panel
+  workflowInfo: "Workflow Info",
+  workflowId: "Workflow ID",
+  notSavedYet: "Not saved yet",
+  inputNodes: "Input Nodes",
+  outputNodes: "Output Nodes",
+  noInputNodes: "No input nodes",
+  noOutputNodes: "No output nodes",
+  validateWorkflow: "Validate Workflow",
+  workflowValid: "Workflow is valid",
+  workflowInvalid: "Workflow has errors",
 };
 
 const ja: Translations = {
@@ -339,6 +363,18 @@ const ja: Translations = {
   deploymentInvalid: "デプロイメントが無効です",
   deploymentIdRequired: "デプロイメントIDが必要です",
   scriptName: "スクリプト",
+
+  // Workflow Info Panel
+  workflowInfo: "ワークフロー情報",
+  workflowId: "ワークフローID",
+  notSavedYet: "未保存",
+  inputNodes: "入力ノード",
+  outputNodes: "出力ノード",
+  noInputNodes: "入力ノードがありません",
+  noOutputNodes: "出力ノードがありません",
+  validateWorkflow: "ワークフローを検証",
+  workflowValid: "ワークフローは有効です",
+  workflowInvalid: "ワークフローにエラーがあります",
 };
 
 export const translations: Record<Language, Translations> = {
