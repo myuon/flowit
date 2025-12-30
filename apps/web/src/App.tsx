@@ -1,6 +1,7 @@
-import { AuthProvider, useAuth, AuthError, LoginPage } from "./auth";
+import { AuthProvider, useAuth, AuthError } from "./auth";
 import { I18nProvider } from "./i18n";
-import { WorkflowEditor } from "./components/editor/WorkflowEditor";
+import { WorkflowEditor } from "./pages/WorkflowEditorPage";
+import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { WorkflowListPage } from "./pages/WorkflowListPage";
 

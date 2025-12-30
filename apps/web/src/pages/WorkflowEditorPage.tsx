@@ -14,24 +14,24 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import { nodeTypes, type WorkflowNodeType } from "../nodes";
-import { NodePalette } from "../panels/NodePalette";
-import { AIChatPanel } from "../panels/AIChatPanel";
-import { ParamPanel } from "../panels/ParamPanel";
-import { WorkflowInfoPanel } from "../panels/WorkflowInfoPanel";
-import { ExecutionPanel } from "../panels/ExecutionPanel";
-import { TemplateSelector } from "../panels/TemplateSelector";
-import { LogViewer } from "../panels/LogViewer";
-import { Button } from "../ui/Button";
-import { Chip } from "../ui/Chip";
+import { nodeTypes, type WorkflowNodeType } from "../components/nodes";
+import { NodePalette } from "../components/panels/NodePalette";
+import { AIChatPanel } from "../components/panels/AIChatPanel";
+import { ParamPanel } from "../components/panels/ParamPanel";
+import { WorkflowInfoPanel } from "../components/panels/WorkflowInfoPanel";
+import { ExecutionPanel } from "../components/panels/ExecutionPanel";
+import { TemplateSelector } from "../components/panels/TemplateSelector";
+import { LogViewer } from "../components/panels/LogViewer";
+import { Button } from "../components/ui/Button";
+import { Chip } from "../components/ui/Chip";
+import { UserMenu } from "../components/UserMenu";
 
 type ViewMode = "editor" | "logs";
 type LeftPanelMode = "nodes" | "ai";
-import { UserMenu } from "../UserMenu";
-import { useWorkflow } from "../../hooks/useWorkflow";
-import { useAuth } from "../../auth";
-import { useI18n } from "../../i18n";
-import type { WorkflowTemplate } from "../../data/templates";
+import { useWorkflow } from "../hooks/useWorkflow";
+import { useAuth } from "../auth";
+import { useI18n } from "../i18n";
+import type { WorkflowTemplate } from "../data/templates";
 
 interface WorkflowEditorProps {
   workflowId?: string;

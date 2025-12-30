@@ -1,4 +1,4 @@
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../auth/AuthContext";
 
 /**
  * Login page component
