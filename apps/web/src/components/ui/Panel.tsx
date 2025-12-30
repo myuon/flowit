@@ -1,11 +1,10 @@
-import type { ReactNode } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 
 interface PanelProps {
   header: ReactNode;
-  children: ReactNode;
 }
 
-export const Panel = ({ header, children }: PanelProps) => (
+export const Panel = ({ header, children }: PropsWithChildren<PanelProps>) => (
   <div>
     <div className="p-3 border-b border-gray-200 font-semibold text-sm">
       {header}
