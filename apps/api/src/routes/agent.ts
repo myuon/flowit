@@ -20,14 +20,8 @@ import { appConfigFromDb, getAnthropicApiKey } from "../models";
 registerBuiltinNodes();
 
 // Request schema - AI SDK v6 uses parts format
-const messagePartSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("text"), text: z.string() }),
-  z.object({
-    type: z.literal("file"),
-    mediaType: z.string(),
-    url: z.string(),
-  }),
-]);
+// Use passthrough for parts to allow all part types (text, file, tool-call, tool-result, tool-*, etc.)
+const messagePartSchema = z.object({ type: z.string() }).passthrough();
 
 const agentRequestSchema = z.object({
   workflowId: z.string().describe("The workflow ID to edit"),
