@@ -4,7 +4,7 @@ import type { WorkflowDSL } from "@flowit/shared";
 import { getNode, validateWorkflow } from "@flowit/sdk";
 import type { WorkflowNodeData } from "../nodes";
 import { useI18n, getNodeDisplayName } from "../../i18n";
-import { PanelHeader, PanelContent } from "../ui/Panel";
+import { Panel } from "../ui/Panel";
 
 interface WorkflowInfoPanelProps {
   workflowId?: string;
@@ -96,8 +96,7 @@ export const WorkflowInfoPanel = ({
 
   return (
     <div className="border-b border-gray-200 bg-gray-50">
-      <PanelHeader>{t.workflowInfo}</PanelHeader>
-      <PanelContent>
+      <Panel header={t.workflowInfo}>
         {/* Workflow ID */}
         <div className="mb-4">
           <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
@@ -215,7 +214,7 @@ export const WorkflowInfoPanel = ({
             </div>
           )}
         </div>
-      </PanelContent>
+      </Panel>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import {
   getNodeDisplayName,
   getNodeDescription,
 } from "../../i18n";
-import { PanelHeader } from "../ui/Panel";
+import { Panel } from "../ui/Panel";
 
 interface NodePaletteProps {
   onAddNode: (nodeType: string) => void;
@@ -47,21 +47,19 @@ export const NodePalette = ({ onAddNode }: NodePaletteProps) => {
 
   return (
     <div className="w-60 border-r border-gray-200 bg-gray-50 flex flex-col h-full">
-      <PanelHeader>{t.nodes}</PanelHeader>
+      <Panel header={t.nodes}>
+        {/* Search */}
+        <div className="mb-2 -mt-1">
+          <input
+            type="text"
+            placeholder={t.searchNodes}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded text-sm"
+          />
+        </div>
 
-      {/* Search */}
-      <div className="px-3 py-2">
-        <input
-          type="text"
-          placeholder={t.searchNodes}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded text-sm"
-        />
-      </div>
-
-      {/* Node List */}
-      <div className="flex-1 overflow-auto px-3 pb-3">
+        {/* Node List */}
         {Object.entries(filteredGroups).map(([category, nodes]) => (
           <div key={category} className="mb-4">
             <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
@@ -98,7 +96,7 @@ export const NodePalette = ({ onAddNode }: NodePaletteProps) => {
             })}
           </div>
         ))}
-      </div>
+      </Panel>
     </div>
   );
 };
