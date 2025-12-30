@@ -1,17 +1,26 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useI18n } from "../../i18n";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export function AIChatPanel() {
   const { t } = useI18n();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+
+  const transport = new DefaultChatTransport({
+    api: `${API_BASE_URL}/api/agent/chat`,
+    fetch: (url: string | URL | Request, options?: RequestInit) =>
+      fetch(url, { ...options, credentials: "include" }),
+  });
+
+  const { messages, sendMessage, status } = useChat({
+    transport,
+  });
+
+  const isLoading = status === "streaming" || status === "submitted";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,33 +30,25 @@ export function AIChatPanel() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const text = input;
     setInput("");
-    setIsLoading(true);
+    await sendMessage({
+      role: "user",
+      parts: [{ type: "text", text }],
+    });
+  };
 
-    try {
-      // TODO: Implement actual API call to agent endpoint
-      // For now, just show a placeholder response
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: t.aiAgentPlaceholder,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch {
-      const errorMessage: Message = {
-        role: "assistant",
-        content: t.aiAgentError,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+  // Helper to get text content from message parts
+  const getMessageText = (message: (typeof messages)[number]): string => {
+    if (!message.parts) return "";
+    return message.parts
+      .filter((part) => part.type === "text")
+      .map((part) => (part as { type: "text"; text: string }).text)
+      .join("");
   };
 
   return (
@@ -65,16 +66,16 @@ export function AIChatPanel() {
             {t.aiChatEmpty}
           </div>
         )}
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
-            key={index}
+            key={message.id}
             className={`p-2 rounded-lg text-sm ${
               message.role === "user"
                 ? "bg-blue-100 text-blue-900 ml-4"
                 : "bg-white border border-gray-200 mr-4"
             }`}
           >
-            {message.content}
+            {getMessageText(message)}
           </div>
         ))}
         {isLoading && (
@@ -87,15 +88,19 @@ export function AIChatPanel() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200">
+      <form onSubmit={onSubmit} className="p-3 border-t border-gray-200">
         <div className="relative">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (
+                e.key === "Enter" &&
+                !e.shiftKey &&
+                !e.nativeEvent.isComposing
+              ) {
                 e.preventDefault();
-                handleSubmit(e);
+                onSubmit(e);
               }
             }}
             placeholder={t.aiInputPlaceholder}

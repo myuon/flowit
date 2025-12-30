@@ -10,10 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.3",
     "@flowit/api": "workspace:*",
     "@flowit/sdk": "workspace:*",
     "@flowit/shared": "workspace:*",
     "@xyflow/react": "^12.3.6",
+    "ai": "^6.0.3",
     "hono": "^4.6.16",
     "oidc-client-ts": "^3.4.1",
     "react": "^19.0.0",

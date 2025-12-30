@@ -1,7 +1,12 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { ToolLoopAgent, createAgentUIStreamResponse, tool, Output } from "ai";
+import {
+  ToolLoopAgent,
+  createAgentUIStreamResponse,
+  tool,
+  Output,
+} from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import {
   getNodeCatalog,
@@ -14,12 +19,22 @@ import type { AuthVariables } from "../middleware/auth";
 // Register builtin nodes on module load
 registerBuiltinNodes();
 
-// Request schema
+// Request schema - AI SDK v6 uses parts format
+const messagePartSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("text"), text: z.string() }),
+  z.object({
+    type: z.literal("file"),
+    mediaType: z.string(),
+    url: z.string(),
+  }),
+]);
+
 const agentRequestSchema = z.object({
   messages: z.array(
     z.object({
-      role: z.enum(["user", "assistant"]),
-      content: z.string(),
+      id: z.string().optional(),
+      role: z.enum(["user", "assistant", "system"]),
+      parts: z.array(messagePartSchema),
     })
   ),
 });
