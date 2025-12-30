@@ -21,6 +21,43 @@ registerBuiltinNodes();
 
 const STORAGE_KEY = "flowit-workflow";
 
+// Convert WorkflowDSL to ReactFlow nodes and edges (without setting state)
+export function dslToNodesAndEdges(dsl: WorkflowDSL): {
+  nodes: WorkflowNodeType[];
+  edges: Edge[];
+} {
+  const loadedNodes: WorkflowNodeType[] = dsl.nodes.map((node, index) => {
+    const nodeDef = getNode(node.type);
+    return {
+      id: node.id,
+      type: "workflow",
+      position: {
+        x: 100 + (index % 3) * 200,
+        y: 100 + Math.floor(index / 3) * 150,
+      },
+      data: {
+        label: node.label || nodeDef?.displayName || node.type,
+        nodeType: node.type,
+        icon: nodeDef?.display?.icon,
+        color: nodeDef?.display?.color,
+        inputs: nodeDef?.inputs || {},
+        outputs: nodeDef?.outputs || {},
+        params: node.params,
+      },
+    };
+  });
+
+  const loadedEdges: Edge[] = dsl.edges.map((edge) => ({
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    sourceHandle: edge.sourceHandle,
+    targetHandle: edge.targetHandle,
+  }));
+
+  return { nodes: loadedNodes, edges: loadedEdges };
+}
+
 function generateWorkflowId(): string {
   return crypto.randomUUID();
 }

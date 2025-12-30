@@ -11,6 +11,7 @@ export interface WorkflowNodeData extends Record<string, unknown> {
   outputs: Record<string, IOSchema>;
   params: Record<string, unknown>;
   isExecuting?: boolean;
+  isPreview?: boolean;
 }
 
 export type WorkflowNodeType = Node<WorkflowNodeData, "workflow">;
@@ -33,6 +34,7 @@ export const WorkflowNode = ({ data, selected }: WorkflowNodeProps) => {
   const displayName = getNodeDisplayName(data.nodeType, language, data.label);
 
   const getBorderColor = () => {
+    if (data.isPreview) return "#9ca3af"; // gray-400 for preview
     if (data.isExecuting) return "#3b82f6"; // blue-500
     if (selected) return "#1a192b";
     return data.color || "#ccc";
@@ -42,8 +44,13 @@ export const WorkflowNode = ({ data, selected }: WorkflowNodeProps) => {
     <div
       className={`bg-white border-2 rounded-lg min-w-[150px] text-xs ${
         selected ? "shadow-[0_0_0_2px_rgba(0,0,0,0.1)]" : ""
-      } ${data.isExecuting ? "animate-pulse shadow-[0_0_12px_rgba(59,130,246,0.5)]" : ""}`}
-      style={{ borderColor: getBorderColor() }}
+      } ${data.isExecuting ? "animate-pulse shadow-[0_0_12px_rgba(59,130,246,0.5)]" : ""} ${
+        data.isPreview ? "border-dashed" : ""
+      }`}
+      style={{
+        borderColor: getBorderColor(),
+        opacity: data.isPreview ? 0.6 : 1,
+      }}
     >
       {/* Header */}
       <div

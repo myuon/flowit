@@ -7,10 +7,18 @@ import { useI18n } from "../../i18n";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 interface AIChatPanelProps {
-  onApproveWorkflow?: (workflow: WorkflowDSL) => void;
+  onPreviewWorkflow?: (workflow: WorkflowDSL) => void;
+  onApproveWorkflow?: () => void;
+  onRejectWorkflow?: () => void;
+  hasPreview?: boolean;
 }
 
-export function AIChatPanel({ onApproveWorkflow }: AIChatPanelProps) {
+export function AIChatPanel({
+  onPreviewWorkflow,
+  onApproveWorkflow,
+  onRejectWorkflow,
+  hasPreview,
+}: AIChatPanelProps) {
   const { t } = useI18n();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
@@ -54,7 +62,7 @@ export function AIChatPanel({ onApproveWorkflow }: AIChatPanelProps) {
   };
 
   const displayError = localError || error?.message;
-  const [pendingWorkflow, setPendingWorkflow] = useState<WorkflowDSL | null>(null);
+  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<string | null>(null);
 
   // Helper to get text content from message parts
   const getMessageText = (message: (typeof messages)[number]): string => {
@@ -95,27 +103,29 @@ export function AIChatPanel({ onApproveWorkflow }: AIChatPanelProps) {
     return null;
   };
 
-  // Check the latest assistant message for a workflow
+  // Check the latest assistant message for a workflow and show preview
   useEffect(() => {
     if (isLoading) return;
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant") {
+    if (lastMessage?.role === "assistant" && lastMessage.id !== lastProcessedMessageId) {
       const workflow = getWorkflowFromMessage(lastMessage);
-      if (workflow) {
-        setPendingWorkflow(workflow);
+      if (workflow && onPreviewWorkflow) {
+        onPreviewWorkflow(workflow);
+        setLastProcessedMessageId(lastMessage.id);
       }
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, lastProcessedMessageId, onPreviewWorkflow]);
 
   const handleApprove = () => {
-    if (pendingWorkflow && onApproveWorkflow) {
-      onApproveWorkflow(pendingWorkflow);
-      setPendingWorkflow(null);
+    if (onApproveWorkflow) {
+      onApproveWorkflow();
     }
   };
 
   const handleReject = () => {
-    setPendingWorkflow(null);
+    if (onRejectWorkflow) {
+      onRejectWorkflow();
+    }
   };
 
   return (
@@ -172,7 +182,7 @@ export function AIChatPanel({ onApproveWorkflow }: AIChatPanelProps) {
       </div>
 
       {/* Approve/Reject buttons */}
-      {pendingWorkflow && (
+      {hasPreview && (
         <div className="p-3 border-t border-gray-200 bg-white flex gap-2">
           <button
             onClick={handleApprove}

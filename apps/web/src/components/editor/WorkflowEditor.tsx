@@ -11,8 +11,10 @@ import {
   type EdgeChange,
   type Connection,
   type OnSelectionChangeFunc,
+  type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import type { WorkflowDSL } from "@flowit/shared";
 
 import { nodeTypes, type WorkflowNodeType } from "../nodes";
 import { NodePalette } from "../panels/NodePalette";
@@ -28,7 +30,7 @@ import { Chip } from "../ui/Chip";
 type ViewMode = "editor" | "logs";
 type LeftPanelMode = "nodes" | "ai";
 import { UserMenu } from "../UserMenu";
-import { useWorkflow } from "../../hooks/useWorkflow";
+import { useWorkflow, dslToNodesAndEdges } from "../../hooks/useWorkflow";
 import { useAuth } from "../../auth";
 import { useI18n } from "../../i18n";
 import type { WorkflowTemplate } from "../../data/templates";
@@ -43,6 +45,10 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   const [showTemplateSelector, setShowTemplateSelector] = useState(!workflowId);
   const [viewMode, setViewMode] = useState<ViewMode>("editor");
   const [leftPanelMode, setLeftPanelMode] = useState<LeftPanelMode>("nodes");
+
+  // Preview state for AI-generated workflows
+  const [previewNodes, setPreviewNodes] = useState<WorkflowNodeType[]>([]);
+  const [previewEdges, setPreviewEdges] = useState<Edge[]>([]);
 
   const {
     nodes,
@@ -60,7 +66,6 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     save,
     load,
     loadFromTemplate,
-    fromDSL,
     workflowMeta,
     isLoading,
     loadError,
@@ -68,18 +73,65 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     publish,
   } = useWorkflow({ workflowId });
 
+  // Callback when AI generates a workflow - show as preview
+  const handlePreviewWorkflow = useCallback((dsl: WorkflowDSL) => {
+    const { nodes: previewNodes, edges: previewEdges } = dslToNodesAndEdges(dsl);
+    setPreviewNodes(previewNodes);
+    setPreviewEdges(previewEdges);
+  }, []);
+
+  // Callback when user approves the preview workflow
+  const handleApproveWorkflow = useCallback(() => {
+    if (previewNodes.length > 0) {
+      setNodes(previewNodes);
+      setEdges(previewEdges);
+      setPreviewNodes([]);
+      setPreviewEdges([]);
+    }
+  }, [previewNodes, previewEdges, setNodes, setEdges]);
+
+  // Callback when user rejects the preview workflow
+  const handleRejectWorkflow = useCallback(() => {
+    setPreviewNodes([]);
+    setPreviewEdges([]);
+  }, []);
+
   // Add isExecuting flag to nodes for visual feedback during execution
-  const nodesWithExecutionState = useMemo(
-    () =>
-      nodes.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          isExecuting: node.id === executingNodeId,
-        },
-      })),
-    [nodes, executingNodeId]
-  );
+  // Also combine with preview nodes (styled with opacity)
+  const nodesWithExecutionState = useMemo(() => {
+    const regularNodes = nodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        isExecuting: node.id === executingNodeId,
+      },
+    }));
+
+    // Add preview nodes with isPreview flag for semi-transparent styling
+    const previewNodesWithStyle = previewNodes.map((node) => ({
+      ...node,
+      id: `preview-${node.id}`, // Prefix to avoid ID conflicts
+      data: {
+        ...node.data,
+        isPreview: true,
+      },
+    }));
+
+    return [...regularNodes, ...previewNodesWithStyle];
+  }, [nodes, executingNodeId, previewNodes]);
+
+  // Combine regular edges with preview edges
+  const edgesWithPreview = useMemo(() => {
+    const previewEdgesWithStyle = previewEdges.map((edge) => ({
+      ...edge,
+      id: `preview-${edge.id}`,
+      source: `preview-${edge.source}`,
+      target: `preview-${edge.target}`,
+      style: { opacity: 0.5, strokeDasharray: "5,5" },
+    }));
+
+    return [...edges, ...previewEdgesWithStyle];
+  }, [edges, previewEdges]);
 
   const handleSelectTemplate = useCallback(
     (template: WorkflowTemplate) => {
@@ -311,7 +363,12 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             {leftPanelMode === "nodes" ? (
               <NodePalette onAddNode={addNode} />
             ) : (
-              <AIChatPanel onApproveWorkflow={fromDSL} />
+              <AIChatPanel
+                onPreviewWorkflow={handlePreviewWorkflow}
+                onApproveWorkflow={handleApproveWorkflow}
+                onRejectWorkflow={handleRejectWorkflow}
+                hasPreview={previewNodes.length > 0}
+              />
             )}
 
             {/* Center - Flow Editor */}
@@ -319,7 +376,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
               <div className="flex-1">
                 <ReactFlow
                   nodes={nodesWithExecutionState}
-                  edges={edges}
+                  edges={edgesWithPreview}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
