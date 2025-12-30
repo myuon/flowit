@@ -16,6 +16,7 @@ import "@xyflow/react/dist/style.css";
 
 import { nodeTypes, type WorkflowNodeType } from "../nodes";
 import { NodePalette } from "../panels/NodePalette";
+import { AIChatPanel } from "../panels/AIChatPanel";
 import { ParamPanel } from "../panels/ParamPanel";
 import { WorkflowInfoPanel } from "../panels/WorkflowInfoPanel";
 import { ExecutionPanel } from "../panels/ExecutionPanel";
@@ -25,6 +26,7 @@ import { Button } from "../ui/Button";
 import { Chip } from "../ui/Chip";
 
 type ViewMode = "editor" | "logs";
+type LeftPanelMode = "nodes" | "ai";
 import { UserMenu } from "../UserMenu";
 import { useWorkflow } from "../../hooks/useWorkflow";
 import { useAuth } from "../../auth";
@@ -40,6 +42,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   const { t } = useI18n();
   const [showTemplateSelector, setShowTemplateSelector] = useState(!workflowId);
   const [viewMode, setViewMode] = useState<ViewMode>("editor");
+  const [leftPanelMode, setLeftPanelMode] = useState<LeftPanelMode>("nodes");
 
   const {
     nodes,
@@ -246,8 +249,69 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
       <div className="flex-1 flex overflow-hidden">
         {viewMode === "editor" ? (
           <>
-            {/* Left Panel - Node Palette */}
-            <NodePalette onAddNode={addNode} />
+            {/* Left Sidebar */}
+            <div className="w-12 border-r border-gray-200 bg-white flex flex-col items-center py-2 gap-1">
+              <button
+                onClick={() => setLeftPanelMode("nodes")}
+                className={`w-9 h-9 flex items-center justify-center rounded-md border-none cursor-pointer ${
+                  leftPanelMode === "nodes"
+                    ? "bg-gray-100 text-gray-800"
+                    : "bg-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                }`}
+                title={t.nodes}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setLeftPanelMode("ai")}
+                className={`w-9 h-9 flex items-center justify-center rounded-md border-none cursor-pointer ${
+                  leftPanelMode === "ai"
+                    ? "bg-gray-100 text-gray-800"
+                    : "bg-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                }`}
+                title={t.aiAssistant}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 8V4H8" />
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <path d="M8 10a2 2 0 1 0 0 4" />
+                  <path d="M16 10a2 2 0 1 1 0 4" />
+                  <path d="M9 18h6" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Left Panel - Node Palette or AI Chat */}
+            {leftPanelMode === "nodes" ? (
+              <NodePalette onAddNode={addNode} />
+            ) : (
+              <AIChatPanel />
+            )}
 
             {/* Center - Flow Editor */}
             <div className="flex-1 flex flex-col">

@@ -123,6 +123,16 @@ export interface Translations {
   validateWorkflow: string;
   workflowValid: string;
   workflowInvalid: string;
+
+  // AI Chat Panel
+  aiAssistant: string;
+  aiAssistantDescription: string;
+  aiChatEmpty: string;
+  aiThinking: string;
+  aiInputPlaceholder: string;
+  aiAgentPlaceholder: string;
+  aiAgentError: string;
+  send: string;
 }
 
 const en: Translations = {
@@ -249,6 +259,16 @@ const en: Translations = {
   validateWorkflow: "Validate Workflow",
   workflowValid: "Workflow is valid",
   workflowInvalid: "Workflow has errors",
+
+  // AI Chat Panel
+  aiAssistant: "AI Assistant",
+  aiAssistantDescription: "Build workflows with AI",
+  aiChatEmpty: "Ask AI to help build your workflow",
+  aiThinking: "Thinking...",
+  aiInputPlaceholder: "Describe your workflow...",
+  aiAgentPlaceholder: "I can help you build workflows. This feature is coming soon!",
+  aiAgentError: "Sorry, something went wrong. Please try again.",
+  send: "Send",
 };
 
 const ja: Translations = {
@@ -375,6 +395,16 @@ const ja: Translations = {
   validateWorkflow: "ワークフローを検証",
   workflowValid: "ワークフローは有効です",
   workflowInvalid: "ワークフローにエラーがあります",
+
+  // AI Chat Panel
+  aiAssistant: "AIアシスタント",
+  aiAssistantDescription: "AIでワークフローを構築",
+  aiChatEmpty: "AIにワークフローの構築を依頼してください",
+  aiThinking: "考え中...",
+  aiInputPlaceholder: "ワークフローを説明してください...",
+  aiAgentPlaceholder: "ワークフローの構築をお手伝いします。この機能は近日公開予定です！",
+  aiAgentError: "エラーが発生しました。もう一度お試しください。",
+  send: "送信",
 };
 
 export const translations: Record<Language, Translations> = {
