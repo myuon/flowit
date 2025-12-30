@@ -80,20 +80,18 @@ export function AIChatPanel({
       });
   };
 
-  // Helper to get tool invocations that need approval
-  interface ToolInvocation {
-    toolName: string;
-    args: unknown;
-    state: string;
-    approval?: { id: string };
-    output?: unknown;
+  // Helper to get tool approval requests
+  interface ToolApprovalRequest {
+    type: "tool-approval-request";
+    approvalId: string;
+    toolCallId: string;
   }
 
-  const getToolInvocations = (message: (typeof messages)[number]): ToolInvocation[] => {
+  const getToolApprovalRequests = (message: (typeof messages)[number]): ToolApprovalRequest[] => {
     if (!message.parts || message.role !== "assistant") return [];
     return message.parts
-      .filter((part) => part.type === "tool-invocation")
-      .map((part) => part as unknown as ToolInvocation);
+      .filter((part) => part.type === "tool-approval-request")
+      .map((part) => part as unknown as ToolApprovalRequest);
   };
 
   // Check for editCurrentWorkflow tool call and trigger refetch
@@ -127,7 +125,7 @@ export function AIChatPanel({
         )}
         {messages.map((message) => {
           const toolCalls = getToolCalls(message);
-          const toolInvocations = getToolInvocations(message);
+          const approvalRequests = getToolApprovalRequests(message);
           const textContent = getMessageText(message);
           return (
             <div
@@ -157,45 +155,38 @@ export function AIChatPanel({
                 </div>
               )}
 
-              {/* Tool invocations with approval */}
-              {toolInvocations.length > 0 && (
+              {/* Tool approval requests */}
+              {approvalRequests.length > 0 && (
                 <div className="mt-2 space-y-2">
-                  {toolInvocations.map((invocation, idx) => (
-                    <div key={idx} className="text-xs bg-amber-50 p-2 rounded border border-amber-200">
+                  {approvalRequests.map((approval) => (
+                    <div key={approval.approvalId} className="text-xs bg-amber-50 p-2 rounded border border-amber-200">
                       <div className="font-medium text-amber-800 mb-1">
-                        {invocation.toolName}
+                        {t.workflowGenerated}
                       </div>
-                      {invocation.state === "approval-requested" && invocation.approval && (
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            onClick={() =>
-                              addToolApprovalResponse({
-                                id: invocation.approval!.id,
-                                approved: true,
-                              })
-                            }
-                            className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
-                          >
-                            {t.approveWorkflow}
-                          </button>
-                          <button
-                            onClick={() =>
-                              addToolApprovalResponse({
-                                id: invocation.approval!.id,
-                                approved: false,
-                              })
-                            }
-                            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-                          >
-                            {t.rejectWorkflow}
-                          </button>
-                        </div>
-                      )}
-                      {invocation.state === "output-available" && (
-                        <div className="text-green-700 mt-1">
-                          {t.workflowGenerated}
-                        </div>
-                      )}
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() =>
+                            addToolApprovalResponse({
+                              id: approval.approvalId,
+                              approved: true,
+                            })
+                          }
+                          className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                        >
+                          {t.approveWorkflow}
+                        </button>
+                        <button
+                          onClick={() =>
+                            addToolApprovalResponse({
+                              id: approval.approvalId,
+                              approved: false,
+                            })
+                          }
+                          className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                        >
+                          {t.rejectWorkflow}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
