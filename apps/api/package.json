@@ -19,6 +19,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.1",
     "@flowit/sdk": "workspace:*",
     "@flowit/shared": "workspace:*",
     "@hono/node-server": "^1.13.7",
@@ -26,6 +27,7 @@
     "@langchain/core": "^0.3.27",
     "@langchain/langgraph": "^0.2.42",
     "@libsql/client": "^0.14.0",
+    "ai": "^6.0.3",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.38.3",
     "hono": "^4.6.16",

@@ -13,6 +13,7 @@ import {
   createGasRoutes,
   createAdminRoutes,
   createConfigRoutes,
+  createAgentRoutes,
   isAdmin,
 } from "./routes";
 
@@ -36,7 +37,8 @@ const oauthRoutes = createOAuthRoutes(getOAuthConfig());
 const apiRoutes = new Hono<{ Variables: AuthVariables }>()
   .use("*", requireAuth)
   .route("/", createWorkflowRoutes(writeLog))
-  .route("/gas", createGasRoutes());
+  .route("/gas", createGasRoutes())
+  .route("/agent", createAgentRoutes());
 
 // Admin routes (protected + admin check)
 const adminRoutes = new Hono<{ Variables: AuthVariables }>()
