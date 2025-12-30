@@ -22,6 +22,7 @@ import { ExecutionPanel } from "../panels/ExecutionPanel";
 import { TemplateSelector } from "../panels/TemplateSelector";
 import { LogViewer } from "../panels/LogViewer";
 import { Button } from "../ui/Button";
+import { Chip } from "../ui/Chip";
 
 type ViewMode = "editor" | "logs";
 import { UserMenu } from "../UserMenu";
@@ -171,19 +172,13 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
           <span className="font-medium text-gray-800">
             {workflowMeta.name || t.untitledWorkflow}
           </span>
-          <span
-            className={`px-2 py-0.5 rounded text-xs font-medium ${
-              workflowMeta.status === "published"
-                ? "bg-green-100 text-green-800"
-                : "bg-amber-100 text-amber-800"
-            }`}
-          >
+          <Chip color={workflowMeta.status === "published" ? "success" : "warning"}>
             {workflowMeta.status === "published" ? t.published : t.draft}
-          </span>
-          <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">
+          </Chip>
+          <Chip>
             {t.version}
             {workflowMeta.version}
-          </span>
+          </Chip>
         </div>
         <div className="w-px h-6 bg-gray-200" />
         {/* View Toggle */}
