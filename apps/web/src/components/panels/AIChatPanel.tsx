@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
 import { useI18n } from "../../i18n";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -27,6 +27,7 @@ export function AIChatPanel({
 
   const { messages, sendMessage, status, error, addToolApprovalResponse } = useChat({
     transport,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
   });
 
   const isLoading = status === "streaming" || status === "submitted";
