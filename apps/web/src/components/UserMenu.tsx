@@ -29,58 +29,23 @@ function UserMenuComponent() {
   };
 
   return (
-    <div ref={menuRef} style={{ position: "relative" }}>
+    <div ref={menuRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "4px 8px",
-          background: "transparent",
-          border: "1px solid #e0e0e0",
-          borderRadius: 20,
-          cursor: "pointer",
-          fontSize: 13,
-        }}
+        className="flex items-center gap-2 py-1 px-2 bg-transparent border border-gray-200 rounded-full cursor-pointer text-sm"
       >
         {user.picture ? (
           <img
             src={user.picture}
             alt=""
-            style={{
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-            }}
+            className="w-6 h-6 rounded-full"
           />
         ) : (
-          <div
-            style={{
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-              background: "#ddd",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#666",
-            }}
-          >
+          <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-gray-500">
             {user.name?.[0] || user.email[0]}
           </div>
         )}
-        <span
-          style={{
-            color: "#333",
-            maxWidth: 120,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <span className="text-gray-800 max-w-30 overflow-hidden text-ellipsis whitespace-nowrap">
           {user.name || user.email}
         </span>
         <svg
@@ -90,63 +55,24 @@ function UserMenuComponent() {
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          style={{
-            transform: isOpen ? "rotate(180deg)" : "none",
-            transition: "transform 0.2s",
-          }}
+          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
 
       {isOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            right: 0,
-            marginTop: 8,
-            background: "white",
-            border: "1px solid #e0e0e0",
-            borderRadius: 8,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            minWidth: 200,
-            zIndex: 100,
-          }}
-        >
-          <div
-            style={{
-              padding: "12px 16px",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            <div style={{ fontWeight: 500, color: "#333" }}>
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg min-w-50 z-100">
+          <div className="py-3 px-4 border-b border-gray-100">
+            <div className="font-medium text-gray-800">
               {user.name || "User"}
             </div>
-            <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>
-              {user.email}
-            </div>
+            <div className="text-xs text-gray-500 mt-0.5">{user.email}</div>
           </div>
 
           <button
             onClick={handleLogout}
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "10px 16px",
-              background: "transparent",
-              border: "none",
-              textAlign: "left",
-              cursor: "pointer",
-              fontSize: 14,
-              color: "#dc2626",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#fef2f2";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="block w-full py-2.5 px-4 bg-transparent border-none text-left cursor-pointer text-sm text-red-600 hover:bg-red-50"
           >
             Sign out
           </button>

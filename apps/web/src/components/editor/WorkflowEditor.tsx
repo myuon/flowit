@@ -121,37 +121,10 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   // Show loading state
   if (isLoading) {
     return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              border: "4px solid #f3f3f3",
-              borderTop: "4px solid #333",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto 16px",
-            }}
-          />
-          <p style={{ color: "#666" }}>{t.loading}</p>
-          <style>
-            {`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}
-          </style>
+      <div className="w-screen h-screen flex items-center justify-center font-sans">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500">{t.loading}</p>
         </div>
       </div>
     );
@@ -160,29 +133,14 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   // Show error state
   if (loadError) {
     return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <p style={{ color: "#dc2626", marginBottom: 16 }}>
+      <div className="w-screen h-screen flex items-center justify-center font-sans">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">
             {t.error}: {loadError}
           </p>
           <a
             href="/"
-            style={{
-              padding: "10px 20px",
-              background: "#333",
-              color: "white",
-              borderRadius: 6,
-              textDecoration: "none",
-            }}
+            className="px-5 py-2.5 bg-gray-800 text-white rounded-md no-underline"
           >
             {t.goHome}
           </a>
@@ -192,209 +150,105 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
   }
 
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className="w-screen h-screen flex flex-col">
       {/* Toolbar */}
-      <div
-        style={{
-          height: 48,
-          borderBottom: "1px solid #e0e0e0",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 16px",
-          gap: 12,
-          background: "white",
-        }}
-      >
-        <a
-          href="/"
-          style={{
-            fontWeight: 600,
-            fontSize: 16,
-            color: "#333",
-            textDecoration: "none",
-          }}
-        >
+      <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-3 bg-white">
+        <a href="/" className="font-semibold text-base text-gray-800 no-underline">
           {t.appName}
         </a>
         {isAdmin && (
           <a
             href="/admin"
-            style={{
-              padding: "4px 10px",
-              background: "#fef3c7",
-              color: "#92400e",
-              borderRadius: 4,
-              fontSize: 12,
-              textDecoration: "none",
-            }}
+            className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded text-xs no-underline"
           >
             {t.admin}
           </a>
         )}
-        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        <div className="w-px h-6 bg-gray-200" />
         {/* Workflow Info */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <span style={{ fontWeight: 500, color: "#333" }}>
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-gray-800">
             {workflowMeta.name || t.untitledWorkflow}
           </span>
           <span
-            style={{
-              padding: "2px 8px",
-              background:
-                workflowMeta.status === "published" ? "#dcfce7" : "#fef3c7",
-              color:
-                workflowMeta.status === "published" ? "#166534" : "#92400e",
-              borderRadius: 4,
-              fontSize: 11,
-              fontWeight: 500,
-            }}
+            className={`px-2 py-0.5 rounded text-xs font-medium ${
+              workflowMeta.status === "published"
+                ? "bg-green-100 text-green-800"
+                : "bg-amber-100 text-amber-800"
+            }`}
           >
             {workflowMeta.status === "published" ? t.published : t.draft}
           </span>
-          <span
-            style={{
-              padding: "2px 8px",
-              background: "#f3f4f6",
-              color: "#6b7280",
-              borderRadius: 4,
-              fontSize: 11,
-            }}
-          >
+          <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">
             {t.version}
             {workflowMeta.version}
           </span>
         </div>
-        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        <div className="w-px h-6 bg-gray-200" />
         {/* View Toggle */}
-        <div
-          style={{
-            display: "flex",
-            background: "#f3f4f6",
-            borderRadius: 6,
-            padding: 2,
-          }}
-        >
+        <div className="flex bg-gray-100 rounded-md p-0.5">
           <button
             onClick={() => setViewMode("editor")}
-            style={{
-              padding: "4px 12px",
-              background: viewMode === "editor" ? "white" : "transparent",
-              border: "none",
-              borderRadius: 4,
-              cursor: "pointer",
-              fontSize: 13,
-              fontWeight: viewMode === "editor" ? 500 : 400,
-              color: viewMode === "editor" ? "#333" : "#666",
-              boxShadow:
-                viewMode === "editor" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
-            }}
+            className={`px-3 py-1 border-none rounded cursor-pointer text-sm ${
+              viewMode === "editor"
+                ? "bg-white font-medium text-gray-800 shadow-sm"
+                : "bg-transparent text-gray-500"
+            }`}
           >
             {t.editor}
           </button>
           <button
             onClick={() => setViewMode("logs")}
-            style={{
-              padding: "4px 12px",
-              background: viewMode === "logs" ? "white" : "transparent",
-              border: "none",
-              borderRadius: 4,
-              cursor: "pointer",
-              fontSize: 13,
-              fontWeight: viewMode === "logs" ? 500 : 400,
-              color: viewMode === "logs" ? "#333" : "#666",
-              boxShadow:
-                viewMode === "logs" ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
-            }}
+            className={`px-3 py-1 border-none rounded cursor-pointer text-sm ${
+              viewMode === "logs"
+                ? "bg-white font-medium text-gray-800 shadow-sm"
+                : "bg-transparent text-gray-500"
+            }`}
           >
             {t.executionLogs}
           </button>
         </div>
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
         <button
           onClick={handleNewWorkflow}
-          style={{
-            padding: "6px 12px",
-            background: "#333",
-            color: "white",
-            border: "none",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
+          className="px-3 py-1.5 bg-gray-800 text-white border-none rounded cursor-pointer"
         >
           {t.new}
         </button>
         <button
           onClick={handleSave}
-          style={{
-            padding: "6px 12px",
-            background: "#f0f0f0",
-            border: "1px solid #ddd",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
+          className="px-3 py-1.5 bg-gray-100 border border-gray-300 rounded cursor-pointer"
         >
           {t.save}
         </button>
         {workflowId && (
           <button
             onClick={publish}
-            style={{
-              padding: "6px 12px",
-              background: "#16a34a",
-              color: "white",
-              border: "none",
-              borderRadius: 4,
-              cursor: "pointer",
-            }}
+            className="px-3 py-1.5 bg-green-600 text-white border-none rounded cursor-pointer"
           >
             {t.publish}
           </button>
         )}
         <button
           onClick={load}
-          style={{
-            padding: "6px 12px",
-            background: "#f0f0f0",
-            border: "1px solid #ddd",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
+          className="px-3 py-1.5 bg-gray-100 border border-gray-300 rounded cursor-pointer"
         >
           {t.load}
         </button>
-        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        <div className="w-px h-6 bg-gray-200" />
         <UserMenu />
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <div className="flex-1 flex overflow-hidden">
         {viewMode === "editor" ? (
           <>
             {/* Left Panel - Node Palette */}
             <NodePalette onAddNode={addNode} />
 
             {/* Center - Flow Editor */}
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <div style={{ flex: 1 }}>
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1">
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
@@ -429,15 +283,7 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             </div>
 
             {/* Right Panel - Workflow Info & Properties */}
-            <div
-              style={{
-                width: 280,
-                borderLeft: "1px solid #e0e0e0",
-                background: "#fafafa",
-                height: "100%",
-                overflow: "auto",
-              }}
-            >
+            <div className="w-70 border-l border-gray-200 bg-gray-50 h-full overflow-auto">
               <WorkflowInfoPanel
                 workflowId={workflowMeta.id}
                 nodes={nodes}

@@ -91,55 +91,25 @@ function LogViewerComponent({ workflowId }: LogViewerProps) {
   );
 
   return (
-    <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        background: "#fafafa",
-      }}
-    >
+    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
       {/* Header */}
-      <div
-        style={{
-          padding: "12px 16px",
-          borderBottom: "1px solid #e0e0e0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          background: "white",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-          {t.executionLogsHistory}
-        </h2>
-        <div style={{ display: "flex", gap: 8 }}>
+      <div className="py-3 px-4 border-b border-gray-200 flex items-center justify-between bg-white">
+        <h2 className="m-0 text-base font-semibold">{t.executionLogsHistory}</h2>
+        <div className="flex gap-2">
           <button
             onClick={loadLogs}
-            style={{
-              padding: "6px 12px",
-              background: "#f0f0f0",
-              border: "1px solid #ddd",
-              borderRadius: 4,
-              cursor: "pointer",
-              fontSize: 13,
-            }}
+            className="py-1.5 px-3 bg-gray-100 border border-gray-300 rounded cursor-pointer text-sm"
           >
             {t.refresh}
           </button>
           <button
             onClick={handleClearLogs}
             disabled={logs.length === 0}
-            style={{
-              padding: "6px 12px",
-              background: logs.length === 0 ? "#f0f0f0" : "#fef2f2",
-              border: `1px solid ${logs.length === 0 ? "#ddd" : "#fecaca"}`,
-              borderRadius: 4,
-              cursor: logs.length === 0 ? "not-allowed" : "pointer",
-              fontSize: 13,
-              color: logs.length === 0 ? "#999" : "#dc2626",
-            }}
+            className={`py-1.5 px-3 rounded text-sm ${
+              logs.length === 0
+                ? "bg-gray-100 border border-gray-300 text-gray-400 cursor-not-allowed"
+                : "bg-red-50 border border-red-200 text-red-600 cursor-pointer"
+            }`}
           >
             {t.clearAllLogs}
           </button>
@@ -147,96 +117,40 @@ function LogViewerComponent({ workflowId }: LogViewerProps) {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
+      <div className="flex-1 overflow-auto p-4">
         {error && (
-          <div
-            style={{
-              padding: 12,
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: 6,
-              color: "#dc2626",
-              marginBottom: 16,
-            }}
-          >
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 mb-4">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: 48,
-              color: "#666",
-            }}
-          >
+          <div className="flex justify-center py-12 text-gray-500">
             {t.loading}
           </div>
         ) : logs.length === 0 ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 48,
-              color: "#666",
-              background: "white",
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-            }}
-          >
-            <p style={{ marginBottom: 8, fontSize: 14 }}>{t.noExecutionLogs}</p>
-            <p style={{ fontSize: 12, color: "#999" }}>
+          <div className="flex flex-col items-center justify-center py-12 text-gray-500 bg-white border border-gray-200 rounded-lg">
+            <p className="mb-2 text-sm">{t.noExecutionLogs}</p>
+            <p className="text-xs text-gray-400">
               {t.noExecutionLogsDescription}
             </p>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="flex flex-col gap-4">
             {Object.entries(groupedLogs).map(([executionId, executionLogs]) => (
               <div
                 key={executionId}
-                style={{
-                  background: "white",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                }}
+                className="bg-white border border-gray-200 rounded-lg overflow-hidden"
               >
                 {/* Execution Header */}
-                <div
-                  style={{
-                    padding: "10px 16px",
-                    background: "#f9fafb",
-                    borderBottom: "1px solid #e5e7eb",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "monospace",
-                      fontSize: 12,
-                      color: "#666",
-                    }}
-                  >
+                <div className="py-2.5 px-4 bg-gray-50 border-b border-gray-200 flex items-center gap-3">
+                  <span className="font-mono text-xs text-gray-500">
                     {t.executionId}: {executionId.slice(0, 8)}...
                   </span>
-                  <span style={{ fontSize: 12, color: "#999" }}>
+                  <span className="text-xs text-gray-400">
                     {formatDate(executionLogs[0].createdAt)}
                   </span>
-                  <span
-                    style={{
-                      padding: "2px 8px",
-                      background: "#dbeafe",
-                      color: "#1d4ed8",
-                      borderRadius: 4,
-                      fontSize: 11,
-                    }}
-                  >
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
                     {executionLogs.length} {t.logs}
                   </span>
                 </div>
@@ -246,83 +160,32 @@ function LogViewerComponent({ workflowId }: LogViewerProps) {
                   {executionLogs.map((log) => {
                     const isExpanded = expandedLogs.has(log.id);
                     return (
-                      <div
-                        key={log.id}
-                        style={{
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
+                      <div key={log.id} className="border-b border-gray-100 last:border-b-0">
                         <div
                           onClick={() => toggleExpand(log.id)}
-                          style={{
-                            padding: "10px 16px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 12,
-                            cursor: "pointer",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "#f9fafb";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "transparent";
-                          }}
+                          className="py-2.5 px-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50"
                         >
                           <span
-                            style={{
-                              transform: isExpanded ? "rotate(90deg)" : "none",
-                              transition: "transform 0.2s",
-                              fontSize: 12,
-                              color: "#666",
-                            }}
+                            className={`text-xs text-gray-500 transition-transform ${
+                              isExpanded ? "rotate-90" : ""
+                            }`}
                           >
                             ▶
                           </span>
-                          <span
-                            style={{
-                              fontFamily: "monospace",
-                              fontSize: 12,
-                              background: "#f0f0f0",
-                              padding: "2px 6px",
-                              borderRadius: 4,
-                            }}
-                          >
+                          <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">
                             {log.nodeId}
                           </span>
-                          <span
-                            style={{
-                              flex: 1,
-                              fontSize: 13,
-                              color: "#333",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
+                          <span className="flex-1 text-sm text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap">
                             {formatData(log.data).slice(0, 100)}
                             {formatData(log.data).length > 100 ? "..." : ""}
                           </span>
-                          <span style={{ fontSize: 11, color: "#999" }}>
+                          <span className="text-xs text-gray-400">
                             {new Date(log.createdAt).toLocaleTimeString()}
                           </span>
                         </div>
                         {isExpanded && (
-                          <div
-                            style={{
-                              padding: "12px 16px",
-                              background: "#f9fafb",
-                              borderTop: "1px solid #f0f0f0",
-                            }}
-                          >
-                            <pre
-                              style={{
-                                margin: 0,
-                                fontFamily: "monospace",
-                                fontSize: 12,
-                                whiteSpace: "pre-wrap",
-                                wordBreak: "break-all",
-                              }}
-                            >
+                          <div className="py-3 px-4 bg-gray-50 border-t border-gray-100">
+                            <pre className="m-0 font-mono text-xs whitespace-pre-wrap break-all">
                               {formatData(log.data)}
                             </pre>
                           </div>

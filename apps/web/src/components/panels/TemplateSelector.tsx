@@ -25,65 +25,25 @@ function TemplateSelectorComponent({
     : workflowTemplates;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          borderRadius: 12,
-          maxWidth: 800,
-          width: "90%",
-          maxHeight: "80vh",
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
-        }}
-      >
+    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-1000">
+      <div className="bg-white rounded-xl max-w-[800px] w-[90%] max-h-[80vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div
-          style={{
-            padding: "24px 24px 16px",
-            borderBottom: "1px solid #eee",
-          }}
-        >
-          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>
-            {t.createNewWorkflow}
-          </h2>
-          <p style={{ margin: "8px 0 0", color: "#666", fontSize: 14 }}>
+        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+          <h2 className="m-0 text-2xl font-semibold">{t.createNewWorkflow}</h2>
+          <p className="mt-2 mb-0 text-gray-500 text-sm">
             {t.templateDescription}
           </p>
         </div>
 
         {/* Category Filter */}
-        <div
-          style={{
-            padding: "12px 24px",
-            borderBottom: "1px solid #eee",
-            display: "flex",
-            gap: 8,
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="px-6 py-3 border-b border-gray-100 flex gap-2 flex-wrap">
           <button
             onClick={() => setSelectedCategory(null)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 16,
-              border: "1px solid #ddd",
-              background: selectedCategory === null ? "#333" : "white",
-              color: selectedCategory === null ? "white" : "#333",
-              cursor: "pointer",
-              fontSize: 13,
-            }}
+            className={`px-3 py-1.5 rounded-full border cursor-pointer text-sm ${
+              selectedCategory === null
+                ? "bg-gray-800 text-white border-gray-800"
+                : "bg-white text-gray-800 border-gray-300"
+            }`}
           >
             {t.all}
           </button>
@@ -91,15 +51,11 @@ function TemplateSelectorComponent({
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 16,
-                border: "1px solid #ddd",
-                background: selectedCategory === category ? "#333" : "white",
-                color: selectedCategory === category ? "white" : "#333",
-                cursor: "pointer",
-                fontSize: 13,
-              }}
+              className={`px-3 py-1.5 rounded-full border cursor-pointer text-sm ${
+                selectedCategory === category
+                  ? "bg-gray-800 text-white border-gray-800"
+                  : "bg-white text-gray-800 border-gray-300"
+              }`}
             >
               {category}
             </button>
@@ -107,47 +63,18 @@ function TemplateSelectorComponent({
         </div>
 
         {/* Template Grid */}
-        <div
-          style={{
-            flex: 1,
-            overflow: "auto",
-            padding: 24,
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-              gap: 16,
-            }}
-          >
+        <div className="flex-1 overflow-auto p-6">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
             {/* Blank Template Card */}
             <div
               onClick={onStartBlank}
-              style={{
-                padding: 20,
-                border: "2px dashed #ddd",
-                borderRadius: 8,
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: 140,
-                transition: "border-color 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#999";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#ddd";
-              }}
+              className="p-5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer flex flex-col items-center justify-center min-h-[140px] transition-colors hover:border-gray-500"
             >
-              <span style={{ fontSize: 32, marginBottom: 12 }}>+</span>
-              <span style={{ fontWeight: 500, color: "#333" }}>
+              <span className="text-3xl mb-3">+</span>
+              <span className="font-medium text-gray-800">
                 {t.blankWorkflow}
               </span>
-              <span style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
+              <span className="text-xs text-gray-500 mt-1">
                 {t.startFromScratch}
               </span>
             </div>
@@ -157,53 +84,16 @@ function TemplateSelectorComponent({
               <div
                 key={template.id}
                 onClick={() => onSelectTemplate(template)}
-                style={{
-                  padding: 20,
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  minHeight: 140,
-                  transition: "box-shadow 0.2s, border-color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(0,0,0,0.1)";
-                  e.currentTarget.style.borderColor = "#ccc";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.borderColor = "#e0e0e0";
-                }}
+                className="p-5 border border-gray-200 rounded-lg cursor-pointer flex flex-col min-h-[140px] transition-all hover:shadow-lg hover:border-gray-400"
               >
-                <span style={{ fontSize: 28, marginBottom: 12 }}>
-                  {template.icon}
-                </span>
-                <span style={{ fontWeight: 500, color: "#333" }}>
+                <span className="text-3xl mb-3">{template.icon}</span>
+                <span className="font-medium text-gray-800">
                   {template.name}
                 </span>
-                <span
-                  style={{
-                    fontSize: 12,
-                    color: "#888",
-                    marginTop: 4,
-                    flex: 1,
-                  }}
-                >
+                <span className="text-xs text-gray-500 mt-1 flex-1">
                   {template.description}
                 </span>
-                <span
-                  style={{
-                    fontSize: 11,
-                    color: "#aaa",
-                    marginTop: 8,
-                    padding: "2px 8px",
-                    background: "#f5f5f5",
-                    borderRadius: 4,
-                    alignSelf: "flex-start",
-                  }}
-                >
+                <span className="text-xs text-gray-400 mt-2 px-2 py-0.5 bg-gray-100 rounded self-start">
                   {template.category}
                 </span>
               </div>
@@ -212,24 +102,10 @@ function TemplateSelectorComponent({
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            padding: "16px 24px",
-            borderTop: "1px solid #eee",
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
+        <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
           <button
             onClick={onStartBlank}
-            style={{
-              padding: "8px 16px",
-              background: "#f0f0f0",
-              border: "1px solid #ddd",
-              borderRadius: 6,
-              cursor: "pointer",
-              fontSize: 14,
-            }}
+            className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer text-sm"
           >
             {t.skipAndStartBlank}
           </button>

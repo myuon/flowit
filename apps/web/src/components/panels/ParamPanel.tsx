@@ -87,24 +87,10 @@ function ParamPanelComponent({
   if (!selectedNode) {
     return (
       <div>
-        <div
-          style={{
-            padding: "12px",
-            borderBottom: "1px solid #e0e0e0",
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
+        <div className="p-3 border-b border-gray-200 font-semibold text-sm">
           {t.properties}
         </div>
-        <div
-          style={{
-            padding: "40px 12px",
-            textAlign: "center",
-            color: "#888",
-            fontSize: 13,
-          }}
-        >
+        <div className="py-10 px-3 text-center text-gray-500 text-sm">
           {t.selectNode}
         </div>
       </div>
@@ -126,35 +112,23 @@ function ParamPanelComponent({
   return (
     <div>
       {/* Header */}
-      <div
-        style={{
-          padding: "12px",
-          borderBottom: "1px solid #e0e0e0",
-          fontWeight: 600,
-          fontSize: 14,
-        }}
-      >
+      <div className="p-3 border-b border-gray-200 font-semibold text-sm">
         {t.properties}
       </div>
 
       {/* Node Info */}
-      <div
-        style={{
-          padding: "12px",
-          borderBottom: "1px solid #e0e0e0",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 20 }}>{selectedNode.data.icon || "📦"}</span>
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{selectedNode.data.icon || "📦"}</span>
           <div>
-            <div style={{ fontWeight: 500 }}>
+            <div className="font-medium">
               {getNodeDisplayName(
                 selectedNode.data.nodeType,
                 language,
                 selectedNode.data.label
               )}
             </div>
-            <div style={{ fontSize: 11, color: "#888" }}>
+            <div className="text-xs text-gray-500">
               {selectedNode.data.nodeType}
             </div>
           </div>
@@ -162,16 +136,8 @@ function ParamPanelComponent({
       </div>
 
       {/* Parameters */}
-      <div style={{ padding: "12px" }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            color: "#666",
-            textTransform: "uppercase",
-            marginBottom: 12,
-          }}
-        >
+      <div className="p-3">
+        <div className="text-xs font-semibold text-gray-500 uppercase mb-3">
           {t.parameters}
         </div>
 
@@ -198,27 +164,10 @@ function ParamPanelComponent({
           );
 
           return (
-            <div key={key} style={{ marginBottom: 16 }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  marginBottom: 4,
-                }}
-              >
-                {label}
-              </label>
+            <div key={key} className="mb-4">
+              <label className="block text-xs font-medium mb-1">{label}</label>
               {description && (
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "#888",
-                    marginBottom: 6,
-                  }}
-                >
-                  {description}
-                </div>
+                <div className="text-xs text-gray-500 mb-1.5">{description}</div>
               )}
 
               {/* Render input based on type */}
@@ -226,13 +175,7 @@ function ParamPanelComponent({
                 <select
                   value={String(getParamValue(key) || "")}
                   onChange={(e) => handleParamChange(key, e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    fontSize: 13,
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded text-sm"
                 >
                   <option value="">{t.selectOption}</option>
                   {paramSchema.options.map((opt) => (
@@ -248,15 +191,13 @@ function ParamPanelComponent({
                   ))}
                 </select>
               ) : paramSchema.type === "boolean" ? (
-                <label
-                  style={{ display: "flex", alignItems: "center", gap: 8 }}
-                >
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={Boolean(getParamValue(key))}
                     onChange={(e) => handleParamChange(key, e.target.checked)}
                   />
-                  <span style={{ fontSize: 13 }}>{t.enabled}</span>
+                  <span className="text-sm">{t.enabled}</span>
                 </label>
               ) : paramSchema.type === "number" ? (
                 <input
@@ -265,13 +206,7 @@ function ParamPanelComponent({
                   onChange={(e) =>
                     handleParamChange(key, parseFloat(e.target.value) || 0)
                   }
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    fontSize: 13,
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded text-sm"
                 />
               ) : paramSchema.type === "json" ? (
                 <textarea
@@ -288,43 +223,20 @@ function ParamPanelComponent({
                       handleParamChange(key, e.target.value);
                     }
                   }}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    fontSize: 12,
-                    fontFamily: "monospace",
-                    minHeight: 100,
-                    resize: "vertical",
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded text-xs font-mono min-h-[100px] resize-y"
                 />
               ) : paramSchema.multiline ? (
                 <textarea
                   value={String(getParamValue(key) || "")}
                   onChange={(e) => handleParamChange(key, e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    fontSize: 13,
-                    minHeight: 80,
-                    resize: "vertical",
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded text-sm min-h-[80px] resize-y"
                 />
               ) : (
                 <input
                   type="text"
                   value={String(getParamValue(key) || "")}
                   onChange={(e) => handleParamChange(key, e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    fontSize: 13,
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded text-sm"
                 />
               )}
             </div>
@@ -332,7 +244,7 @@ function ParamPanelComponent({
         })}
 
         {Object.keys(paramsSchema).length === 0 && (
-          <div style={{ color: "#888", fontSize: 13 }}>{t.noParameters}</div>
+          <div className="text-gray-500 text-sm">{t.noParameters}</div>
         )}
 
         {/* Webhook URL for webhook-trigger nodes */}
@@ -345,39 +257,21 @@ function ParamPanelComponent({
               : null;
 
             return (
-              <div style={{ marginTop: 16 }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: "#666",
-                    textTransform: "uppercase",
-                    marginBottom: 8,
-                  }}
-                >
+              <div className="mt-4">
+                <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
                   {t.webhookUrl}
                 </div>
                 {!workflowId ? (
-                  <div style={{ color: "#888", fontSize: 12 }}>
+                  <div className="text-gray-500 text-xs">
                     {t.saveWorkflowFirst}
                   </div>
                 ) : !webhookName ? (
-                  <div style={{ color: "#888", fontSize: 12 }}>
+                  <div className="text-gray-500 text-xs">
                     {t.setWebhookName}
                   </div>
                 ) : (
                   <>
-                    <div
-                      style={{
-                        padding: "8px",
-                        background: "#f0f0f0",
-                        borderRadius: 4,
-                        fontSize: 11,
-                        fontFamily: "monospace",
-                        wordBreak: "break-all",
-                        marginBottom: 8,
-                      }}
-                    >
+                    <div className="p-2 bg-gray-100 rounded text-xs font-mono break-all mb-2">
                       {webhookUrl}
                     </div>
                     <button
@@ -386,25 +280,11 @@ function ParamPanelComponent({
                           navigator.clipboard.writeText(webhookUrl);
                         }
                       }}
-                      style={{
-                        padding: "6px 12px",
-                        background: "#333",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 4,
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
+                      className="px-3 py-1.5 bg-gray-800 text-white rounded cursor-pointer text-xs"
                     >
                       {t.copyUrl}
                     </button>
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: "#888",
-                        marginTop: 8,
-                      }}
-                    >
+                    <div className="text-xs text-gray-500 mt-2">
                       {t.webhookNote}
                     </div>
                   </>
@@ -415,70 +295,35 @@ function ParamPanelComponent({
 
         {/* Validate deployment for GAS nodes */}
         {selectedNode.data.nodeType === "gas" && (
-          <div style={{ marginTop: 16 }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#666",
-                textTransform: "uppercase",
-                marginBottom: 8,
-              }}
-            >
+          <div className="mt-4">
+            <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
               {t.validateDeployment || "Validate Deployment"}
             </div>
             <button
               onClick={handleValidateGasDeployment}
               disabled={validationState.status === "validating"}
-              style={{
-                padding: "6px 12px",
-                background:
-                  validationState.status === "validating" ? "#ccc" : "#333",
-                color: "white",
-                border: "none",
-                borderRadius: 4,
-                cursor:
-                  validationState.status === "validating"
-                    ? "not-allowed"
-                    : "pointer",
-                fontSize: 12,
-                width: "100%",
-              }}
+              className={`w-full px-3 py-1.5 text-white rounded text-xs ${
+                validationState.status === "validating"
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gray-800 cursor-pointer"
+              }`}
             >
               {validationState.status === "validating"
                 ? t.validating || "Validating..."
                 : t.validate || "Validate"}
             </button>
             {validationState.status === "success" && (
-              <div
-                style={{
-                  marginTop: 8,
-                  padding: 8,
-                  background: "#dcfce7",
-                  borderRadius: 4,
-                  fontSize: 12,
-                  color: "#166534",
-                }}
-              >
-                <div style={{ fontWeight: 500 }}>{validationState.message}</div>
+              <div className="mt-2 p-2 bg-green-100 rounded text-xs text-green-800">
+                <div className="font-medium">{validationState.message}</div>
                 {validationState.scriptName && (
-                  <div style={{ marginTop: 4, fontSize: 11 }}>
+                  <div className="mt-1 text-xs">
                     {t.scriptName || "Script"}: {validationState.scriptName}
                   </div>
                 )}
               </div>
             )}
             {validationState.status === "error" && (
-              <div
-                style={{
-                  marginTop: 8,
-                  padding: 8,
-                  background: "#fef2f2",
-                  borderRadius: 4,
-                  fontSize: 12,
-                  color: "#dc2626",
-                }}
-              >
+              <div className="mt-2 p-2 bg-red-50 rounded text-xs text-red-600">
                 {validationState.message}
               </div>
             )}

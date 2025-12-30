@@ -94,94 +94,45 @@ function WorkflowInfoPanelComponent({
   }, []);
 
   return (
-    <div
-      style={{
-        borderBottom: "1px solid #e0e0e0",
-        background: "#fafafa",
-      }}
-    >
+    <div className="border-b border-gray-200 bg-gray-50">
       {/* Header */}
-      <div
-        style={{
-          padding: "12px",
-          borderBottom: "1px solid #e0e0e0",
-          fontWeight: 600,
-          fontSize: 14,
-        }}
-      >
+      <div className="p-3 border-b border-gray-200 font-semibold text-sm">
         {t.workflowInfo}
       </div>
 
       {/* Content */}
-      <div style={{ padding: "12px" }}>
+      <div className="p-3">
         {/* Workflow ID */}
-        <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#666",
-              textTransform: "uppercase",
-              marginBottom: 4,
-            }}
-          >
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
             {t.workflowId}
           </div>
-          <div
-            style={{
-              fontSize: 12,
-              fontFamily: "monospace",
-              color: "#333",
-              background: "#f0f0f0",
-              padding: "6px 8px",
-              borderRadius: 4,
-              wordBreak: "break-all",
-            }}
-          >
+          <div className="text-xs font-mono text-gray-800 bg-gray-100 px-2 py-1.5 rounded break-all">
             {workflowId || t.notSavedYet}
           </div>
         </div>
 
         {/* Input Nodes */}
-        <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#666",
-              textTransform: "uppercase",
-              marginBottom: 8,
-            }}
-          >
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
             {t.inputNodes} ({inputNodes.length})
           </div>
           {inputNodes.length === 0 ? (
-            <div style={{ fontSize: 12, color: "#888" }}>{t.noInputNodes}</div>
+            <div className="text-xs text-gray-500">{t.noInputNodes}</div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-2">
               {inputNodes.map((node) => {
                 const webhookUrl = getWebhookUrl(node);
                 return (
                   <div
                     key={node.id}
-                    style={{
-                      background: "#fff",
-                      border: "1px solid #e0e0e0",
-                      borderRadius: 4,
-                      padding: 8,
-                    }}
+                    className="bg-white border border-gray-200 rounded p-2"
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <span style={{ fontSize: 14 }}>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm">
                         {node.data.icon || "📥"}
                       </span>
-                      <span style={{ fontSize: 12, fontWeight: 500 }}>
+                      <span className="text-xs font-medium">
                         {getNodeDisplayName(
                           node.data.nodeType,
                           language,
@@ -190,40 +141,16 @@ function WorkflowInfoPanelComponent({
                       </span>
                     </div>
                     {webhookUrl && (
-                      <div style={{ marginTop: 8 }}>
-                        <div
-                          style={{
-                            fontSize: 10,
-                            color: "#666",
-                            marginBottom: 4,
-                          }}
-                        >
+                      <div className="mt-2">
+                        <div className="text-[10px] text-gray-500 mb-1">
                           {t.webhookUrl}:
                         </div>
-                        <div
-                          style={{
-                            fontSize: 10,
-                            fontFamily: "monospace",
-                            background: "#f0f0f0",
-                            padding: "4px 6px",
-                            borderRadius: 3,
-                            wordBreak: "break-all",
-                            marginBottom: 4,
-                          }}
-                        >
+                        <div className="text-[10px] font-mono bg-gray-100 px-1.5 py-1 rounded break-all mb-1">
                           {webhookUrl}
                         </div>
                         <button
                           onClick={() => copyToClipboard(webhookUrl)}
-                          style={{
-                            padding: "4px 8px",
-                            background: "#333",
-                            color: "white",
-                            border: "none",
-                            borderRadius: 3,
-                            cursor: "pointer",
-                            fontSize: 10,
-                          }}
+                          className="px-2 py-1 bg-gray-800 text-white rounded cursor-pointer text-[10px]"
                         >
                           {t.copyUrl}
                         </button>
@@ -237,39 +164,23 @@ function WorkflowInfoPanelComponent({
         </div>
 
         {/* Output Nodes */}
-        <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#666",
-              textTransform: "uppercase",
-              marginBottom: 8,
-            }}
-          >
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
             {t.outputNodes} ({outputNodes.length})
           </div>
           {outputNodes.length === 0 ? (
-            <div style={{ fontSize: 12, color: "#888" }}>{t.noOutputNodes}</div>
+            <div className="text-xs text-gray-500">{t.noOutputNodes}</div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-2">
               {outputNodes.map((node) => (
                 <div
                   key={node.id}
-                  style={{
-                    background: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 4,
-                    padding: 8,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
+                  className="bg-white border border-gray-200 rounded p-2 flex items-center gap-1.5"
                 >
-                  <span style={{ fontSize: 14 }}>
+                  <span className="text-sm">
                     {node.data.icon || "📤"}
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 500 }}>
+                  <span className="text-xs font-medium">
                     {getNodeDisplayName(
                       node.data.nodeType,
                       language,
@@ -286,55 +197,21 @@ function WorkflowInfoPanelComponent({
         <div>
           <button
             onClick={handleValidate}
-            style={{
-              width: "100%",
-              padding: "8px 12px",
-              background: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: 4,
-              cursor: "pointer",
-              fontSize: 12,
-              fontWeight: 500,
-            }}
+            className="w-full py-2 px-3 bg-gray-800 text-white rounded cursor-pointer text-xs font-medium"
           >
             {t.validateWorkflow}
           </button>
           {validationResult.status === "valid" && (
-            <div
-              style={{
-                marginTop: 8,
-                padding: 8,
-                background: "#dcfce7",
-                borderRadius: 4,
-                fontSize: 12,
-                color: "#166534",
-              }}
-            >
+            <div className="mt-2 p-2 bg-green-100 rounded text-xs text-green-800">
               {t.workflowValid}
             </div>
           )}
           {validationResult.status === "invalid" && (
-            <div
-              style={{
-                marginTop: 8,
-                padding: 8,
-                background: "#fef2f2",
-                borderRadius: 4,
-                fontSize: 12,
-                color: "#dc2626",
-              }}
-            >
-              <div style={{ fontWeight: 500, marginBottom: 4 }}>
+            <div className="mt-2 p-2 bg-red-50 rounded text-xs text-red-600">
+              <div className="font-medium mb-1">
                 {t.workflowInvalid}
               </div>
-              <ul
-                style={{
-                  margin: 0,
-                  paddingLeft: 16,
-                  fontSize: 11,
-                }}
-              >
+              <ul className="m-0 pl-4 text-xs">
                 {validationResult.errors.map((error, index) => (
                   <li key={index}>{error}</li>
                 ))}

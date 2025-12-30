@@ -45,33 +45,8 @@ function ProtectedRoute({
 
   if (isLoading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            border: "4px solid #f3f3f3",
-            borderTop: "4px solid #333",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite",
-          }}
-        />
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
+      <div className="flex items-center justify-center h-screen font-sans">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
       </div>
     );
   }

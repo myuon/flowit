@@ -7,31 +7,12 @@ export function AuthError() {
   const error = params.get("error") || "Authentication failed";
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
-      <h1 style={{ color: "#dc2626", marginBottom: 16 }}>
-        Authentication Error
-      </h1>
-      <p style={{ color: "#666", marginBottom: 24 }}>{error}</p>
+    <div className="flex flex-col items-center justify-center h-screen font-sans">
+      <h1 className="text-red-600 mb-4">Authentication Error</h1>
+      <p className="text-gray-500 mb-6">{error}</p>
       <button
         onClick={() => (window.location.href = "/")}
-        style={{
-          padding: "12px 24px",
-          background: "#333",
-          color: "white",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontSize: 16,
-        }}
+        className="py-3 px-6 bg-gray-800 text-white border-none rounded-lg cursor-pointer text-base"
       >
         Go Home
       </button>

@@ -45,58 +45,28 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
   );
 
   return (
-    <div
-      style={{
-        width: 240,
-        borderRight: "1px solid #e0e0e0",
-        background: "#fafafa",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-      }}
-    >
+    <div className="w-60 border-r border-gray-200 bg-gray-50 flex flex-col h-full">
       {/* Header */}
-      <div
-        style={{
-          padding: "12px",
-          borderBottom: "1px solid #e0e0e0",
-          fontWeight: 600,
-          fontSize: 14,
-        }}
-      >
+      <div className="p-3 border-b border-gray-200 font-semibold text-sm">
         {t.nodes}
       </div>
 
       {/* Search */}
-      <div style={{ padding: "8px 12px" }}>
+      <div className="px-3 py-2">
         <input
           type="text"
           placeholder={t.searchNodes}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: 4,
-            fontSize: 13,
-          }}
+          className="w-full p-2 border border-gray-300 rounded text-sm"
         />
       </div>
 
       {/* Node List */}
-      <div style={{ flex: 1, overflow: "auto", padding: "0 12px 12px" }}>
+      <div className="flex-1 overflow-auto px-3 pb-3">
         {Object.entries(filteredGroups).map(([category, nodes]) => (
-          <div key={category} style={{ marginBottom: 16 }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#666",
-                textTransform: "uppercase",
-                marginBottom: 8,
-              }}
-            >
+          <div key={category} className="mb-4">
+            <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
               {getCategoryName(category, language)}
             </div>
             {nodes.map((node) => {
@@ -114,41 +84,13 @@ function NodePaletteComponent({ onAddNode }: NodePaletteProps) {
                 <div
                   key={node.id}
                   onClick={() => onAddNode(node.id)}
-                  style={{
-                    padding: "8px 10px",
-                    marginBottom: 4,
-                    background: "white",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 4,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#f0f0f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "white";
-                  }}
+                  className="py-2 px-2.5 mb-1 bg-white border border-gray-200 rounded cursor-pointer flex items-center gap-2 hover:bg-gray-100"
                 >
                   <span>{node.icon || "📦"}</span>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 500 }}>
-                      {displayName}
-                    </div>
+                    <div className="text-sm font-medium">{displayName}</div>
                     {description && (
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: "#888",
-                          marginTop: 2,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxWidth: 160,
-                        }}
-                      >
+                      <div className="text-xs text-gray-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-40">
                         {description}
                       </div>
                     )}

@@ -34,29 +34,12 @@ export function AdminPage() {
 
   if (!isAdmin) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <h1 style={{ color: "#dc2626", marginBottom: 16 }}>{t.accessDenied}</h1>
-        <p style={{ color: "#666", marginBottom: 24 }}>{t.noPermission}</p>
+      <div className="flex flex-col items-center justify-center h-screen font-sans">
+        <h1 className="text-red-600 mb-4">{t.accessDenied}</h1>
+        <p className="text-gray-500 mb-6">{t.noPermission}</p>
         <a
           href="/"
-          style={{
-            padding: "12px 24px",
-            background: "#333",
-            color: "white",
-            border: "none",
-            borderRadius: 8,
-            textDecoration: "none",
-            fontSize: 16,
-          }}
+          className="py-3 px-6 bg-gray-800 text-white rounded-lg no-underline text-base"
         >
           {t.goHome}
         </a>
@@ -65,85 +48,33 @@ export function AdminPage() {
   }
 
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
+    <div className="w-screen h-screen flex flex-col font-sans">
       {/* Toolbar */}
-      <div
-        style={{
-          height: 48,
-          borderBottom: "1px solid #e0e0e0",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 16px",
-          gap: 12,
-          background: "white",
-        }}
-      >
-        <a
-          href="/"
-          style={{
-            fontWeight: 600,
-            fontSize: 16,
-            color: "#333",
-            textDecoration: "none",
-          }}
-        >
+      <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-3 bg-white">
+        <a href="/" className="font-semibold text-base text-gray-800 no-underline">
           Flowit
         </a>
-        <span
-          style={{
-            padding: "4px 10px",
-            background: "#fef3c7",
-            color: "#92400e",
-            borderRadius: 4,
-            fontSize: 12,
-          }}
-        >
+        <span className="py-1 px-2.5 bg-amber-100 text-amber-800 rounded text-xs">
           {t.admin}
         </span>
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
         <a
           href="/"
-          style={{
-            padding: "6px 12px",
-            background: "#f0f0f0",
-            border: "1px solid #ddd",
-            borderRadius: 4,
-            textDecoration: "none",
-            color: "#333",
-            fontSize: 14,
-          }}
+          className="py-1.5 px-3 bg-gray-100 border border-gray-300 rounded no-underline text-gray-800 text-sm"
         >
           {t.backToEditor}
         </a>
-        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        <div className="w-px h-6 bg-gray-200" />
         <UserMenu />
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
-        <h1 style={{ margin: "0 0 24px 0" }}>{t.adminDashboard}</h1>
+      <div className="flex-1 overflow-auto p-6">
+        <h1 className="mb-6">{t.adminDashboard}</h1>
 
-        <div
-          style={{
-            background: "#f9fafb",
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            padding: 24,
-            marginBottom: 24,
-          }}
-        >
-          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>
-            {t.currentUser}
-          </h2>
-          <div style={{ display: "grid", gap: 8 }}>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+          <h2 className="m-0 mb-4 text-lg">{t.currentUser}</h2>
+          <div className="grid gap-2">
             <div>
               <strong>{t.userId}:</strong> {user?.sub}
             </div>
@@ -156,36 +87,17 @@ export function AdminPage() {
           </div>
         </div>
 
-        <div
-          style={{
-            background: "#f9fafb",
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            padding: 24,
-          }}
-        >
-          <h2 style={{ margin: "0 0 16px 0", fontSize: 18 }}>{t.settings}</h2>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <h2 className="m-0 mb-4 text-lg">{t.settings}</h2>
 
           {error && (
-            <div
-              style={{
-                padding: 12,
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
-                borderRadius: 6,
-                color: "#dc2626",
-                marginBottom: 16,
-              }}
-            >
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 mb-4">
               {error}
             </div>
           )}
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <label
-              htmlFor="language"
-              style={{ fontWeight: 500, minWidth: 100 }}
-            >
+          <div className="flex items-center gap-4">
+            <label htmlFor="language" className="font-medium min-w-25">
               {t.language}
             </label>
             <select
@@ -193,21 +105,14 @@ export function AdminPage() {
               value={settings?.language || "en"}
               onChange={(e) => handleLanguageChange(e.target.value as Language)}
               disabled={saving || !settings}
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #d1d5db",
-                borderRadius: 6,
-                fontSize: 14,
-                minWidth: 150,
-                cursor: saving ? "wait" : "pointer",
-              }}
+              className={`py-2 px-3 border border-gray-300 rounded-md text-sm min-w-[150px] ${
+                saving ? "cursor-wait" : "cursor-pointer"
+              }`}
             >
               <option value="en">English</option>
               <option value="ja">日本語</option>
             </select>
-            {saving && (
-              <span style={{ color: "#666", fontSize: 14 }}>{t.saving}</span>
-            )}
+            {saving && <span className="text-gray-500 text-sm">{t.saving}</span>}
           </div>
         </div>
       </div>

@@ -16,75 +16,17 @@ export function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        fontFamily: "system-ui, sans-serif",
-        background: "#fafafa",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "48px 64px",
-          borderRadius: 12,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 32,
-            fontWeight: 700,
-            marginBottom: 8,
-            color: "#333",
-          }}
-        >
-          Flowit
-        </h1>
-        <p
-          style={{
-            color: "#666",
-            marginBottom: 32,
-            fontSize: 14,
-          }}
-        >
-          Visual workflow automation
-        </p>
+    <div className="flex flex-col items-center justify-center h-screen font-sans bg-gray-50">
+      <div className="bg-white py-12 px-16 rounded-xl shadow-lg text-center">
+        <h1 className="text-3xl font-bold mb-2 text-gray-800">Flowit</h1>
+        <p className="text-gray-500 mb-8 text-sm">Visual workflow automation</p>
 
         <button
           onClick={handleLogin}
           disabled={isLoading}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 12,
-            width: "100%",
-            padding: "14px 24px",
-            background: "white",
-            border: "1px solid #ddd",
-            borderRadius: 8,
-            cursor: isLoading ? "not-allowed" : "pointer",
-            fontSize: 16,
-            fontWeight: 500,
-            color: "#333",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.background = "#f5f5f5";
-              e.currentTarget.style.borderColor = "#ccc";
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "white";
-            e.currentTarget.style.borderColor = "#ddd";
-          }}
+          className={`flex items-center justify-center gap-3 w-full py-3.5 px-6 bg-white border border-gray-300 rounded-lg text-base font-medium text-gray-800 transition-all hover:bg-gray-100 hover:border-gray-400 ${
+            isLoading ? "cursor-not-allowed" : "cursor-pointer"
+          }`}
         >
           <svg
             width="20"
@@ -112,13 +54,7 @@ export function LoginPage() {
           {isLoading ? "Loading..." : "Sign in with Google"}
         </button>
 
-        <p
-          style={{
-            marginTop: 24,
-            fontSize: 12,
-            color: "#999",
-          }}
-        >
+        <p className="mt-6 text-xs text-gray-400">
           Sign in to create and manage your workflows
         </p>
       </div>

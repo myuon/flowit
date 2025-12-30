@@ -34,42 +34,27 @@ function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
 
   return (
     <div
-      style={{
-        background: "white",
-        border: `2px solid ${selected ? "#1a192b" : data.color || "#ccc"}`,
-        borderRadius: 8,
-        minWidth: 150,
-        fontSize: 12,
-        boxShadow: selected ? "0 0 0 2px rgba(0,0,0,0.1)" : "none",
-      }}
+      className={`bg-white border-2 rounded-lg min-w-[150px] text-xs ${
+        selected ? "shadow-[0_0_0_2px_rgba(0,0,0,0.1)]" : ""
+      }`}
+      style={{ borderColor: selected ? "#1a192b" : data.color || "#ccc" }}
     >
       {/* Header */}
       <div
-        style={{
-          background: data.color || "#f0f0f0",
-          padding: "6px 10px",
-          borderRadius: "6px 6px 0 0",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-        }}
+        className="py-1.5 px-2.5 rounded-t-md flex items-center gap-1.5"
+        style={{ background: data.color || "#f0f0f0" }}
       >
         {data.icon && <span>{data.icon}</span>}
-        <span style={{ fontWeight: 600, color: "#333" }}>{displayName}</span>
+        <span className="font-semibold text-gray-800">{displayName}</span>
       </div>
 
       {/* Body */}
-      <div style={{ padding: "8px 0" }}>
+      <div className="py-2">
         {/* Input handles */}
         {inputKeys.map((key) => (
           <div
             key={`input-${key}`}
-            style={{
-              position: "relative",
-              padding: "4px 10px",
-              display: "flex",
-              alignItems: "center",
-            }}
+            className="relative py-1 px-2.5 flex items-center"
           >
             <Handle
               type="target"
@@ -82,28 +67,22 @@ function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
                 transform: "translateY(-50%)",
               }}
             />
-            <span style={{ color: "#666", marginLeft: 4 }}>{key}</span>
+            <span className="text-gray-500 ml-1">{key}</span>
           </div>
         ))}
 
         {/* Divider if both inputs and outputs exist */}
         {inputKeys.length > 0 && outputKeys.length > 0 && (
-          <div style={{ borderTop: "1px solid #eee", margin: "4px 0" }} />
+          <div className="border-t border-gray-100 my-1" />
         )}
 
         {/* Output handles */}
         {outputKeys.map((key) => (
           <div
             key={`output-${key}`}
-            style={{
-              position: "relative",
-              padding: "4px 10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-            }}
+            className="relative py-1 px-2.5 flex items-center justify-end"
           >
-            <span style={{ color: "#666", marginRight: 4 }}>{key}</span>
+            <span className="text-gray-500 mr-1">{key}</span>
             <Handle
               type="source"
               position={Position.Right}
@@ -120,23 +99,12 @@ function WorkflowNodeComponent({ data, selected }: WorkflowNodeProps) {
 
         {/* Show message if no I/O */}
         {inputKeys.length === 0 && outputKeys.length === 0 && (
-          <div
-            style={{ padding: "4px 10px", color: "#999", fontStyle: "italic" }}
-          >
-            No I/O
-          </div>
+          <div className="py-1 px-2.5 text-gray-400 italic">No I/O</div>
         )}
       </div>
 
       {/* Footer with node type */}
-      <div
-        style={{
-          borderTop: "1px solid #eee",
-          padding: "4px 10px",
-          fontSize: 10,
-          color: "#999",
-        }}
-      >
+      <div className="border-t border-gray-100 py-1 px-2.5 text-[10px] text-gray-400">
         {data.nodeType}
       </div>
     </div>

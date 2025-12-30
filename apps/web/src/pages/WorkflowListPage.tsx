@@ -98,223 +98,92 @@ export function WorkflowListPage() {
   };
 
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
+    <div className="w-screen h-screen flex flex-col font-sans">
       {/* Toolbar */}
-      <div
-        style={{
-          height: 48,
-          borderBottom: "1px solid #e0e0e0",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 16px",
-          gap: 12,
-          background: "white",
-        }}
-      >
-        <span
-          style={{
-            fontWeight: 600,
-            fontSize: 16,
-            color: "#333",
-          }}
-        >
+      <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-3 bg-white">
+        <span className="font-semibold text-base text-gray-800">
           {t.appName}
         </span>
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
         {isAdmin && (
           <a
             href="/admin"
-            style={{
-              padding: "6px 12px",
-              background: "#fef3c7",
-              border: "1px solid #fcd34d",
-              borderRadius: 4,
-              textDecoration: "none",
-              color: "#92400e",
-              fontSize: 14,
-            }}
+            className="py-1.5 px-3 bg-amber-100 border border-amber-300 rounded no-underline text-amber-800 text-sm"
           >
             {t.admin}
           </a>
         )}
-        <div style={{ width: 1, height: 24, background: "#e0e0e0" }} />
+        <div className="w-px h-6 bg-gray-200" />
         <UserMenu />
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-          }}
-        >
-          <h1 style={{ margin: 0 }}>{t.workflows}</h1>
+      <div className="flex-1 overflow-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="m-0">{t.workflows}</h1>
           <button
             onClick={handleCreateWorkflow}
             disabled={creating}
-            style={{
-              padding: "10px 20px",
-              background: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: 6,
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: creating ? "wait" : "pointer",
-              opacity: creating ? 0.7 : 1,
-            }}
+            className={`py-2.5 px-5 bg-gray-800 text-white border-none rounded-md text-sm font-medium ${
+              creating ? "cursor-wait opacity-70" : "cursor-pointer"
+            }`}
           >
             {creating ? t.loading : t.newWorkflow}
           </button>
         </div>
 
         {error && (
-          <div
-            style={{
-              padding: 12,
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: 6,
-              color: "#dc2626",
-              marginBottom: 16,
-            }}
-          >
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 mb-4">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: 48,
-              color: "#666",
-            }}
-          >
+          <div className="flex justify-center py-12 text-gray-500">
             {t.loading}
           </div>
         ) : workflows.length === 0 ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 48,
-              color: "#666",
-              background: "#f9fafb",
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-            }}
-          >
-            <p style={{ marginBottom: 16, fontSize: 16 }}>{t.noWorkflows}</p>
+          <div className="flex flex-col items-center justify-center py-12 text-gray-500 bg-gray-50 border border-gray-200 rounded-lg">
+            <p className="mb-4 text-base">{t.noWorkflows}</p>
             <button
               onClick={handleCreateWorkflow}
               disabled={creating}
-              style={{
-                padding: "10px 20px",
-                background: "#333",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: creating ? "wait" : "pointer",
-              }}
+              className={`py-2.5 px-5 bg-gray-800 text-white border-none rounded-md text-sm font-medium ${
+                creating ? "cursor-wait" : "cursor-pointer"
+              }`}
             >
               {t.createFirstWorkflow}
             </button>
           </div>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gap: 12,
-            }}
-          >
+          <div className="grid gap-3">
             {workflows.map((workflow) => (
               <a
                 key={workflow.id}
                 href={`/workflows/${workflow.id}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: 16,
-                  background: "white",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 8,
-                  textDecoration: "none",
-                  color: "inherit",
-                  transition: "border-color 0.15s, box-shadow 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#9ca3af";
-                  e.currentTarget.style.boxShadow =
-                    "0 2px 8px rgba(0,0,0,0.08)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
+                className="flex items-center p-4 bg-white border border-gray-200 rounded-lg no-underline text-inherit transition-all hover:border-gray-400 hover:shadow-md"
               >
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 16,
-                      marginBottom: 4,
-                    }}
-                  >
+                <div className="flex-1">
+                  <div className="font-medium text-base mb-1">
                     {workflow.name || t.untitledWorkflow}
                   </div>
                   {workflow.description && (
-                    <div
-                      style={{
-                        color: "#666",
-                        fontSize: 14,
-                        marginBottom: 4,
-                      }}
-                    >
+                    <div className="text-gray-500 text-sm mb-1">
                       {workflow.description}
                     </div>
                   )}
-                  <div
-                    style={{
-                      color: "#999",
-                      fontSize: 12,
-                    }}
-                  >
+                  <div className="text-gray-400 text-xs">
                     {t.lastUpdated}: {formatDate(workflow.updatedAt)}
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       handleDeleteWorkflow(workflow.id, workflow.name);
                     }}
-                    style={{
-                      padding: "6px 10px",
-                      background: "transparent",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: 4,
-                      color: "#dc2626",
-                      cursor: "pointer",
-                      fontSize: 12,
-                    }}
+                    className="py-1.5 px-2.5 bg-transparent border border-gray-200 rounded text-red-600 cursor-pointer text-xs hover:bg-red-50"
                   >
                     {t.delete}
                   </button>
