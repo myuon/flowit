@@ -39,7 +39,7 @@ export const ExecutionPanel = ({
           onClick={onExecute}
           disabled={isRunning}
           className={`font-medium flex items-center gap-1.5 ${
-            isRunning ? "bg-gray-600 cursor-not-allowed" : ""
+            isRunning ? "bg-gray-600" : ""
           }`}
         >
           {isRunning ? (

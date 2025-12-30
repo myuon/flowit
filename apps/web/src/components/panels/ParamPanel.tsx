@@ -297,9 +297,7 @@ export const ParamPanel = ({
               onClick={handleValidateGasDeployment}
               disabled={validationState.status === "validating"}
               className={`w-full text-xs ${
-                validationState.status === "validating"
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : ""
+                validationState.status === "validating" ? "bg-gray-300" : ""
               }`}
             >
               {validationState.status === "validating"

@@ -16,11 +16,13 @@ const colorStyles: Record<ButtonColor, string> = {
 export const Button = ({
   color = "default",
   className = "",
+  disabled,
   children,
   ...props
 }: PropsWithChildren<ButtonProps>) => (
   <button
-    className={`px-3 py-1.5 rounded text-sm cursor-pointer ${colorStyles[color]} ${className}`}
+    className={`px-3 py-1.5 rounded text-sm ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${colorStyles[color]} ${className}`}
+    disabled={disabled}
     {...props}
   >
     {children}
