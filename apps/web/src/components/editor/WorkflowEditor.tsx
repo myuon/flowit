@@ -155,7 +155,10 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
     <div className="w-screen h-screen flex flex-col">
       {/* Toolbar */}
       <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-3 bg-white">
-        <a href="/" className="font-semibold text-base text-gray-800 no-underline">
+        <a
+          href="/"
+          className="font-semibold text-base text-gray-800 no-underline"
+        >
           {t.appName}
         </a>
         {isAdmin && (
@@ -172,7 +175,9 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
           <span className="font-medium text-gray-800">
             {workflowMeta.name || t.untitledWorkflow}
           </span>
-          <Chip color={workflowMeta.status === "published" ? "success" : "warning"}>
+          <Chip
+            color={workflowMeta.status === "published" ? "success" : "warning"}
+          >
             {workflowMeta.status === "published" ? t.published : t.draft}
           </Chip>
           <Chip>

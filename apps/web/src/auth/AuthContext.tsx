@@ -8,7 +8,7 @@ import {
 } from "react";
 import type { AuthUser } from "@flowit/shared";
 import { getLoginUrl, getLogoutUrl } from "./config";
-import { getCurrentUser } from "../api/client";
+import { client } from "../api/client";
 
 interface AuthContextValue {
   /** Current authenticated user, null if not authenticated */
@@ -41,7 +41,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Check authentication status by calling /auth/me
   const checkAuth = useCallback(async () => {
     try {
-      const { user: authUser, isAdmin: adminStatus } = await getCurrentUser();
+      const res = await client.auth.me.$get();
+      if (!res.ok) {
+        throw new Error("Not authenticated");
+      }
+      const { user: authUser, isAdmin: adminStatus } = await res.json();
       setUser(authUser);
       setIsAdmin(adminStatus);
     } catch {

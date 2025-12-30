@@ -9,7 +9,7 @@ import {
   getParamDescription,
   getParamOptionLabel,
 } from "../../i18n";
-import { validateGasDeployment } from "../../api/client";
+import { client } from "../../api/client";
 import { Panel } from "../ui/Panel";
 import { Button } from "../ui/Button";
 
@@ -53,18 +53,21 @@ export const ParamPanel = ({
     setValidationState({ status: "validating" });
 
     try {
-      const result = await validateGasDeployment(deploymentId);
-      if (result.valid) {
+      const res = await client.api.gas["validate-deployment"].$post({
+        json: { deploymentId },
+      });
+      const result = await res.json();
+      if (res.ok && "valid" in result && result.valid) {
         setValidationState({
           status: "success",
           message: t.deploymentValid || "Deployment is valid",
           scriptName: result.scriptName,
         });
       } else {
+        const errorMessage = "error" in result ? result.error : undefined;
         setValidationState({
           status: "error",
-          message:
-            result.error || t.deploymentInvalid || "Deployment is invalid",
+          message: errorMessage || t.deploymentInvalid || "Deployment is invalid",
         });
       }
     } catch (error) {

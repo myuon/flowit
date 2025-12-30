@@ -2,12 +2,15 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../auth";
 import { useI18n } from "../i18n";
 import { UserMenu } from "../components/UserMenu";
-import {
-  listWorkflows,
-  createWorkflow,
-  deleteWorkflow,
-  type WorkflowListItem,
-} from "../api/client";
+import { client } from "../api/client";
+
+interface WorkflowListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 import { TemplateSelector } from "../components/panels/TemplateSelector";
 import type { WorkflowTemplate } from "../data/templates";
 
@@ -23,8 +26,12 @@ export function WorkflowListPage() {
   const loadWorkflows = useCallback(async () => {
     try {
       setError(null);
-      const result = await listWorkflows();
-      setWorkflows(result.workflows);
+      const res = await client.api.workflows.$get();
+      if (!res.ok) {
+        throw new Error(`Failed to load workflows: ${res.statusText}`);
+      }
+      const result = await res.json();
+      setWorkflows(result.workflows as WorkflowListItem[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load workflows");
     } finally {
@@ -44,10 +51,13 @@ export function WorkflowListPage() {
     setCreating(true);
     setShowTemplateSelector(false);
     try {
-      const result = await createWorkflow({
-        name: template.name,
-        dsl: template.dsl,
+      const res = await client.api.workflows.$post({
+        json: { name: template.name, dsl: template.dsl },
       });
+      if (!res.ok) {
+        throw new Error(`Failed to create workflow: ${res.statusText}`);
+      }
+      const result = await res.json();
       // Navigate to the new workflow
       window.location.href = `/workflows/${result.workflow.id}`;
     } catch (err) {
@@ -62,7 +72,13 @@ export function WorkflowListPage() {
     setCreating(true);
     setShowTemplateSelector(false);
     try {
-      const result = await createWorkflow({ name: t.untitledWorkflow });
+      const res = await client.api.workflows.$post({
+        json: { name: t.untitledWorkflow },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to create workflow: ${res.statusText}`);
+      }
+      const result = await res.json();
       // Navigate to the new workflow
       window.location.href = `/workflows/${result.workflow.id}`;
     } catch (err) {
@@ -78,7 +94,10 @@ export function WorkflowListPage() {
       return;
     }
     try {
-      await deleteWorkflow(id);
+      const res = await client.api.workflows[":id"].$delete({ param: { id } });
+      if (!res.ok) {
+        throw new Error(`Failed to delete workflow: ${res.statusText}`);
+      }
       setWorkflows((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
       setError(

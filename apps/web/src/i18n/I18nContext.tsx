@@ -7,7 +7,7 @@ import {
 } from "react";
 import type { Language } from "@flowit/shared";
 import { DEFAULT_APP_SETTINGS } from "@flowit/shared";
-import { getAppSettings } from "../api/client";
+import { client } from "../api/client";
 import { getTranslations, type Translations } from "./translations";
 
 interface I18nContextValue {
@@ -31,7 +31,11 @@ export function I18nProvider({ children }: I18nProviderProps) {
 
   const fetchSettings = async () => {
     try {
-      const settings = await getAppSettings();
+      const res = await client.config.settings.$get();
+      if (!res.ok) {
+        throw new Error("Failed to get settings");
+      }
+      const settings = await res.json();
       setLanguage(settings.language);
     } catch {
       // Use default language on error

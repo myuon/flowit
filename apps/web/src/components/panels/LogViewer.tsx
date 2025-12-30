@@ -1,10 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useI18n } from "../../i18n";
-import {
-  getExecutionLogs,
-  deleteExecutionLogs,
-  type ExecutionLogItem,
-} from "../../api/client";
+import { client } from "../../api/client";
+
+interface ExecutionLogItem {
+  id: string;
+  workflowId: string;
+  executionId: string;
+  nodeId: string;
+  data: unknown;
+  createdAt: string;
+}
 
 interface LogViewerProps {
   workflowId: string;
@@ -23,8 +28,15 @@ export const LogViewer = ({ workflowId }: LogViewerProps) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await getExecutionLogs(workflowId);
-      setLogs(result.logs);
+      const res = await client.api.workflows[":id"].logs.$get({
+        param: { id: workflowId },
+        query: { limit: "100", offset: "0" },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to load logs: ${res.statusText}`);
+      }
+      const result = await res.json();
+      setLogs(result.logs as ExecutionLogItem[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load logs");
     } finally {
@@ -40,7 +52,12 @@ export const LogViewer = ({ workflowId }: LogViewerProps) => {
     if (!confirm(t.confirmClearLogs)) return;
 
     try {
-      await deleteExecutionLogs(workflowId);
+      const res = await client.api.workflows[":id"].logs.$delete({
+        param: { id: workflowId },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to clear logs: ${res.statusText}`);
+      }
       setLogs([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to clear logs");

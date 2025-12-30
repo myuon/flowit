@@ -8,12 +8,7 @@ import type {
   WorkflowMeta,
 } from "@flowit/shared";
 import type { WorkflowNodeType } from "../components/nodes";
-import {
-  executeWorkflow as executeWorkflowApi,
-  getWorkflow,
-  updateWorkflow,
-  publishWorkflow as publishWorkflowApi,
-} from "../api/client";
+import { client } from "../api/client";
 import type {
   ExecutionResult,
   ExecutionLog,
@@ -275,13 +270,12 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
       const dsl = toDSL();
       addLog("info", `Executing ${dsl.nodes.length} nodes...`);
 
-      const result = await executeWorkflowApi({
-        workflow: dsl,
-        inputs: {},
-        secrets: {},
+      const res = await client.api.execute.$post({
+        json: { workflow: dsl, inputs: {}, secrets: {} },
       });
+      const result = await res.json();
 
-      if (result.status === "success") {
+      if (res.ok && result.status === "success") {
         setExecution((prev) => ({
           ...prev,
           status: "success",
@@ -334,11 +328,17 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
         _positions: positions,
       };
 
-      await updateWorkflow(workflowId, {
-        name: workflowMeta.name,
-        description: workflowMeta.description,
-        dsl: dslWithPositions,
+      const res = await client.api.workflows[":id"].$put({
+        param: { id: workflowId },
+        json: {
+          name: workflowMeta.name,
+          description: workflowMeta.description,
+          dsl: dslWithPositions,
+        },
       });
+      if (!res.ok) {
+        throw new Error(`Failed to save workflow: ${res.statusText}`);
+      }
       addLog("success", "Workflow saved to server");
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
@@ -362,9 +362,14 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
         _positions: positions,
       };
 
-      const result = await publishWorkflowApi(workflowId, {
-        dsl: dslWithPositions,
+      const res = await client.api.workflows[":id"].publish.$post({
+        param: { id: workflowId },
+        json: { dsl: dslWithPositions },
       });
+      if (!res.ok) {
+        throw new Error(`Failed to publish workflow: ${res.statusText}`);
+      }
+      const result = await res.json();
 
       // Update workflow meta to reflect published status
       setWorkflowMeta((prev) => ({
@@ -391,7 +396,13 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
       try {
         setIsLoading(true);
         setLoadError(null);
-        const result = await getWorkflow(workflowId);
+        const res = await client.api.workflows[":id"].$get({
+          param: { id: workflowId },
+        });
+        if (!res.ok) {
+          throw new Error(`Failed to load workflow: ${res.statusText}`);
+        }
+        const result = await res.json();
         const workflow = result.workflow;
 
         // Get the current version's DSL

@@ -3,7 +3,7 @@ import type { Language, AppSettings } from "@flowit/shared";
 import { useAuth } from "../auth";
 import { useI18n } from "../i18n";
 import { UserMenu } from "../components/UserMenu";
-import { getAppSettings, updateAppSettings } from "../api/client";
+import { client } from "../api/client";
 
 export function AdminPage() {
   const { user, isAdmin } = useAuth();
@@ -13,7 +13,12 @@ export function AdminPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getAppSettings()
+    client.config.settings
+      .$get()
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Failed to get settings: ${res.statusText}`);
+        return res.json();
+      })
       .then(setSettings)
       .catch((err) => setError(err.message));
   }, []);
@@ -22,7 +27,11 @@ export function AdminPage() {
     setSaving(true);
     setError(null);
     try {
-      const updated = await updateAppSettings({ language });
+      const res = await client.admin.settings.$put({ json: { language } });
+      if (!res.ok) {
+        throw new Error(`Failed to save settings: ${res.statusText}`);
+      }
+      const updated = await res.json();
       setSettings(updated);
       await refreshI18n();
     } catch (err) {
