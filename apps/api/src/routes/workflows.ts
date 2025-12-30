@@ -212,7 +212,7 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
             secrets._google_access_token = googleToken.accessToken;
           }
 
-          // SSE mode: stream node completion events
+          // SSE mode: stream node start/completion events
           if (sse) {
             return streamSSE(c, async (stream) => {
               let eventId = 0;
@@ -223,6 +223,13 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
                 secrets,
                 workflowId,
                 writeLog: workflowId ? writeLog : undefined,
+                onNodeStart: (nodeId, nodeType) => {
+                  stream.writeSSE({
+                    data: JSON.stringify({ nodeId, nodeType }),
+                    event: "node-started",
+                    id: String(eventId++),
+                  });
+                },
                 onNodeComplete: (nodeId, nodeType) => {
                   stream.writeSSE({
                     data: JSON.stringify({ nodeId, nodeType }),

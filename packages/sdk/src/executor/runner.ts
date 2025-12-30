@@ -2,7 +2,7 @@ import type { WorkflowDSL } from "@flowit/shared";
 import { registerBuiltinNodes, getNode } from "../index";
 import { executeWorkflow } from "./graph-builder";
 import { buildExecutionOrder } from "./resolver";
-import type { WriteLogFn, OnNodeCompleteFn } from "./types";
+import type { WriteLogFn, OnNodeStartFn, OnNodeCompleteFn } from "./types";
 
 // Register built-in nodes on module load
 registerBuiltinNodes();
@@ -13,6 +13,7 @@ export interface RunWorkflowOptions {
   secrets?: Record<string, string>;
   workflowId?: string;
   writeLog?: WriteLogFn;
+  onNodeStart?: OnNodeStartFn;
   onNodeComplete?: OnNodeCompleteFn;
 }
 
@@ -36,6 +37,7 @@ export async function runWorkflow(
     secrets = {},
     workflowId,
     writeLog,
+    onNodeStart,
     onNodeComplete,
   } = options;
   const executionId = crypto.randomUUID();
@@ -49,6 +51,7 @@ export async function runWorkflow(
       executionId,
       workflowId,
       writeLog,
+      onNodeStart,
       onNodeComplete
     );
 

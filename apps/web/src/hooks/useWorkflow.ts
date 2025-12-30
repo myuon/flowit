@@ -319,8 +319,10 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
             try {
               const data = JSON.parse(currentData);
 
-              if (currentEvent === "node-complete") {
+              if (currentEvent === "node-started") {
                 setExecutingNodeId(data.nodeId);
+                addLog("info", `Node started: ${data.nodeId}`, data.nodeId);
+              } else if (currentEvent === "node-complete") {
                 addLog("info", `Node completed: ${data.nodeId}`, data.nodeId);
               } else if (currentEvent === "complete") {
                 setExecutingNodeId(null);

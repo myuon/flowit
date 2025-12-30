@@ -4,5 +4,6 @@ export type {
   ExecutionState,
   ExecutionContext,
   WriteLogFn,
+  OnNodeStartFn,
   OnNodeCompleteFn,
 } from "./types";

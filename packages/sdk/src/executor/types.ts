@@ -8,6 +8,9 @@ export type WriteLogFn = (
   data: unknown
 ) => Promise<void>;
 
+// Callback type for node start events
+export type OnNodeStartFn = (nodeId: string, nodeType: string) => void;
+
 // Callback type for node completion events
 export type OnNodeCompleteFn = (nodeId: string, nodeType: string) => void;
 
@@ -30,6 +33,8 @@ export interface ExecutionState {
   error?: string;
   // Optional log writer function
   writeLog?: WriteLogFn;
+  // Optional callback for node start
+  onNodeStart?: OnNodeStartFn;
   // Optional callback for node completion
   onNodeComplete?: OnNodeCompleteFn;
 }

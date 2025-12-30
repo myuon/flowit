@@ -1,6 +1,6 @@
 import type { WorkflowDSL, WorkflowNode } from "@flowit/shared";
 import { getNode } from "../registry";
-import type { ExecutionState, WriteLogFn, OnNodeCompleteFn } from "./types";
+import type { ExecutionState, WriteLogFn, OnNodeStartFn, OnNodeCompleteFn } from "./types";
 import {
   resolveParams,
   resolveNodeInputs,
@@ -23,6 +23,7 @@ export class WorkflowExecutor {
     executionId: string,
     workflowId?: string,
     writeLog?: WriteLogFn,
+    onNodeStart?: OnNodeStartFn,
     onNodeComplete?: OnNodeCompleteFn
   ) {
     this.workflow = workflow;
@@ -35,6 +36,7 @@ export class WorkflowExecutor {
       workflowId,
       logs: [],
       writeLog,
+      onNodeStart,
       onNodeComplete,
     };
   }
@@ -55,6 +57,11 @@ export class WorkflowExecutor {
 
     this.state.currentNode = nodeId;
     this.log(`Executing ${workflowNode.type}`);
+
+    // Call onNodeStart callback if provided
+    if (this.state.onNodeStart) {
+      this.state.onNodeStart(nodeId, workflowNode.type);
+    }
 
     // Resolve inputs from connected edges
     const inputs = resolveNodeInputs(
@@ -244,6 +251,7 @@ export async function executeWorkflow(
   executionId: string,
   workflowId?: string,
   writeLog?: WriteLogFn,
+  onNodeStart?: OnNodeStartFn,
   onNodeComplete?: OnNodeCompleteFn
 ): Promise<ExecutionState> {
   const executor = new WorkflowExecutor(
@@ -253,6 +261,7 @@ export async function executeWorkflow(
     executionId,
     workflowId,
     writeLog,
+    onNodeStart,
     onNodeComplete
   );
   return executor.execute();
