@@ -5,6 +5,7 @@ import { getNode, validateWorkflow } from "@flowit/sdk";
 import type { WorkflowNodeData } from "../nodes";
 import { useI18n, getNodeDisplayName } from "../../i18n";
 import { Panel } from "../ui/Panel";
+import { Button } from "../ui/Button";
 
 interface WorkflowInfoPanelProps {
   workflowId?: string;
@@ -143,12 +144,13 @@ export const WorkflowInfoPanel = ({
                         <div className="text-[10px] font-mono bg-gray-100 px-1.5 py-1 rounded break-all mb-1">
                           {webhookUrl}
                         </div>
-                        <button
+                        <Button
+                          color="primary"
                           onClick={() => copyToClipboard(webhookUrl)}
-                          className="px-2 py-1 bg-gray-800 text-white rounded cursor-pointer text-[10px]"
+                          className="px-2 py-1 text-[10px]"
                         >
                           {t.copyUrl}
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -190,12 +192,13 @@ export const WorkflowInfoPanel = ({
 
         {/* Validate Button */}
         <div>
-          <button
+          <Button
+            color="primary"
             onClick={handleValidate}
-            className="w-full py-2 px-3 bg-gray-800 text-white rounded cursor-pointer text-xs font-medium"
+            className="w-full text-xs font-medium"
           >
             {t.validateWorkflow}
-          </button>
+          </Button>
           {validationResult.status === "valid" && (
             <div className="mt-2 p-2 bg-green-100 rounded text-xs text-green-800">
               {t.workflowValid}

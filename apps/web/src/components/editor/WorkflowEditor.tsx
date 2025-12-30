@@ -21,6 +21,7 @@ import { WorkflowInfoPanel } from "../panels/WorkflowInfoPanel";
 import { ExecutionPanel } from "../panels/ExecutionPanel";
 import { TemplateSelector } from "../panels/TemplateSelector";
 import { LogViewer } from "../panels/LogViewer";
+import { Button } from "../ui/Button";
 
 type ViewMode = "editor" | "logs";
 import { UserMenu } from "../UserMenu";
@@ -209,32 +210,20 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
           </button>
         </div>
         <div className="flex-1" />
-        <button
-          onClick={handleNewWorkflow}
-          className="px-3 py-1.5 bg-gray-800 text-white border-none rounded cursor-pointer"
-        >
+        <Button color="primary" onClick={handleNewWorkflow}>
           {t.new}
-        </button>
-        <button
-          onClick={handleSave}
-          className="px-3 py-1.5 bg-gray-100 border border-gray-300 rounded cursor-pointer"
-        >
+        </Button>
+        <Button color="default" onClick={handleSave}>
           {t.save}
-        </button>
+        </Button>
         {workflowId && (
-          <button
-            onClick={publish}
-            className="px-3 py-1.5 bg-green-600 text-white border-none rounded cursor-pointer"
-          >
+          <Button color="success" onClick={publish}>
             {t.publish}
-          </button>
+          </Button>
         )}
-        <button
-          onClick={load}
-          className="px-3 py-1.5 bg-gray-100 border border-gray-300 rounded cursor-pointer"
-        >
+        <Button color="default" onClick={load}>
           {t.load}
-        </button>
+        </Button>
         <div className="w-px h-6 bg-gray-200" />
         <UserMenu />
       </div>

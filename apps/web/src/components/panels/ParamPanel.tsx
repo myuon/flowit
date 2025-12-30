@@ -11,6 +11,7 @@ import {
 } from "../../i18n";
 import { validateGasDeployment } from "../../api/client";
 import { Panel } from "../ui/Panel";
+import { Button } from "../ui/Button";
 
 interface ParamPanelProps {
   selectedNode: Node<WorkflowNodeData> | null;
@@ -265,16 +266,17 @@ export const ParamPanel = ({
                     <div className="p-2 bg-gray-100 rounded text-xs font-mono break-all mb-2">
                       {webhookUrl}
                     </div>
-                    <button
+                    <Button
+                      color="primary"
                       onClick={() => {
                         if (webhookUrl) {
                           navigator.clipboard.writeText(webhookUrl);
                         }
                       }}
-                      className="px-3 py-1.5 bg-gray-800 text-white rounded cursor-pointer text-xs"
+                      className="text-xs"
                     >
                       {t.copyUrl}
-                    </button>
+                    </Button>
                     <div className="text-xs text-gray-500 mt-2">
                       {t.webhookNote}
                     </div>
@@ -290,19 +292,20 @@ export const ParamPanel = ({
             <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
               {t.validateDeployment || "Validate Deployment"}
             </div>
-            <button
+            <Button
+              color="primary"
               onClick={handleValidateGasDeployment}
               disabled={validationState.status === "validating"}
-              className={`w-full px-3 py-1.5 text-white rounded text-xs ${
+              className={`w-full text-xs ${
                 validationState.status === "validating"
                   ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-gray-800 cursor-pointer"
+                  : ""
               }`}
             >
               {validationState.status === "validating"
                 ? t.validating || "Validating..."
                 : t.validate || "Validate"}
-            </button>
+            </Button>
             {validationState.status === "success" && (
               <div className="mt-2 p-2 bg-green-100 rounded text-xs text-green-800">
                 <div className="font-medium">{validationState.message}</div>
