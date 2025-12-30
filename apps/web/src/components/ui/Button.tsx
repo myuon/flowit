@@ -1,9 +1,10 @@
-import type { PropsWithChildren, ButtonHTMLAttributes } from "react";
+import type { PropsWithChildren, ReactNode, ButtonHTMLAttributes } from "react";
 
 type ButtonColor = "primary" | "default" | "success" | "dark";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   color?: ButtonColor;
+  icon?: ReactNode;
 }
 
 const colorStyles: Record<ButtonColor, string> = {
@@ -17,14 +18,16 @@ export const Button = ({
   color = "default",
   className = "",
   disabled,
+  icon,
   children,
   ...props
 }: PropsWithChildren<ButtonProps>) => (
   <button
-    className={`px-3 py-1.5 rounded text-sm ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${colorStyles[color]} ${className}`}
+    className={`px-3 py-1.5 rounded text-sm ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${icon ? "flex items-center gap-1.5" : ""} ${colorStyles[color]} ${className}`}
     disabled={disabled}
     {...props}
   >
+    {icon}
     {children}
   </button>
 );

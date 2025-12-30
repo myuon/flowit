@@ -38,21 +38,16 @@ export const ExecutionPanel = ({
           color="success"
           onClick={onExecute}
           disabled={isRunning}
-          className={`font-medium flex items-center gap-1.5 ${
-            isRunning ? "bg-gray-600" : ""
-          }`}
-        >
-          {isRunning ? (
-            <>
+          icon={
+            isRunning ? (
               <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              {t.running}
-            </>
-          ) : (
-            <>
+            ) : (
               <span>▶</span>
-              {t.execute}
-            </>
-          )}
+            )
+          }
+          className={`font-medium ${isRunning ? "bg-gray-600" : ""}`}
+        >
+          {isRunning ? t.running : t.execute}
         </Button>
 
         <Button color="dark" onClick={onClear}>
@@ -73,9 +68,7 @@ export const ExecutionPanel = ({
           </span>
         )}
         {execution.status === "error" && (
-          <span className="text-red-500 text-xs font-medium">
-            ✗ {t.error}
-          </span>
+          <span className="text-red-500 text-xs font-medium">✗ {t.error}</span>
         )}
       </div>
 
