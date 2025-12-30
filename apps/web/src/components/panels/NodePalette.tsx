@@ -47,7 +47,7 @@ export const NodePalette = ({ onAddNode }: NodePaletteProps) => {
 
   return (
     <div className="w-60 border-r border-gray-200 bg-gray-50 flex flex-col h-full">
-      <Panel header={t.nodes}>
+      <Panel header={t.nodes} scrollable>
         {/* Search */}
         <div className="mb-2 -mt-1">
           <input
