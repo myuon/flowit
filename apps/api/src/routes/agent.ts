@@ -245,6 +245,7 @@ function createWorkflowTools(workflowId: string) {
     inputSchema: z.object({
       workflow: workflowDSLSchema.describe("The complete workflow DSL to save"),
     }),
+    needsApproval: true,
     execute: async ({ workflow }) => {
       // First validate
       const errors = validateWorkflow(workflow as WorkflowDSL);
