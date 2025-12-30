@@ -37,9 +37,6 @@ export function AIChatPanel({
 
   const isLoading = status === "streaming" || status === "submitted";
   const [localError, setLocalError] = useState<string | null>(null);
-  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<
-    string | null
-  >(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,42 +64,6 @@ export function AIChatPanel({
   };
 
   const displayError = localError || error?.message;
-
-  // Helper to get tool calls from message parts (for useEffect check)
-  const getToolCalls = (
-    message: (typeof messages)[number]
-  ): Array<{ toolName: string; args: unknown }> => {
-    if (!message.parts || message.role !== "assistant") return [];
-    return message.parts
-      .filter((part) => part.type === "tool-call")
-      .map((part) => {
-        const toolPart = part as unknown as {
-          type: "tool-call";
-          toolName: string;
-          args: unknown;
-        };
-        return { toolName: toolPart.toolName, args: toolPart.args };
-      });
-  };
-
-  // Check for editCurrentWorkflow tool call and trigger refetch
-  useEffect(() => {
-    if (isLoading) return;
-    const lastMessage = messages[messages.length - 1];
-    if (
-      lastMessage?.role === "assistant" &&
-      lastMessage.id !== lastProcessedMessageId
-    ) {
-      const toolCalls = getToolCalls(lastMessage);
-      const hasEditWorkflow = toolCalls.some(
-        (tc) => tc.toolName === "editCurrentWorkflow"
-      );
-      if (hasEditWorkflow && onWorkflowUpdated) {
-        onWorkflowUpdated();
-        setLastProcessedMessageId(lastMessage.id);
-      }
-    }
-  }, [messages, isLoading, lastProcessedMessageId, onWorkflowUpdated]);
 
   return (
     <div className="w-60 border-r border-gray-200 bg-gray-50 h-full flex flex-col">
@@ -180,12 +141,13 @@ export function AIChatPanel({
                           {toolPart.approval && (
                             <div className="flex gap-2 mt-2">
                               <button
-                                onClick={() =>
+                                onClick={() => {
                                   addToolApprovalResponse({
                                     id: toolPart.approval!.id,
                                     approved: true,
-                                  })
-                                }
+                                  });
+                                  onWorkflowUpdated?.();
+                                }}
                                 className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
                               >
                                 {t.approveWorkflow}
