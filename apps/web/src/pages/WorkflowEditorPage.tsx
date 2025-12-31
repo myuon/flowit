@@ -22,11 +22,12 @@ import { WorkflowInfoPanel } from "../components/panels/WorkflowInfoPanel";
 import { ExecutionPanel } from "../components/panels/ExecutionPanel";
 import { TemplateSelector } from "../components/panels/TemplateSelector";
 import { LogViewer } from "../components/panels/LogViewer";
+import { ExecutionResultsViewer } from "../components/panels/ExecutionResultsViewer";
 import { Button } from "../components/ui/Button";
 import { Chip } from "../components/ui/Chip";
 import { UserMenu } from "../components/UserMenu";
 
-type ViewMode = "editor" | "logs";
+type ViewMode = "editor" | "logs" | "executions";
 type LeftPanelMode = "nodes" | "ai";
 import { useWorkflow } from "../hooks/useWorkflow";
 import { useAuth } from "../auth";
@@ -215,6 +216,16 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
             {t.editor}
           </button>
           <button
+            onClick={() => setViewMode("executions")}
+            className={`px-3 py-1 border-none rounded cursor-pointer text-sm ${
+              viewMode === "executions"
+                ? "bg-white font-medium text-gray-800 shadow-sm"
+                : "bg-transparent text-gray-500"
+            }`}
+          >
+            {t.executionResults}
+          </button>
+          <button
             onClick={() => setViewMode("logs")}
             className={`px-3 py-1 border-none rounded cursor-pointer text-sm ${
               viewMode === "logs"
@@ -365,6 +376,8 @@ export function WorkflowEditor({ workflowId }: WorkflowEditorProps) {
               />
             </div>
           </>
+        ) : viewMode === "executions" ? (
+          <ExecutionResultsViewer workflowId={workflowMeta.id || workflowId || ""} />
         ) : (
           <LogViewer workflowId={workflowMeta.id || workflowId || ""} />
         )}

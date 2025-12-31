@@ -7,3 +7,4 @@ export {
   type ExecutionResult,
 } from "./ExecutionPanel";
 export { TemplateSelector } from "./TemplateSelector";
+export { ExecutionResultsViewer } from "./ExecutionResultsViewer";

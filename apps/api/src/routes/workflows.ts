@@ -176,6 +176,27 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
         const count = await executionLogRepository.deleteByWorkflowId(id);
         return c.json({ deleted: count });
       })
+      // Get executions for a workflow
+      .get(
+        "/workflows/:id/executions",
+        zValidator("query", logsQuerySchema),
+        async (c) => {
+          const id = c.req.param("id");
+          const { limit, offset } = c.req.valid("query");
+
+          const workflow = await workflowRepository.findById(id);
+          if (!workflow) {
+            return c.json({ error: "Workflow not found" }, 404);
+          }
+
+          const executions = await executionRepository.findByWorkflowId(
+            id,
+            limit,
+            offset
+          );
+          return c.json({ executions });
+        }
+      )
       // Execute a workflow
       .post(
         "/execute",

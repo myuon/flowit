@@ -101,6 +101,22 @@ export interface Translations {
   executionId: string;
   logs: string;
 
+  // Execution Results
+  executionResults: string;
+  noExecutions: string;
+  noExecutionsDescription: string;
+  status: string;
+  startedAt: string;
+  completedAt: string;
+  duration: string;
+  inputs: string;
+  outputs: string;
+  statusPending: string;
+  statusRunning: string;
+  statusSuccess: string;
+  statusError: string;
+  statusCancelled: string;
+
   // View Toggle
   editor: string;
 
@@ -251,6 +267,22 @@ const en: Translations = {
   executionId: "Execution",
   logs: "logs",
 
+  // Execution Results
+  executionResults: "Execution Results",
+  noExecutions: "No executions yet",
+  noExecutionsDescription: "Execute this workflow to see results here.",
+  status: "Status",
+  startedAt: "Started",
+  completedAt: "Completed",
+  duration: "Duration",
+  inputs: "Inputs",
+  outputs: "Outputs",
+  statusPending: "Pending",
+  statusRunning: "Running",
+  statusSuccess: "Success",
+  statusError: "Error",
+  statusCancelled: "Cancelled",
+
   // View Toggle
   editor: "Editor",
 
@@ -400,6 +432,22 @@ const ja: Translations = {
     "ログノードを含むワークフローを実行すると、ここにログが表示されます。",
   executionId: "実行",
   logs: "件",
+
+  // Execution Results
+  executionResults: "実行結果",
+  noExecutions: "実行結果がありません",
+  noExecutionsDescription: "このワークフローを実行すると、ここに結果が表示されます。",
+  status: "ステータス",
+  startedAt: "開始",
+  completedAt: "完了",
+  duration: "所要時間",
+  inputs: "入力",
+  outputs: "出力",
+  statusPending: "待機中",
+  statusRunning: "実行中",
+  statusSuccess: "成功",
+  statusError: "エラー",
+  statusCancelled: "キャンセル",
 
   // View Toggle
   editor: "エディタ",
