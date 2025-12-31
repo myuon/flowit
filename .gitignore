@@ -8,3 +8,6 @@ dist
 # Local SQLite database
 *.db
 *.db-journal
+
+# TypeScript build info
+*.tsbuildinfo

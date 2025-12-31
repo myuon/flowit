@@ -1,10 +1,17 @@
 import "dotenv/config";
 import { runWorkflow, type WriteLogFn } from "@flowit/sdk";
 import {
+  initializeDb,
   executionRepository,
   workflowVersionRepository,
   executionLogRepository,
 } from "@flowit/db";
+
+// Initialize database connection
+initializeDb({
+  url: process.env.TURSO_DATABASE_URL ?? "file:local.db",
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 // Configuration
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL ?? "5000", 10);

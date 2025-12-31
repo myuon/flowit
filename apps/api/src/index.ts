@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import type { WriteLogFn } from "@flowit/sdk";
+import { initializeDb } from "@flowit/db";
 import { sessionAuth, type AuthVariables } from "./middleware/auth";
 import { createOAuthRoutes, getOAuthConfig } from "./routes/oauth";
 import { executionLogRepository } from "./db/repository";
@@ -16,6 +17,12 @@ import {
   createAgentRoutes,
   isAdmin,
 } from "./routes";
+
+// Initialize database connection
+initializeDb({
+  url: process.env.TURSO_DATABASE_URL ?? "file:local.db",
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 // Create writeLog function for execution logs
 const writeLog: WriteLogFn = async (workflowId, executionId, nodeId, data) => {

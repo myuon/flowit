@@ -1,5 +1,6 @@
 // Database connection
-export { db } from "./connection";
+export { db, createDb, initializeDb, getDb } from "./connection";
+export type { DbConfig, DbInstance } from "./connection";
 
 // Schema
 export * from "./schema";
