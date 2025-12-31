@@ -1,4 +1,5 @@
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
 
 // ============================================
 // Workflows - The main workflow definition
@@ -174,3 +175,42 @@ export const appConfig = sqliteTable("app_config", {
   value: text("value").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+// ============================================
+// Relations
+// ============================================
+export const workflowsRelations = relations(workflows, ({ one, many }) => ({
+  currentVersion: one(workflowVersions, {
+    fields: [workflows.currentVersionId],
+    references: [workflowVersions.id],
+  }),
+  versions: many(workflowVersions),
+}));
+
+export const workflowVersionsRelations = relations(
+  workflowVersions,
+  ({ one }) => ({
+    workflow: one(workflows, {
+      fields: [workflowVersions.workflowId],
+      references: [workflows.id],
+    }),
+  })
+);
+
+export const executionsRelations = relations(executions, ({ one }) => ({
+  workflow: one(workflows, {
+    fields: [executions.workflowId],
+    references: [workflows.id],
+  }),
+  version: one(workflowVersions, {
+    fields: [executions.versionId],
+    references: [workflowVersions.id],
+  }),
+}));
+
+export const executionLogsRelations = relations(executionLogs, ({ one }) => ({
+  workflow: one(workflows, {
+    fields: [executionLogs.workflowId],
+    references: [workflows.id],
+  }),
+}));
