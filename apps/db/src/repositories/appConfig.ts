@@ -1,17 +1,18 @@
 import { eq } from "drizzle-orm";
-import { db } from "./index";
-import { appConfig } from "./schema";
+import { db } from "../connection";
+import { appConfig } from "../schema";
+import type { AppConfig } from "../types";
 
 // ============================================
 // Type exports
 // ============================================
-export type AppConfig = typeof appConfig.$inferSelect;
+export type DbAppConfig = typeof appConfig.$inferSelect;
 export type NewAppConfig = typeof appConfig.$inferInsert;
 
 // ============================================
 // Converters
 // ============================================
-export function appConfigFromDb(dbConfig: AppConfig) {
+export function appConfigFromDb(dbConfig: DbAppConfig): AppConfig {
   return {
     key: dbConfig.key,
     value: dbConfig.value,
@@ -24,9 +25,10 @@ export function appConfigFromDb(dbConfig: AppConfig) {
 // ============================================
 export const appConfigRepository = {
   async get(key: string): Promise<AppConfig | undefined> {
-    return db.query.appConfig.findFirst({
+    const result = await db.query.appConfig.findFirst({
       where: eq(appConfig.key, key),
     });
+    return result ? appConfigFromDb(result) : undefined;
   },
 
   async set(key: string, value: string): Promise<AppConfig> {
@@ -39,14 +41,14 @@ export const appConfigRepository = {
         .set({ value, updatedAt: now })
         .where(eq(appConfig.key, key))
         .returning();
-      return result;
+      return appConfigFromDb(result);
     }
 
     const [result] = await db
       .insert(appConfig)
       .values({ key, value, updatedAt: now })
       .returning();
-    return result;
+    return appConfigFromDb(result);
   },
 
   async delete(key: string): Promise<boolean> {

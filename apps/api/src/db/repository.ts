@@ -1,15 +1,37 @@
-// Re-export all repositories from their individual files
-export { workflowRepository, workflowVersionRepository } from "./workflow";
-export { executionRepository, executionLogRepository } from "./execution";
-export { userTokenRepository } from "./userToken";
-export { sessionRepository } from "./session";
-export { userRepository } from "./user";
-export { appConfigRepository } from "./appConfig";
+// Re-export all repositories from @flowit/db
+export {
+  workflowRepository,
+  workflowVersionRepository,
+  executionRepository,
+  executionLogRepository,
+  userTokenRepository,
+  sessionRepository,
+  userRepository,
+  appConfigRepository,
+} from "@flowit/db";
 
-// Re-export types from their individual files
-export type { DbWorkflow, NewWorkflow, DbWorkflowVersion, NewWorkflowVersion } from "./workflow";
-export type { Execution, NewExecution, DbExecutionLog, NewExecutionLog } from "./execution";
-export type { DbUserToken, NewUserToken } from "./userToken";
-export type { DbSession, NewSession } from "./session";
-export type { DbUser, NewUser } from "./user";
-export type { AppConfig, NewAppConfig } from "./appConfig";
+// Re-export types from @flowit/db
+export type {
+  DbWorkflow,
+  NewWorkflow,
+  DbWorkflowVersion,
+  NewWorkflowVersion,
+  DbExecution,
+  NewExecution,
+  DbExecutionLog,
+  NewExecutionLog,
+  DbUserToken,
+  NewUserToken,
+  DbSession,
+  NewSession,
+  DbUser,
+  NewUser,
+  DbAppConfig,
+  NewAppConfig,
+} from "@flowit/db";
+
+// Re-export Execution type for backward compatibility
+export type { Execution } from "@flowit/db";
+
+// Re-export AppConfig type for backward compatibility
+export type { AppConfig } from "@flowit/db";

@@ -1,37 +1,12 @@
 import type { WorkflowDSL } from "@flowit/shared";
 
-// Re-export conversion functions from db
+// Re-export types and conversion functions from @flowit/db
+export type { Workflow, WorkflowVersion, WorkflowWithVersions } from "@flowit/db";
 export {
   workflowFromDb,
   workflowVersionFromDb,
   workflowWithVersionsFromDb,
-} from "../db/workflow";
-
-// ============================================
-// Domain Models
-// ============================================
-
-export interface Workflow {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface WorkflowVersion {
-  id: string;
-  workflowId: string;
-  version: number;
-  dsl: WorkflowDSL;
-  changelog: string | null;
-  createdAt: string;
-}
-
-export interface WorkflowWithVersions extends Workflow {
-  versions: WorkflowVersion[];
-  currentVersion: WorkflowVersion | null;
-}
+} from "@flowit/db";
 
 // ============================================
 // Conversion Functions from Request

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import { eq, desc } from "drizzle-orm";
-import * as schema from "./schema";
+import { eq, desc, workflows, workflowVersions, executions } from "@flowit/db";
+import * as schema from "@flowit/db";
 import type { WorkflowDSL } from "@flowit/shared";
 
 // Create a test database (in-memory)
@@ -13,8 +13,6 @@ const testDb = drizzle(testClient, { schema });
 
 // Create test-specific repository functions
 const createTestRepositories = (db: typeof testDb) => {
-  const { workflows, workflowVersions, executions } = schema;
-
   return {
     workflow: {
       async create(data: { name: string; description?: string }) {

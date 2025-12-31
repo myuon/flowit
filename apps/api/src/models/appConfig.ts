@@ -1,18 +1,11 @@
 import type { AppSettings, Language } from "@flowit/shared";
 import { DEFAULT_APP_SETTINGS } from "@flowit/shared";
 
-// Re-export conversion function from db
-export { appConfigFromDb } from "../db/appConfig";
+import type { AppConfig } from "@flowit/db";
 
-// ============================================
-// Domain Model
-// ============================================
-
-export interface AppConfig {
-  key: string;
-  value: string;
-  updatedAt: string;
-}
+// Re-export types and conversion functions from @flowit/db
+export type { AppConfig } from "@flowit/db";
+export { appConfigFromDb } from "@flowit/db";
 
 // ============================================
 // Helper Functions

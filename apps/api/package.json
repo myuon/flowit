@@ -20,23 +20,24 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.1",
+    "@flowit/db": "workspace:*",
     "@flowit/sdk": "workspace:*",
     "@flowit/shared": "workspace:*",
     "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.7.6",
     "@langchain/core": "^0.3.27",
     "@langchain/langgraph": "^0.2.42",
-    "@libsql/client": "^0.14.0",
     "ai": "^6.0.3",
     "dotenv": "^17.2.3",
-    "drizzle-orm": "^0.38.3",
     "hono": "^4.6.16",
     "jose": "^6.1.3",
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@libsql/client": "^0.14.0",
     "@types/node": "^22.10.2",
     "drizzle-kit": "^0.30.1",
+    "drizzle-orm": "^0.38.3",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

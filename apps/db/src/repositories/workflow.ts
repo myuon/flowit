@@ -1,12 +1,8 @@
 import { eq, desc, and } from "drizzle-orm";
-import { db } from "./index";
-import { workflows, workflowVersions } from "./schema";
+import { db } from "../connection";
+import { workflows, workflowVersions } from "../schema";
 import type { WorkflowDSL } from "@flowit/shared";
-import type {
-  Workflow,
-  WorkflowVersion,
-  WorkflowWithVersions,
-} from "../models";
+import type { Workflow, WorkflowVersion, WorkflowWithVersions } from "../types";
 
 // ============================================
 // Type exports

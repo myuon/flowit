@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "./index";
-import { users } from "./schema";
-import type { User } from "../models";
+import { db } from "../connection";
+import { users } from "../schema";
+import type { User } from "../types";
 
 // ============================================
 // Type exports

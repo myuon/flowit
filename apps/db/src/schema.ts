@@ -10,7 +10,6 @@ export const workflows = sqliteTable(
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     description: text("description"),
-    // Current active version ID
     currentVersionId: text("current_version_id"),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
@@ -32,9 +31,7 @@ export const workflowVersions = sqliteTable(
       .notNull()
       .references(() => workflows.id, { onDelete: "cascade" }),
     version: integer("version").notNull(),
-    // The complete DSL JSON
     dsl: text("dsl", { mode: "json" }).notNull(),
-    // Optional changelog/description for this version
     changelog: text("changelog"),
     createdAt: text("created_at").notNull(),
   },
@@ -45,7 +42,7 @@ export const workflowVersions = sqliteTable(
 );
 
 // ============================================
-// Executions - Workflow execution instances (also serves as task queue)
+// Executions - Workflow execution instances (task queue)
 // ============================================
 export const executions = sqliteTable(
   "executions",
@@ -57,24 +54,16 @@ export const executions = sqliteTable(
     versionId: text("version_id")
       .notNull()
       .references(() => workflowVersions.id, { onDelete: "cascade" }),
-    // Execution status
     status: text("status", {
       enum: ["pending", "running", "success", "error", "cancelled"],
     }).notNull(),
-    // Input data for this run
     inputs: text("inputs", { mode: "json" }),
-    // Final outputs
     outputs: text("outputs", { mode: "json" }),
-    // Error message if failed
     error: text("error"),
-    // Worker that picked up this task (null if pending)
     workerId: text("worker_id"),
-    // Scheduling
     scheduledAt: text("scheduled_at").notNull(),
-    // Retry management
     retryCount: integer("retry_count").notNull().default(0),
     maxRetries: integer("max_retries").notNull().default(3),
-    // Timing
     startedAt: text("started_at"),
     completedAt: text("completed_at"),
     createdAt: text("created_at").notNull(),
@@ -100,7 +89,6 @@ export const executionLogs = sqliteTable(
       .references(() => workflows.id, { onDelete: "cascade" }),
     executionId: text("execution_id").notNull(),
     nodeId: text("node_id").notNull(),
-    // Serialized log data
     data: text("data", { mode: "json" }).notNull(),
     createdAt: text("created_at").notNull(),
   },
@@ -118,16 +106,11 @@ export const userTokens = sqliteTable(
   "user_tokens",
   {
     id: text("id").primaryKey(),
-    // User identifier (sub from OIDC)
     userId: text("user_id").notNull(),
-    // Token provider (e.g., "google")
     provider: text("provider").notNull(),
-    // OAuth tokens (encrypted in production)
     accessToken: text("access_token").notNull(),
     refreshToken: text("refresh_token"),
-    // Token expiry
     expiresAt: text("expires_at"),
-    // Metadata
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },
@@ -141,7 +124,6 @@ export const userTokens = sqliteTable(
 // Users - User profile information
 // ============================================
 export const users = sqliteTable("users", {
-  // User identifier (sub from OIDC)
   id: text("id").primaryKey(),
   email: text("email").notNull(),
   name: text("name"),

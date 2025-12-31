@@ -1,7 +1,7 @@
 import { eq, and } from "drizzle-orm";
-import { db } from "./index";
-import { userTokens } from "./schema";
-import type { UserToken } from "../models";
+import { db } from "../connection";
+import { userTokens } from "../schema";
+import type { UserToken } from "../types";
 
 // ============================================
 // Type exports

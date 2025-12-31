@@ -1,17 +1,3 @@
-// Re-export conversion function from db
-export { userTokenFromDb } from "../db/userToken";
-
-// ============================================
-// Domain Model
-// ============================================
-
-export interface UserToken {
-  id: string;
-  userId: string;
-  provider: string;
-  accessToken: string;
-  refreshToken: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+// Re-export types and conversion functions from @flowit/db
+export type { UserToken } from "@flowit/db";
+export { userTokenFromDb } from "@flowit/db";

@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { ToolLoopAgent, createAgentUIStreamResponse, tool } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { eq } from "drizzle-orm";
+import { eq } from "@flowit/db";
 import {
   getNodeCatalog,
   getGroupedCatalog,

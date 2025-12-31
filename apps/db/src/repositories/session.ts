@@ -1,7 +1,7 @@
 import { eq, lt } from "drizzle-orm";
-import { db } from "./index";
-import { sessions } from "./schema";
-import type { Session } from "../models";
+import { db } from "../connection";
+import { sessions } from "../schema";
+import type { Session } from "../types";
 
 // ============================================
 // Type exports

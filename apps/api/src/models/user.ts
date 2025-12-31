@@ -1,11 +1,3 @@
-// Re-export conversion function from db
-export { userFromDb } from "../db/user";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string | null;
-  picture: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+// Re-export types and conversion functions from @flowit/db
+export type { User } from "@flowit/db";
+export { userFromDb } from "@flowit/db";

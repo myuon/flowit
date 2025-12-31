@@ -11,14 +11,10 @@
     "isolatedModules": true,
     "declaration": true,
     "declarationMap": true,
-    "noEmit": true
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
-  "references": [
-    { "path": "./packages/shared" },
-    { "path": "./packages/sdk" },
-    { "path": "./apps/db" },
-    { "path": "./apps/web" },
-    { "path": "./apps/api" },
-    { "path": "./apps/worker" }
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

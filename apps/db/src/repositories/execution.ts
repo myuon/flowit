@@ -1,12 +1,12 @@
 import { eq, desc } from "drizzle-orm";
-import { db } from "./index";
-import { executions, executionLogs } from "./schema";
-import type { ExecutionLog } from "../models";
+import { db } from "../connection";
+import { executions, executionLogs } from "../schema";
+import type { Execution, ExecutionLog } from "../types";
 
 // ============================================
 // Type exports
 // ============================================
-export type Execution = typeof executions.$inferSelect;
+export type DbExecution = typeof executions.$inferSelect;
 export type NewExecution = typeof executions.$inferInsert;
 
 export type DbExecutionLog = typeof executionLogs.$inferSelect;
@@ -47,13 +47,14 @@ export const executionRepository = {
         createdAt: now,
       })
       .returning();
-    return result;
+    return result as Execution;
   },
 
   async findById(id: string): Promise<Execution | undefined> {
-    return db.query.executions.findFirst({
+    const result = await db.query.executions.findFirst({
       where: eq(executions.id, id),
     });
+    return result as Execution | undefined;
   },
 
   async findByWorkflowId(
@@ -61,21 +62,23 @@ export const executionRepository = {
     limit = 50,
     offset = 0
   ): Promise<Execution[]> {
-    return db.query.executions.findMany({
+    const results = await db.query.executions.findMany({
       where: eq(executions.workflowId, workflowId),
       orderBy: [desc(executions.createdAt)],
       limit,
       offset,
     });
+    return results as Execution[];
   },
 
   // Queue-related methods
   async findPendingExecutions(limit = 10): Promise<Execution[]> {
-    return db.query.executions.findMany({
+    const results = await db.query.executions.findMany({
       where: eq(executions.status, "pending"),
       orderBy: [executions.scheduledAt],
       limit,
     });
+    return results as Execution[];
   },
 
   async update(
@@ -87,7 +90,7 @@ export const executionRepository = {
       .set(data)
       .where(eq(executions.id, id))
       .returning();
-    return result;
+    return result as Execution | undefined;
   },
 
   async markStarted(id: string, workerId?: string): Promise<Execution | undefined> {
