@@ -13,7 +13,7 @@ const testDb = drizzle(testClient, { schema });
 
 // Create test-specific repository functions
 const createTestRepositories = (db: typeof testDb) => {
-  const { workflows, workflowVersions, runs, runSteps, nodeCatalogCache } =
+  const { workflows, workflowVersions, executions, runSteps, nodeCatalogCache } =
     schema;
 
   return {
@@ -92,23 +92,27 @@ const createTestRepositories = (db: typeof testDb) => {
         versionId: string;
         status: "pending" | "running" | "success" | "error" | "cancelled";
         inputs?: unknown;
+        scheduledAt?: Date;
       }) {
         const id = crypto.randomUUID();
         const now = new Date().toISOString();
         const [result] = await db
-          .insert(runs)
+          .insert(executions)
           .values({
             id,
-            ...data,
+            workflowId: data.workflowId,
+            versionId: data.versionId,
+            status: data.status,
             inputs: data.inputs as string,
+            scheduledAt: (data.scheduledAt ?? new Date()).toISOString(),
             createdAt: now,
           })
           .returning();
         return result;
       },
       async findById(id: string) {
-        return db.query.runs.findFirst({
-          where: eq(runs.id, id),
+        return db.query.executions.findFirst({
+          where: eq(executions.id, id),
         });
       },
       async update(
@@ -116,9 +120,9 @@ const createTestRepositories = (db: typeof testDb) => {
         data: { status?: string; outputs?: unknown; error?: string }
       ) {
         const [result] = await db
-          .update(runs)
+          .update(executions)
           .set(data as Record<string, unknown>)
-          .where(eq(runs.id, id))
+          .where(eq(executions.id, id))
           .returning();
         return result;
       },
@@ -197,7 +201,7 @@ describe("Repository", () => {
       )
     `);
     await testClient.execute(`
-      CREATE TABLE IF NOT EXISTS runs (
+      CREATE TABLE IF NOT EXISTS executions (
         id TEXT PRIMARY KEY,
         workflow_id TEXT NOT NULL REFERENCES workflows(id) ON DELETE CASCADE,
         version_id TEXT NOT NULL REFERENCES workflow_versions(id) ON DELETE CASCADE,
@@ -205,6 +209,10 @@ describe("Repository", () => {
         inputs TEXT,
         outputs TEXT,
         error TEXT,
+        worker_id TEXT,
+        scheduled_at TEXT NOT NULL,
+        retry_count INTEGER NOT NULL DEFAULT 0,
+        max_retries INTEGER NOT NULL DEFAULT 3,
         started_at TEXT,
         completed_at TEXT,
         created_at TEXT NOT NULL
@@ -213,7 +221,7 @@ describe("Repository", () => {
     await testClient.execute(`
       CREATE TABLE IF NOT EXISTS run_steps (
         id TEXT PRIMARY KEY,
-        run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
+        run_id TEXT NOT NULL REFERENCES executions(id) ON DELETE CASCADE,
         node_id TEXT NOT NULL,
         node_type TEXT NOT NULL,
         step_order INTEGER NOT NULL,
@@ -247,7 +255,7 @@ describe("Repository", () => {
     repos = createTestRepositories(testDb);
     // Clean up tables before each test
     await testClient.execute("DELETE FROM run_steps");
-    await testClient.execute("DELETE FROM runs");
+    await testClient.execute("DELETE FROM executions");
     await testClient.execute("DELETE FROM workflow_versions");
     await testClient.execute("DELETE FROM workflows");
     await testClient.execute("DELETE FROM node_catalog_cache");

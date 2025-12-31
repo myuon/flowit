@@ -9,6 +9,7 @@ import {
   workflowVersionRepository,
   executionLogRepository,
   userTokenRepository,
+  executionRepository,
 } from "../db/repository";
 import {
   validateWorkflowSchema,
@@ -212,6 +213,26 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
             secrets._google_access_token = googleToken.accessToken;
           }
 
+          // Create run record if this is a saved workflow
+          let runId: string | undefined;
+          if (workflowId) {
+            const latestVersion =
+              await workflowVersionRepository.getLatestVersion(workflowId);
+            if (latestVersion) {
+              // Create run record with pending status
+              const run = await executionRepository.create({
+                workflowId,
+                versionId: latestVersion.id,
+                status: "pending",
+                inputs: body.inputs as unknown as string,
+              });
+              runId = run.id;
+
+              // Mark as running since we're executing immediately
+              await executionRepository.markStarted(run.id, "api-direct");
+            }
+          }
+
           // SSE mode: stream node start/completion events
           if (sse) {
             return streamSSE(c, async (stream) => {
@@ -239,10 +260,19 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
                 },
               });
 
+              // Update run record
+              if (runId) {
+                if (result.status === "success") {
+                  await executionRepository.markCompleted(runId, result.outputs);
+                } else {
+                  await executionRepository.markFailed(runId, result.error ?? "Unknown error");
+                }
+              }
+
               // Send final result
               const response: ExecuteWorkflowResponse = {
                 outputs: result.outputs,
-                executionId: result.executionId,
+                executionId: runId ?? result.executionId,
                 status: result.status,
                 error: result.error,
               };
@@ -264,9 +294,18 @@ export function createWorkflowRoutes(writeLog: WriteLogFn) {
             writeLog: workflowId ? writeLog : undefined,
           });
 
+          // Update run record
+          if (runId) {
+            if (result.status === "success") {
+              await executionRepository.markCompleted(runId, result.outputs);
+            } else {
+              await executionRepository.markFailed(runId, result.error ?? "Unknown error");
+            }
+          }
+
           const response: ExecuteWorkflowResponse = {
             outputs: result.outputs,
-            executionId: result.executionId,
+            executionId: runId ?? result.executionId,
             status: result.status,
             error: result.error,
           };

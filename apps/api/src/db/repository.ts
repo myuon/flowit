@@ -3,7 +3,7 @@ import { db } from "./index";
 import {
   workflows,
   workflowVersions,
-  runs,
+  executions,
   runSteps,
   nodeCatalogCache,
   executionLogs,
@@ -11,8 +11,8 @@ import {
   users,
   sessions,
   type NewWorkflow,
-  type Run,
-  type NewRun,
+  type Execution,
+  type NewExecution,
   type RunStep,
   type NewRunStep,
   type NodeCatalogCacheEntry,
@@ -200,32 +200,38 @@ export const workflowVersionRepository = {
 };
 
 // ============================================
-// Run Repository
+// Execution Repository (also serves as task queue)
 // ============================================
-export const runRepository = {
-  async create(data: Omit<NewRun, "id" | "createdAt">): Promise<Run> {
+export const executionRepository = {
+  async create(
+    data: Omit<NewExecution, "id" | "createdAt" | "scheduledAt"> & {
+      scheduledAt?: Date;
+    }
+  ): Promise<Execution> {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
+    const { scheduledAt, ...rest } = data;
     const [result] = await db
-      .insert(runs)
+      .insert(executions)
       .values({
         id,
-        ...data,
+        ...rest,
+        scheduledAt: (scheduledAt ?? new Date()).toISOString(),
         createdAt: now,
       })
       .returning();
     return result;
   },
 
-  async findById(id: string): Promise<Run | undefined> {
-    return db.query.runs.findFirst({
-      where: eq(runs.id, id),
+  async findById(id: string): Promise<Execution | undefined> {
+    return db.query.executions.findFirst({
+      where: eq(executions.id, id),
     });
   },
 
   async findByIdWithSteps(id: string) {
-    return db.query.runs.findFirst({
-      where: eq(runs.id, id),
+    return db.query.executions.findFirst({
+      where: eq(executions.id, id),
       with: {
         steps: {
           orderBy: [runSteps.stepOrder],
@@ -238,30 +244,40 @@ export const runRepository = {
     workflowId: string,
     limit = 50,
     offset = 0
-  ): Promise<Run[]> {
-    return db.query.runs.findMany({
-      where: eq(runs.workflowId, workflowId),
-      orderBy: [desc(runs.createdAt)],
+  ): Promise<Execution[]> {
+    return db.query.executions.findMany({
+      where: eq(executions.workflowId, workflowId),
+      orderBy: [desc(executions.createdAt)],
       limit,
       offset,
     });
   },
 
+  // Queue-related methods
+  async findPendingExecutions(limit = 10): Promise<Execution[]> {
+    return db.query.executions.findMany({
+      where: eq(executions.status, "pending"),
+      orderBy: [executions.scheduledAt],
+      limit,
+    });
+  },
+
   async update(
     id: string,
-    data: Partial<Omit<Run, "id" | "createdAt">>
-  ): Promise<Run | undefined> {
+    data: Partial<Omit<Execution, "id" | "createdAt">>
+  ): Promise<Execution | undefined> {
     const [result] = await db
-      .update(runs)
+      .update(executions)
       .set(data)
-      .where(eq(runs.id, id))
+      .where(eq(executions.id, id))
       .returning();
     return result;
   },
 
-  async markStarted(id: string): Promise<Run | undefined> {
+  async markStarted(id: string, workerId?: string): Promise<Execution | undefined> {
     return this.update(id, {
       status: "running",
+      workerId,
       startedAt: new Date().toISOString(),
     });
   },
@@ -269,7 +285,7 @@ export const runRepository = {
   async markCompleted(
     id: string,
     outputs: Record<string, unknown>
-  ): Promise<Run | undefined> {
+  ): Promise<Execution | undefined> {
     return this.update(id, {
       status: "success",
       outputs: outputs as unknown as string,
@@ -277,10 +293,14 @@ export const runRepository = {
     });
   },
 
-  async markFailed(id: string, error: string): Promise<Run | undefined> {
+  async markFailed(id: string, error: string): Promise<Execution | undefined> {
+    const execution = await this.findById(id);
+    if (!execution) return undefined;
+
     return this.update(id, {
       status: "error",
       error,
+      retryCount: execution.retryCount + 1,
       completedAt: new Date().toISOString(),
     });
   },
@@ -690,3 +710,4 @@ export const userRepository = {
     return result ? userFromDb(result) : undefined;
   },
 };
+

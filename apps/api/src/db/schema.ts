@@ -24,7 +24,7 @@ export const workflows = sqliteTable(
 
 export const workflowsRelations = relations(workflows, ({ many, one }) => ({
   versions: many(workflowVersions),
-  runs: many(runs),
+  executions: many(executions),
   currentVersion: one(workflowVersions, {
     fields: [workflows.currentVersionId],
     references: [workflowVersions.id],
@@ -61,15 +61,15 @@ export const workflowVersionsRelations = relations(
       fields: [workflowVersions.workflowId],
       references: [workflows.id],
     }),
-    runs: many(runs),
+    executions: many(executions),
   })
 );
 
 // ============================================
-// Runs - Workflow execution instances
+// Executions - Workflow execution instances (also serves as task queue)
 // ============================================
-export const runs = sqliteTable(
-  "runs",
+export const executions = sqliteTable(
+  "executions",
   {
     id: text("id").primaryKey(),
     workflowId: text("workflow_id")
@@ -88,6 +88,13 @@ export const runs = sqliteTable(
     outputs: text("outputs", { mode: "json" }),
     // Error message if failed
     error: text("error"),
+    // Worker that picked up this task (null if pending)
+    workerId: text("worker_id"),
+    // Scheduling
+    scheduledAt: text("scheduled_at").notNull(),
+    // Retry management
+    retryCount: integer("retry_count").notNull().default(0),
+    maxRetries: integer("max_retries").notNull().default(3),
     // Timing
     startedAt: text("started_at"),
     completedAt: text("completed_at"),
@@ -98,16 +105,17 @@ export const runs = sqliteTable(
     index("runs_version_id_idx").on(table.versionId),
     index("runs_status_idx").on(table.status),
     index("runs_created_at_idx").on(table.createdAt),
+    index("runs_scheduled_at_idx").on(table.scheduledAt),
   ]
 );
 
-export const runsRelations = relations(runs, ({ one, many }) => ({
+export const executionsRelations = relations(executions, ({ one, many }) => ({
   workflow: one(workflows, {
-    fields: [runs.workflowId],
+    fields: [executions.workflowId],
     references: [workflows.id],
   }),
   version: one(workflowVersions, {
-    fields: [runs.versionId],
+    fields: [executions.versionId],
     references: [workflowVersions.id],
   }),
   steps: many(runSteps),
@@ -122,7 +130,7 @@ export const runSteps = sqliteTable(
     id: text("id").primaryKey(),
     runId: text("run_id")
       .notNull()
-      .references(() => runs.id, { onDelete: "cascade" }),
+      .references(() => executions.id, { onDelete: "cascade" }),
     // Node info
     nodeId: text("node_id").notNull(),
     nodeType: text("node_type").notNull(),
@@ -152,9 +160,9 @@ export const runSteps = sqliteTable(
 );
 
 export const runStepsRelations = relations(runSteps, ({ one }) => ({
-  run: one(runs, {
+  execution: one(executions, {
     fields: [runSteps.runId],
-    references: [runs.id],
+    references: [executions.id],
   }),
 }));
 
@@ -342,8 +350,8 @@ export function workflowWithVersionsFromDb(
   };
 }
 
-export type Run = typeof runs.$inferSelect;
-export type NewRun = typeof runs.$inferInsert;
+export type Execution = typeof executions.$inferSelect;
+export type NewExecution = typeof executions.$inferInsert;
 
 export type RunStep = typeof runSteps.$inferSelect;
 export type NewRunStep = typeof runSteps.$inferInsert;
@@ -406,3 +414,4 @@ export function userFromDb(dbUser: User) {
     updatedAt: dbUser.updatedAt,
   };
 }
+
