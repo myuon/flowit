@@ -1,5 +1,4 @@
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm";
 
 // ============================================
 // Workflows - The main workflow definition
@@ -20,15 +19,6 @@ export const workflows = sqliteTable(
     index("workflows_updated_at_idx").on(table.updatedAt),
   ]
 );
-
-export const workflowsRelations = relations(workflows, ({ many, one }) => ({
-  versions: many(workflowVersions),
-  executions: many(executions),
-  currentVersion: one(workflowVersions, {
-    fields: [workflows.currentVersionId],
-    references: [workflowVersions.id],
-  }),
-}));
 
 // ============================================
 // Workflow Versions - Versioned workflow DSL
@@ -51,17 +41,6 @@ export const workflowVersions = sqliteTable(
     index("versions_workflow_id_idx").on(table.workflowId),
     index("versions_workflow_version_idx").on(table.workflowId, table.version),
   ]
-);
-
-export const workflowVersionsRelations = relations(
-  workflowVersions,
-  ({ one, many }) => ({
-    workflow: one(workflows, {
-      fields: [workflowVersions.workflowId],
-      references: [workflows.id],
-    }),
-    executions: many(executions),
-  })
 );
 
 // ============================================
