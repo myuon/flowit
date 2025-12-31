@@ -1,5 +1,5 @@
-// Re-export conversion function from schema
-export { sessionFromDb } from "../db/schema";
+// Re-export conversion function from db
+export { sessionFromDb } from "../db/session";
 
 // ============================================
 // Domain Model

@@ -1,4 +1,5 @@
-export { userFromDb } from "../db/schema";
+// Re-export conversion function from db
+export { userFromDb } from "../db/user";
 
 export interface User {
   id: string;

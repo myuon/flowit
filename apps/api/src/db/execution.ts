@@ -5,10 +5,24 @@ import {
   executionLogs,
   type Execution,
   type NewExecution,
+  type ExecutionLog as DbExecutionLog,
   type NewExecutionLog,
-  executionLogFromDb,
 } from "./schema";
 import type { ExecutionLog } from "../models";
+
+// ============================================
+// Converters
+// ============================================
+export function executionLogFromDb(dbLog: DbExecutionLog): ExecutionLog {
+  return {
+    id: dbLog.id,
+    workflowId: dbLog.workflowId,
+    executionId: dbLog.executionId,
+    nodeId: dbLog.nodeId,
+    data: dbLog.data,
+    createdAt: dbLog.createdAt,
+  };
+}
 
 // ============================================
 // Execution Repository (also serves as task queue)

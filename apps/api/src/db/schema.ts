@@ -1,6 +1,5 @@
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
-import type { WorkflowDSL } from "@flowit/shared";
 
 // ============================================
 // Workflows - The main workflow definition
@@ -214,107 +213,20 @@ export function appConfigFromDb(dbConfig: AppConfig) {
 export type Workflow = typeof workflows.$inferSelect;
 export type NewWorkflow = typeof workflows.$inferInsert;
 
-export function workflowFromDb(dbWorkflow: Workflow) {
-  return {
-    id: dbWorkflow.id,
-    name: dbWorkflow.name,
-    description: dbWorkflow.description,
-    createdAt: dbWorkflow.createdAt,
-    updatedAt: dbWorkflow.updatedAt,
-  };
-}
-
 export type WorkflowVersion = typeof workflowVersions.$inferSelect;
 export type NewWorkflowVersion = typeof workflowVersions.$inferInsert;
-
-export function workflowVersionFromDb(dbVersion: WorkflowVersion) {
-  return {
-    id: dbVersion.id,
-    workflowId: dbVersion.workflowId,
-    version: dbVersion.version,
-    dsl: dbVersion.dsl as WorkflowDSL,
-    changelog: dbVersion.changelog,
-    createdAt: dbVersion.createdAt,
-  };
-}
-
-export function workflowWithVersionsFromDb(
-  dbWorkflow: Workflow,
-  dbVersions: WorkflowVersion[]
-) {
-  const versions = dbVersions.map(workflowVersionFromDb);
-  const currentVersion =
-    versions.length > 0
-      ? versions.reduce((latest, v) =>
-          v.version > latest.version ? v : latest
-        )
-      : null;
-
-  return {
-    ...workflowFromDb(dbWorkflow),
-    versions,
-    currentVersion,
-  };
-}
 
 export type Execution = typeof executions.$inferSelect;
 export type NewExecution = typeof executions.$inferInsert;
 
-
-
 export type ExecutionLog = typeof executionLogs.$inferSelect;
 export type NewExecutionLog = typeof executionLogs.$inferInsert;
-
-export function executionLogFromDb(dbLog: ExecutionLog) {
-  return {
-    id: dbLog.id,
-    workflowId: dbLog.workflowId,
-    executionId: dbLog.executionId,
-    nodeId: dbLog.nodeId,
-    data: dbLog.data,
-    createdAt: dbLog.createdAt,
-  };
-}
 
 export type UserToken = typeof userTokens.$inferSelect;
 export type NewUserToken = typeof userTokens.$inferInsert;
 
-export function userTokenFromDb(dbToken: UserToken) {
-  return {
-    id: dbToken.id,
-    userId: dbToken.userId,
-    provider: dbToken.provider,
-    accessToken: dbToken.accessToken,
-    refreshToken: dbToken.refreshToken,
-    expiresAt: dbToken.expiresAt,
-    createdAt: dbToken.createdAt,
-    updatedAt: dbToken.updatedAt,
-  };
-}
-
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 
-export function sessionFromDb(dbSession: Session) {
-  return {
-    id: dbSession.id,
-    userId: dbSession.userId,
-    expiresAt: dbSession.expiresAt,
-    createdAt: dbSession.createdAt,
-  };
-}
-
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-
-export function userFromDb(dbUser: User) {
-  return {
-    id: dbUser.id,
-    email: dbUser.email,
-    name: dbUser.name,
-    picture: dbUser.picture,
-    createdAt: dbUser.createdAt,
-    updatedAt: dbUser.updatedAt,
-  };
-}
-

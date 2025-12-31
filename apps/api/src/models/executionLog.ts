@@ -1,5 +1,5 @@
-// Re-export conversion function from schema
-export { executionLogFromDb } from "../db/schema";
+// Re-export conversion function from db
+export { executionLogFromDb } from "../db/execution";
 
 // ============================================
 // Domain Model

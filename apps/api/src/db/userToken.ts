@@ -2,10 +2,26 @@ import { eq, and } from "drizzle-orm";
 import { db } from "./index";
 import {
   userTokens,
+  type UserToken as DbUserToken,
   type NewUserToken,
-  userTokenFromDb,
 } from "./schema";
 import type { UserToken } from "../models";
+
+// ============================================
+// Converters
+// ============================================
+export function userTokenFromDb(dbToken: DbUserToken): UserToken {
+  return {
+    id: dbToken.id,
+    userId: dbToken.userId,
+    provider: dbToken.provider,
+    accessToken: dbToken.accessToken,
+    refreshToken: dbToken.refreshToken,
+    expiresAt: dbToken.expiresAt,
+    createdAt: dbToken.createdAt,
+    updatedAt: dbToken.updatedAt,
+  };
+}
 
 // ============================================
 // User Token Repository

@@ -1,11 +1,11 @@
 import type { WorkflowDSL } from "@flowit/shared";
 
-// Re-export conversion functions from schema
+// Re-export conversion functions from db
 export {
   workflowFromDb,
   workflowVersionFromDb,
   workflowWithVersionsFromDb,
-} from "../db/schema";
+} from "../db/workflow";
 
 // ============================================
 // Domain Models

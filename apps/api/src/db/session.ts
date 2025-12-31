@@ -1,7 +1,19 @@
 import { eq, lt } from "drizzle-orm";
 import { db } from "./index";
-import { sessions, sessionFromDb } from "./schema";
+import { sessions, type Session as DbSession } from "./schema";
 import type { Session } from "../models";
+
+// ============================================
+// Converters
+// ============================================
+export function sessionFromDb(dbSession: DbSession): Session {
+  return {
+    id: dbSession.id,
+    userId: dbSession.userId,
+    expiresAt: dbSession.expiresAt,
+    createdAt: dbSession.createdAt,
+  };
+}
 
 // ============================================
 // Session Repository

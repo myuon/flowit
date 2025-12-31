@@ -1,5 +1,5 @@
-// Re-export conversion function from schema
-export { userTokenFromDb } from "../db/schema";
+// Re-export conversion function from db
+export { userTokenFromDb } from "../db/userToken";
 
 // ============================================
 // Domain Model

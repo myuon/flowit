@@ -1,7 +1,21 @@
 import { eq } from "drizzle-orm";
 import { db } from "./index";
-import { users, userFromDb } from "./schema";
+import { users, type User as DbUser } from "./schema";
 import type { User } from "../models";
+
+// ============================================
+// Converters
+// ============================================
+export function userFromDb(dbUser: DbUser): User {
+  return {
+    id: dbUser.id,
+    email: dbUser.email,
+    name: dbUser.name,
+    picture: dbUser.picture,
+    createdAt: dbUser.createdAt,
+    updatedAt: dbUser.updatedAt,
+  };
+}
 
 // ============================================
 // User Repository
