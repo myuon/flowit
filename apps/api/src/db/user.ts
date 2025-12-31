@@ -1,7 +1,13 @@
 import { eq } from "drizzle-orm";
 import { db } from "./index";
-import { users, type User as DbUser } from "./schema";
+import { users } from "./schema";
 import type { User } from "../models";
+
+// ============================================
+// Type exports
+// ============================================
+export type DbUser = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 
 // ============================================
 // Converters

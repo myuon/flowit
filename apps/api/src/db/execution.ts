@@ -1,14 +1,16 @@
 import { eq, desc } from "drizzle-orm";
 import { db } from "./index";
-import {
-  executions,
-  executionLogs,
-  type Execution,
-  type NewExecution,
-  type ExecutionLog as DbExecutionLog,
-  type NewExecutionLog,
-} from "./schema";
+import { executions, executionLogs } from "./schema";
 import type { ExecutionLog } from "../models";
+
+// ============================================
+// Type exports
+// ============================================
+export type Execution = typeof executions.$inferSelect;
+export type NewExecution = typeof executions.$inferInsert;
+
+export type DbExecutionLog = typeof executionLogs.$inferSelect;
+export type NewExecutionLog = typeof executionLogs.$inferInsert;
 
 // ============================================
 // Converters

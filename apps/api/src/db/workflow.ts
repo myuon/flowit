@@ -1,18 +1,21 @@
 import { eq, desc, and } from "drizzle-orm";
 import { db } from "./index";
-import {
-  workflows,
-  workflowVersions,
-  type Workflow as DbWorkflow,
-  type NewWorkflow,
-  type WorkflowVersion as DbWorkflowVersion,
-} from "./schema";
+import { workflows, workflowVersions } from "./schema";
 import type { WorkflowDSL } from "@flowit/shared";
 import type {
   Workflow,
   WorkflowVersion,
   WorkflowWithVersions,
 } from "../models";
+
+// ============================================
+// Type exports
+// ============================================
+export type DbWorkflow = typeof workflows.$inferSelect;
+export type NewWorkflow = typeof workflows.$inferInsert;
+
+export type DbWorkflowVersion = typeof workflowVersions.$inferSelect;
+export type NewWorkflowVersion = typeof workflowVersions.$inferInsert;
 
 // ============================================
 // Converters

@@ -1,11 +1,13 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "./index";
-import {
-  userTokens,
-  type UserToken as DbUserToken,
-  type NewUserToken,
-} from "./schema";
+import { userTokens } from "./schema";
 import type { UserToken } from "../models";
+
+// ============================================
+// Type exports
+// ============================================
+export type DbUserToken = typeof userTokens.$inferSelect;
+export type NewUserToken = typeof userTokens.$inferInsert;
 
 // ============================================
 // Converters

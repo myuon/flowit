@@ -1,7 +1,13 @@
 import { eq, lt } from "drizzle-orm";
 import { db } from "./index";
-import { sessions, type Session as DbSession } from "./schema";
+import { sessions } from "./schema";
 import type { Session } from "../models";
+
+// ============================================
+// Type exports
+// ============================================
+export type DbSession = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
 
 // ============================================
 // Converters

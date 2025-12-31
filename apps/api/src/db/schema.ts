@@ -197,7 +197,7 @@ export const appConfig = sqliteTable("app_config", {
 });
 
 // ============================================
-// Type exports for use in application
+// Type exports for AppConfig (only)
 // ============================================
 export type AppConfig = typeof appConfig.$inferSelect;
 export type NewAppConfig = typeof appConfig.$inferInsert;
@@ -209,24 +209,3 @@ export function appConfigFromDb(dbConfig: AppConfig) {
     updatedAt: dbConfig.updatedAt,
   };
 }
-
-export type Workflow = typeof workflows.$inferSelect;
-export type NewWorkflow = typeof workflows.$inferInsert;
-
-export type WorkflowVersion = typeof workflowVersions.$inferSelect;
-export type NewWorkflowVersion = typeof workflowVersions.$inferInsert;
-
-export type Execution = typeof executions.$inferSelect;
-export type NewExecution = typeof executions.$inferInsert;
-
-export type ExecutionLog = typeof executionLogs.$inferSelect;
-export type NewExecutionLog = typeof executionLogs.$inferInsert;
-
-export type UserToken = typeof userTokens.$inferSelect;
-export type NewUserToken = typeof userTokens.$inferInsert;
-
-export type Session = typeof sessions.$inferSelect;
-export type NewSession = typeof sessions.$inferInsert;
-
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
