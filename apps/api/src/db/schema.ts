@@ -195,17 +195,3 @@ export const appConfig = sqliteTable("app_config", {
   value: text("value").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
-
-// ============================================
-// Type exports for AppConfig (only)
-// ============================================
-export type AppConfig = typeof appConfig.$inferSelect;
-export type NewAppConfig = typeof appConfig.$inferInsert;
-
-export function appConfigFromDb(dbConfig: AppConfig) {
-  return {
-    key: dbConfig.key,
-    value: dbConfig.value,
-    updatedAt: dbConfig.updatedAt,
-  };
-}
