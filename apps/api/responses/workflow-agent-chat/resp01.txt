@@ -1,0 +1,548 @@
+data: {"type":"start"}
+
+data: {"type":"start-step"}
+
+data: {"type":"text-start","id":"0"}
+
+data: {"type":"text-delta","id":"0","delta":"Webh"}
+
+data: {"type":"text-delta","id":"0","delta":"ookで2"}
+
+data: {"type":"text-delta","id":"0","delta":"つの数値を受け取"}
+
+data: {"type":"text-delta","id":"0","delta":"り、四"}
+
+data: {"type":"text-delta","id":"0","delta":"則演算の"}
+
+data: {"type":"text-delta","id":"0","delta":"結果を返すワ"}
+
+data: {"type":"text-delta","id":"0","delta":"ークフローを作"}
+
+data: {"type":"text-delta","id":"0","delta":"成します。ま"}
+
+data: {"type":"text-delta","id":"0","delta":"ず、現"}
+
+data: {"type":"text-delta","id":"0","delta":"在のワークフローを確"}
+
+data: {"type":"text-delta","id":"0","delta":"認し"}
+
+data: {"type":"text-delta","id":"0","delta":"、利"}
+
+data: {"type":"text-delta","id":"0","delta":"用可能なノードを調"}
+
+data: {"type":"text-delta","id":"0","delta":"べてから作"}
+
+data: {"type":"text-delta","id":"0","delta":"成し"}
+
+data: {"type":"text-delta","id":"0","delta":"ます"}
+
+data: {"type":"text-delta","id":"0","delta":"ね。"}
+
+data: {"type":"text-end","id":"0"}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_01E6ayqGR6mCXSTbFzFhUdc2","toolName":"getCurrentWorkflow"}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_01E6ayqGR6mCXSTbFzFhUdc2","toolName":"getCurrentWorkflow","input":{}}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_01DtEH3qxHvsjCVYiiM1gJrD","toolName":"listAvailableNodes"}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_01E6ayqGR6mCXSTbFzFhUdc2","output":{"dslVersion":"0.1.0","meta":{"name":"無題のワークフロー","description":"","version":"1","status":"draft"},"inputs":{},"outputs":{},"secrets":[],"nodes":[],"edges":[]}}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_01DtEH3qxHvsjCVYiiM1gJrD","toolName":"listAvailableNodes","input":{}}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_01DtEH3qxHvsjCVYiiM1gJrD","output":[{"id":"text-input","displayName":"Text Input","description":"Provides a text value as input to the workflow","category":"input","icon":"📝","color":"#4CAF50","tags":["input","text"],"inputCount":0,"outputCount":1},{"id":"number-input","displayName":"Number Input","description":"Provides a number value as input to the workflow","category":"input","icon":"🔢","color":"#2196F3","tags":["input","number"],"inputCount":0,"outputCount":1},{"id":"json-input","displayName":"JSON Input","description":"Provides a JSON object as input to the workflow","category":"input","icon":"📋","color":"#FF9800","tags":["input","json"],"inputCount":0,"outputCount":1},{"id":"webhook-trigger","displayName":"Webhook Trigger","description":"Triggers workflow when an external HTTP request is received","category":"input","icon":"🔗","color":"#9C27B0","tags":["input","webhook","trigger","http"],"inputCount":0,"outputCount":4},{"id":"output","displayName":"Output","description":"Marks the output of the workflow","category":"output","icon":"📤","color":"#9C27B0","tags":["output"],"inputCount":1,"outputCount":1},{"id":"debug","displayName":"Debug","description":"Logs the value and passes it through","category":"output","icon":"🐛","color":"#607D8B","tags":["debug","logging"],"inputCount":1,"outputCount":1},{"id":"template","displayName":"Template","description":"Renders a template string with variable substitution","category":"transform","icon":"📝","color":"#673AB7","tags":["template","string"],"inputCount":1,"outputCount":1},{"id":"json-parse","displayName":"JSON Parse","description":"Parses a JSON string into an object","category":"transform","icon":"🔄","color":"#FF5722","tags":["json","parse"],"inputCount":1,"outputCount":1},{"id":"json-stringify","displayName":"JSON Stringify","description":"Converts a value to a JSON string","category":"transform","icon":"📄","color":"#FF5722","tags":["json","stringify"],"inputCount":1,"outputCount":1},{"id":"get-property","displayName":"Get Property","description":"Gets a property from an object using a path","category":"transform","icon":"🔍","color":"#795548","tags":["object","property"],"inputCount":1,"outputCount":1},{"id":"js-transform","displayName":"JS Transform","description":"Transforms data using a JavaScript expression","category":"transform","icon":"⚡","color":"#FFC107","tags":["javascript","transform","map","filter"],"inputCount":2,"outputCount":1},{"id":"map","displayName":"Map","description":"Maps over an array and transforms each element","category":"transform","icon":"🔁","color":"#9C27B0","tags":["array","map","transform"],"inputCount":1,"outputCount":1},{"id":"filter","displayName":"Filter","description":"Filters an array based on a condition","category":"transform","icon":"🔎","color":"#E91E63","tags":["array","filter"],"inputCount":1,"outputCount":2},{"id":"llm","displayName":"LLM","description":"Calls a Large Language Model API","category":"ai","icon":"🤖","color":"#00BCD4","tags":["llm","ai","gpt","claude"],"inputCount":2,"outputCount":2},{"id":"prompt-builder","displayName":"Prompt Builder","description":"Builds a prompt from components","category":"ai","icon":"✍️","color":"#3F51B5","tags":["prompt","ai"],"inputCount":3,"outputCount":1},{"id":"http-request","displayName":"HTTP Request","description":"Makes an HTTP request to an external API","category":"integration","icon":"🌐","color":"#2196F3","tags":["http","api","request","fetch"],"inputCount":3,"outputCount":3},{"id":"slack-message","displayName":"Slack Message","description":"Sends a message to a Slack channel","category":"integration","icon":"💬","color":"#4A154B","tags":["slack","notification","message","chat"],"inputCount":2,"outputCount":2},{"id":"slack-block-builder","displayName":"Slack Blocks","description":"Builds Slack Block Kit blocks for rich messages","category":"integration","icon":"🧱","color":"#611f69","tags":["slack","blocks","builder"],"inputCount":1,"outputCount":1},{"id":"gas","displayName":"Google Apps Script","description":"Executes a deployed Google Apps Script web app","category":"integration","icon":"📜","color":"#4285F4","tags":["google","apps-script","gas","automation"],"inputCount":1,"outputCount":1},{"id":"if-condition","displayName":"If Condition","description":"Evaluates a condition and routes execution to true or false branch","category":"control","icon":"🔀","color":"#FF9800","tags":["condition","if","branch","routing"],"inputCount":2,"outputCount":2},{"id":"switch","displayName":"Switch","description":"Routes execution based on matching a value to multiple cases","category":"control","icon":"🔃","color":"#795548","tags":["switch","case","routing"],"inputCount":1,"outputCount":2},{"id":"merge","displayName":"Merge","description":"Merges multiple branch inputs into a single output","category":"control","icon":"🔗","color":"#607D8B","tags":["merge","join","combine"],"inputCount":4,"outputCount":2},{"id":"log","displayName":"Log","description":"Logs the value to execution logs and passes it through","category":"utility","icon":"📝","color":"#4CAF50","tags":["log","logging","debug"],"inputCount":1,"outputCount":1}]}
+
+data: {"type":"finish-step"}
+
+data: {"type":"start-step"}
+
+data: {"type":"text-start","id":"0"}
+
+data: {"type":"text-delta","id":"0","delta":"良"}
+
+data: {"type":"text-delta","id":"0","delta":"い"}
+
+data: {"type":"text-delta","id":"0","delta":"です"}
+
+data: {"type":"text-delta","id":"0","delta":"ね！必"}
+
+data: {"type":"text-delta","id":"0","delta":"要なノードが"}
+
+data: {"type":"text-delta","id":"0","delta":"揃っ"}
+
+data: {"type":"text-delta","id":"0","delta":"ています。次"}
+
+data: {"type":"text-delta","id":"0","delta":"に、"}
+
+data: {"type":"text-delta","id":"0","delta":"Webhook"}
+
+data: {"type":"text-delta","id":"0","delta":" Triggerと"}
+
+data: {"type":"text-delta","id":"0","delta":"js"}
+
+data: {"type":"text-delta","id":"0","delta":"-transformノ"}
+
+data: {"type":"text-delta","id":"0","delta":"ードの"}
+
+data: {"type":"text-delta","id":"0","delta":"詳細を確認します。"}
+
+data: {"type":"text-end","id":"0"}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_012dGkxjGFmR2rtEf4JMqzxr","toolName":"getNodeDetails"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_012dGkxjGFmR2rtEf4JMqzxr","inputTextDelta":"{\"nodeType\": \"webhook-trigger"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_012dGkxjGFmR2rtEf4JMqzxr","inputTextDelta":"\"}"}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_012dGkxjGFmR2rtEf4JMqzxr","toolName":"getNodeDetails","input":{"nodeType":"webhook-trigger"}}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_012dGkxjGFmR2rtEf4JMqzxr","output":{"id":"webhook-trigger","displayName":"Webhook Trigger","description":"Triggers workflow when an external HTTP request is received","category":"input","inputs":{},"outputs":{"body":{"type":"any","description":"The request body"},"headers":{"type":"object","properties":{},"description":"The request headers"},"query":{"type":"object","properties":{},"description":"The query parameters"},"method":{"type":"string","description":"The HTTP method used"}},"paramsSchema":{"name":{"type":"string","label":"Name","description":"Unique identifier for this webhook within the workflow","placeholder":"my-webhook","required":true},"method":{"type":"select","label":"Allowed Method","options":[{"label":"GET","value":"GET"},{"label":"POST","value":"POST"}],"description":"The HTTP method this webhook accepts","default":"POST"}},"defaultParams":{"method":{"type":"static","value":"POST"}}}}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_01RTBAfeECQRpzkLaTADonnk","toolName":"getNodeDetails"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01RTBAfeECQRpzkLaTADonnk","inputTextDelta":"{\"nodeType\": \"js-transform"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01RTBAfeECQRpzkLaTADonnk","inputTextDelta":"\"}"}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_01RTBAfeECQRpzkLaTADonnk","toolName":"getNodeDetails","input":{"nodeType":"js-transform"}}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_01RTBAfeECQRpzkLaTADonnk","output":{"id":"js-transform","displayName":"JS Transform","description":"Transforms data using a JavaScript expression","category":"transform","inputs":{"data":{"type":"any","description":"Input data (available as `data`)","required":true},"context":{"type":"object","properties":{},"description":"Additional context (available as `ctx`)"}},"outputs":{"result":{"type":"any","description":"Transformed result"}},"paramsSchema":{"expression":{"type":"string","label":"Expression","description":"JavaScript expression. Use `data` for input, `ctx` for context. Example: `data.items.map(x => x.name)`","placeholder":"data.items.filter(x => x.active)","multiline":true,"required":true}},"defaultParams":{}}}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_017suo11nZ8a1dy23Xf2P9K2","toolName":"getNodeDetails"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_017suo11nZ8a1dy23Xf2P9K2","inputTextDelta":"{\"nodeType\": \"output"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_017suo11nZ8a1dy23Xf2P9K2","inputTextDelta":"\"}"}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_017suo11nZ8a1dy23Xf2P9K2","toolName":"getNodeDetails","input":{"nodeType":"output"}}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_017suo11nZ8a1dy23Xf2P9K2","output":{"id":"output","displayName":"Output","description":"Marks the output of the workflow","category":"output","inputs":{"value":{"type":"any","description":"The value to output","required":true}},"outputs":{"result":{"type":"any","description":"The output value"}},"paramsSchema":{},"defaultParams":{}}}
+
+data: {"type":"finish-step"}
+
+data: {"type":"start-step"}
+
+data: {"type":"text-start","id":"0"}
+
+data: {"type":"text-delta","id":"0","delta":"完"}
+
+data: {"type":"text-delta","id":"0","delta":"璧です！では"}
+
+data: {"type":"text-delta","id":"0","delta":"、Webh"}
+
+data: {"type":"text-delta","id":"0","delta":"ookで"}
+
+data: {"type":"text-delta","id":"0","delta":"受け取った2つの数"}
+
+data: {"type":"text-delta","id":"0","delta":"値を使"}
+
+data: {"type":"text-delta","id":"0","delta":"って"}
+
+data: {"type":"text-delta","id":"0","delta":"四"}
+
+data: {"type":"text-delta","id":"0","delta":"則演算を行うワーク"}
+
+data: {"type":"text-delta","id":"0","delta":"フローを作成します。"}
+
+data: {"type":"text-end","id":"0"}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","toolName":"validateWorkflow"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"{\"workflow\": {"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n  \"dslVersion\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"0.1.0\",\n  "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"meta\": {\n    \"name"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": \"四"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"則演算API"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n    \"description\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"Webh"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"ookで2"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"つの数値を受け取"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"り、sum"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":", diff, product, divisionの"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"4つの"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"演算結果を返す"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n    \"version\": \"1"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n    \"status\": \"draft"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"\n  },\n  \"inputs"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": {},"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n  \"outputs\": {},\n  "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"secrets\": [],\n  \"nodes"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": [\n    {\n      \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"id\": \"webhook\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"type\": \"webhook-"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"trigger\",\n      \"label"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": \"Webhook受"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"信\",\n      \"params"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": {\n        \"method\": {"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n          \"type\": \"static"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n          \"value\": \"POST"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"\n        },"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        \"name"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": {\n          \"type\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"static"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n          \"value\": \"calculator"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        }\n      },\n      "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"inputs\": {},\n      \"outputs"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": {\n        \"body\": {"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n          \"type\": \"any\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        },\n        \"headers\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" {\n          \"type\": \"object"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n          \"properties\": {}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        },\n        \"query\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" {\n          \"type\": \"object"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n          \"properties\": {}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        },\n        \"method\": {"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n          \"type\": \"string\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        }\n      }"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n    },\n    {\n      "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"id\": \"calculate"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n      \"type\": \"js"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"-transform\",\n      \"label\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" \"四則演算\",\n      "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"params\": {\n        \"expression"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": {\n          \"type\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"static"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n          \"value\": \"{\\"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"n  sum"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":": data.input1 + data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":".input2,\\n  diff"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":": data.input1 - data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":".input2,\\n  product"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":": data.input1 * data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":".input2,\\n  division"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":": data.input1 / data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":".input2\\n}\"\n        "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      },\n      \"inputs\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" {\n        \"data\": {"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n          \"type\": \"any\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        },\n        \"context\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" {\n          \"type\": \"object"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n          \"properties\": {}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        }\n      },\n      \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"outputs\": {\n        \"result\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" {\n          \"type\": \"any"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"\n        }\n      }"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n    },\n    {\n      \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"id\": \"output\",\n      \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"type\": \"output\",\n      \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"label\": \"結果出力\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"params\": {},"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"inputs\": {\n        "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"value\": {\n          \"type"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": \"any\"\n        }"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      },\n      \"outputs\": {"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n        \"result\": {\n          "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"type\": \"any\"\n        "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"}\n      }\n    }"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n  ],\n  \"edges\": ["}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n    {\n      \"id\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":" \"edge"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"1\",\n      \"source"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\": \"webhook\",\n      \"source"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"Handle\": \"body"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n      \"target\": \"calculate"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\",\n      \"targetHandle\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n    },\n    {\n      "}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"id\": \"edge2\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"source\": \"calculate\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"sourceHandle\": \"result\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"target\": \"output\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n      \"targetHandle\": \"value"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\"\n    }\n  ]"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"\n}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","inputTextDelta":"}"}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","toolName":"validateWorkflow","input":{"workflow":{"dslVersion":"0.1.0","meta":{"name":"四則演算API","description":"Webhookで2つの数値を受け取り、sum, diff, product, divisionの4つの演算結果を返す","version":"1","status":"draft"},"inputs":{},"outputs":{},"secrets":[],"nodes":[{"id":"webhook","type":"webhook-trigger","label":"Webhook受信","params":{"method":{"type":"static","value":"POST"},"name":{"type":"static","value":"calculator"}},"inputs":{},"outputs":{"body":{"type":"any"},"headers":{"type":"object"},"query":{"type":"object"},"method":{"type":"string"}}},{"id":"calculate","type":"js-transform","label":"四則演算","params":{"expression":{"type":"static","value":"{\n  sum: data.input1 + data.input2,\n  diff: data.input1 - data.input2,\n  product: data.input1 * data.input2,\n  division: data.input1 / data.input2\n}"}},"inputs":{"data":{"type":"any"},"context":{"type":"object"}},"outputs":{"result":{"type":"any"}}},{"id":"output","type":"output","label":"結果出力","params":{},"inputs":{"value":{"type":"any"}},"outputs":{"result":{"type":"any"}}}],"edges":[{"id":"edge1","source":"webhook","target":"calculate","sourceHandle":"body","targetHandle":"data"},{"id":"edge2","source":"calculate","target":"output","sourceHandle":"result","targetHandle":"value"}]}}}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_01QZbNeZk8pjQVH4tPxnidKH","output":{"valid":true,"message":"Workflow is valid"}}
+
+data: {"type":"finish-step"}
+
+data: {"type":"start-step"}
+
+data: {"type":"text-start","id":"0"}
+
+data: {"type":"text-delta","id":"0","delta":"素"}
+
+data: {"type":"text-delta","id":"0","delta":"晴らしい"}
+
+data: {"type":"text-delta","id":"0","delta":"！ワ"}
+
+data: {"type":"text-delta","id":"0","delta":"ークフローの"}
+
+data: {"type":"text-delta","id":"0","delta":"検"}
+
+data: {"type":"text-delta","id":"0","delta":"証に"}
+
+data: {"type":"text-delta","id":"0","delta":"成功しました。では"}
+
+data: {"type":"text-delta","id":"0","delta":"保"}
+
+data: {"type":"text-delta","id":"0","delta":"存します"}
+
+data: {"type":"text-delta","id":"0","delta":"。"}
+
+data: {"type":"text-end","id":"0"}
+
+data: {"type":"tool-input-start","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","toolName":"editCurrentWorkflow"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"{\"workflow\": {\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"dslVersion\": \"0.1."}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"0\", \"meta\": {\"name\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"四"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"則演算API"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\", \"description\": \"Webh"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"ookで2つの数値を"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"受け取り、sum"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":", diff, product, divisionの"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"4つの"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"演算結"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"果を返す"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\", \"version\": \"1\", \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"status\": \"draft\"}, \"inputs"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": {}, \"outputs\": {},"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"secrets\": [], \"nodes\": ["}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"{\"id\": \"webhook\", \"type"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": \"webhook-trigger\", \"label"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": \"Webhook受"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"信\", \"params\": {\"method\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" {\"type\": \"static\", \"value"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": \"POST\"}, \"name\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" {\"type\": \"static\", \"value"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": \"calculator\"}}, \"inputs\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" {}, \"outputs\": {\"body\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" {\"type\": \"any\"}, \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"headers\": {\"type\": \"object\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"}, \"query\": {\"type\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"object\"}, \"method\": {\"type"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": \"string\"}}}, {\"i"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"d\": \"calculate\", \"type\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"js-transform\", \"label\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"四"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"則演算\", \"params\": {\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"expression\": {\"type\": \"static\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"value\": \"{\\n  sum"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":": data.input1 + data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":".input2,\\n  diff"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":": data.input1 - data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":".input2,\\n  product"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":": data.input1 * data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":".input2,\\n  division"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":": data.input1 / data"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":".input2\\n}\"}},"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"inputs\": {\"data\": {\"type"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\": \"any\"}, \"context\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" {\"type\": \"object\"}}, \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"outputs\": {\"result\": {\"type\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"any\"}}}, {\"id\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"output\", \"type\": \"output"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\", \"label\": \"結"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"果出"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"力\", \"params\": {}, \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"inputs\": {\"value\": {\"type\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"any\"}}, \"outputs\": {\""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"result\": {\"type\": \"any\"}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"}}], \"edges\": [{\"i"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"d\": \"edge1\", \"source\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"webhook\", \"target\": \"calculate"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\", \"sourceHandle\": \"body\","}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"targetHandle\": \"data\"},"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" {\"id\": \"edge2\", \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"source\": \"calculate\", \"target\":"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":" \"output\", \"sourceHandle\": \""}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"result\", \"targetHandle\": \"value"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"\"}]}"}
+
+data: {"type":"tool-input-delta","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","inputTextDelta":"}"}
+
+data: {"type":"tool-input-available","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","toolName":"editCurrentWorkflow","input":{"workflow":{"dslVersion":"0.1.0","meta":{"name":"四則演算API","description":"Webhookで2つの数値を受け取り、sum, diff, product, divisionの4つの演算結果を返す","version":"1","status":"draft"},"inputs":{},"outputs":{},"secrets":[],"nodes":[{"id":"webhook","type":"webhook-trigger","label":"Webhook受信","params":{"method":{"type":"static","value":"POST"},"name":{"type":"static","value":"calculator"}},"inputs":{},"outputs":{"body":{"type":"any"},"headers":{"type":"object"},"query":{"type":"object"},"method":{"type":"string"}}},{"id":"calculate","type":"js-transform","label":"四則演算","params":{"expression":{"type":"static","value":"{\n  sum: data.input1 + data.input2,\n  diff: data.input1 - data.input2,\n  product: data.input1 * data.input2,\n  division: data.input1 / data.input2\n}"}},"inputs":{"data":{"type":"any"},"context":{"type":"object"}},"outputs":{"result":{"type":"any"}}},{"id":"output","type":"output","label":"結果出力","params":{},"inputs":{"value":{"type":"any"}},"outputs":{"result":{"type":"any"}}}],"edges":[{"id":"edge1","source":"webhook","target":"calculate","sourceHandle":"body","targetHandle":"data"},{"id":"edge2","source":"calculate","target":"output","sourceHandle":"result","targetHandle":"value"}]}}}
+
+data: {"type":"tool-approval-request","approvalId":"aitxt-3iIokPUrDeeUxmdohn8EZVsp","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw"}
+
+data: {"type":"finish-step"}
+
+data: {"type":"finish","finishReason":"tool-calls"}
+
+data: [DONE]
+

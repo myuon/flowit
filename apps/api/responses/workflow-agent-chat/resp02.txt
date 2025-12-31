@@ -1,0 +1,190 @@
+data: {"type":"start"}
+
+data: {"type":"tool-output-available","toolCallId":"toolu_01Bt2td4BYWQakktAHFUrtSw","output":{"success":true,"message":"Workflow saved as version 1","version":1}}
+
+data: {"type":"start-step"}
+
+data: {"type":"text-start","id":"0"}
+
+data: {"type":"text-delta","id":"0","delta":"完璧です！ワーク"}
+
+data: {"type":"text-delta","id":"0","delta":"フローの作"}
+
+data: {"type":"text-delta","id":"0","delta":"成が完"}
+
+data: {"type":"text-delta","id":"0","delta":"了しました。"}
+
+data: {"type":"text-delta","id":"0","delta":"🎉\n\n##"}
+
+data: {"type":"text-delta","id":"0","delta":" 作成したワークフロー"}
+
+data: {"type":"text-delta","id":"0","delta":"の概"}
+
+data: {"type":"text-delta","id":"0","delta":"要\n\n**"}
+
+data: {"type":"text-delta","id":"0","delta":"四"}
+
+data: {"type":"text-delta","id":"0","delta":"則演算API"}
+
+data: {"type":"text-delta","id":"0","delta":"**"}
+
+data: {"type":"text-delta","id":"0","delta":" として"}
+
+data: {"type":"text-delta","id":"0","delta":"、"}
+
+data: {"type":"text-delta","id":"0","delta":"以下の構"}
+
+data: {"type":"text-delta","id":"0","delta":"成で"}
+
+data: {"type":"text-delta","id":"0","delta":"ワークフローを作成し"}
+
+data: {"type":"text-delta","id":"0","delta":"ました：\n\n###"}
+
+data: {"type":"text-delta","id":"0","delta":" "}
+
+data: {"type":"text-delta","id":"0","delta":"ノード構"}
+
+data: {"type":"text-delta","id":"0","delta":"成"}
+
+data: {"type":"text-delta","id":"0","delta":"\n\n1. **"}
+
+data: {"type":"text-delta","id":"0","delta":"Webhook受"}
+
+data: {"type":"text-delta","id":"0","delta":"信** (`webhook-trigger`)"}
+
+data: {"type":"text-delta","id":"0","delta":"\n   - PO"}
+
+data: {"type":"text-delta","id":"0","delta":"STメ"}
+
+data: {"type":"text-delta","id":"0","delta":"ソッド"}
+
+data: {"type":"text-delta","id":"0","delta":"で"}
+
+data: {"type":"text-delta","id":"0","delta":"リ"}
+
+data: {"type":"text-delta","id":"0","delta":"クエストを受信\n   "}
+
+data: {"type":"text-delta","id":"0","delta":"- `"}
+
+data: {"type":"text-delta","id":"0","delta":"{\""}
+
+data: {"type":"text-delta","id":"0","delta":"input"}
+
+data: {"type":"text-delta","id":"0","delta":"1\": number"}
+
+data: {"type":"text-delta","id":"0","delta":","}
+
+data: {"type":"text-delta","id":"0","delta":" \"input2\": number}` "}
+
+data: {"type":"text-delta","id":"0","delta":"形式の"}
+
+data: {"type":"text-delta","id":"0","delta":"J"}
+
+data: {"type":"text-delta","id":"0","delta":"SONを受け"}
+
+data: {"type":"text-delta","id":"0","delta":"取"}
+
+data: {"type":"text-delta","id":"0","delta":"ります"}
+
+data: {"type":"text-delta","id":"0","delta":"\n\n2. **四"}
+
+data: {"type":"text-delta","id":"0","delta":"則演算** (`js-transform"}
+
+data: {"type":"text-delta","id":"0","delta":"`)\n   - JavaScript"}
+
+data: {"type":"text-delta","id":"0","delta":"変"}
+
+data: {"type":"text-delta","id":"0","delta":"換"}
+
+data: {"type":"text-delta","id":"0","delta":"で"}
+
+data: {"type":"text-delta","id":"0","delta":"以"}
+
+data: {"type":"text-delta","id":"0","delta":"下の"}
+
+data: {"type":"text-delta","id":"0","delta":"4"}
+
+data: {"type":"text-delta","id":"0","delta":"つの演算を実行："}
+
+data: {"type":"text-delta","id":"0","delta":"\n     - `sum"}
+
+data: {"type":"text-delta","id":"0","delta":"`:"}
+
+data: {"type":"text-delta","id":"0","delta":" input"}
+
+data: {"type":"text-delta","id":"0","delta":"1 + input2（"}
+
+data: {"type":"text-delta","id":"0","delta":"和）\n     - `diff`:"}
+
+data: {"type":"text-delta","id":"0","delta":" input1 - input2（差"}
+
+data: {"type":"text-delta","id":"0","delta":"）\n     - `product`: input"}
+
+data: {"type":"text-delta","id":"0","delta":"1 * input2（積）"}
+
+data: {"type":"text-delta","id":"0","delta":"\n     - `division`: input1"}
+
+data: {"type":"text-delta","id":"0","delta":" / input2（商）"}
+
+data: {"type":"text-delta","id":"0","delta":"\n\n3. **結果出力**"}
+
+data: {"type":"text-delta","id":"0","delta":" (`output`)\n   - 計"}
+
+data: {"type":"text-delta","id":"0","delta":"算結果を"}
+
+data: {"type":"text-delta","id":"0","delta":"オ"}
+
+data: {"type":"text-delta","id":"0","delta":"ブ"}
+
+data: {"type":"text-delta","id":"0","delta":"ジェクトとして返"}
+
+data: {"type":"text-delta","id":"0","delta":"します"}
+
+data: {"type":"text-delta","id":"0","delta":"\n\n### "}
+
+data: {"type":"text-delta","id":"0","delta":"使"}
+
+data: {"type":"text-delta","id":"0","delta":"用例"}
+
+data: {"type":"text-delta","id":"0","delta":"\n\nリ"}
+
+data: {"type":"text-delta","id":"0","delta":"クエス"}
+
+data: {"type":"text-delta","id":"0","delta":"ト：\n```json"}
+
+data: {"type":"text-delta","id":"0","delta":"\n{\n  \"input1\":"}
+
+data: {"type":"text-delta","id":"0","delta":" 10"}
+
+data: {"type":"text-delta","id":"0","delta":",\n  \"input2\": "}
+
+data: {"type":"text-delta","id":"0","delta":"5\n}\n```\n\nレ"}
+
+data: {"type":"text-delta","id":"0","delta":"スポンス：\n```json"}
+
+data: {"type":"text-delta","id":"0","delta":"\n{\n  \"sum"}
+
+data: {"type":"text-delta","id":"0","delta":"\": 15,\n  \"diff"}
+
+data: {"type":"text-delta","id":"0","delta":"\": 5,\n  \"product"}
+
+data: {"type":"text-delta","id":"0","delta":"\": 50,\n  \"division"}
+
+data: {"type":"text-delta","id":"0","delta":"\": 2"}
+
+data: {"type":"text-delta","id":"0","delta":"\n}\n```"}
+
+data: {"type":"text-delta","id":"0","delta":"\n\nワークフローは正常に"}
+
+data: {"type":"text-delta","id":"0","delta":"保"}
+
+data: {"type":"text-delta","id":"0","delta":"存されました！"}
+
+data: {"type":"text-end","id":"0"}
+
+data: {"type":"finish-step"}
+
+data: {"type":"finish","finishReason":"stop"}
+
+data: [DONE]
+
