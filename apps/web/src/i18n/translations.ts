@@ -77,6 +77,7 @@ export interface Translations {
   // Webhook
   webhookUrl: string;
   copyUrl: string;
+  copyCurl: string;
   webhookNote: string;
   saveWorkflowFirst: string;
   setWebhookName: string;
@@ -225,6 +226,7 @@ const en: Translations = {
   // Webhook
   webhookUrl: "Webhook URL",
   copyUrl: "Copy URL",
+  copyCurl: "Copy curl",
   webhookNote: "Publish the workflow to enable webhook triggers",
   saveWorkflowFirst: "Save the workflow to get a webhook URL",
   setWebhookName: "Set a webhook name first",
@@ -374,6 +376,7 @@ const ja: Translations = {
   // Webhook
   webhookUrl: "Webhook URL",
   copyUrl: "URLをコピー",
+  copyCurl: "curlをコピー",
   webhookNote: "Webhookを有効にするにはワークフローを公開してください",
   saveWorkflowFirst: "Webhook URLを取得するにはワークフローを保存してください",
   setWebhookName: "Webhook名を設定してください",

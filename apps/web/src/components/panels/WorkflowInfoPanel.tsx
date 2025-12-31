@@ -41,9 +41,9 @@ export const WorkflowInfoPanel = ({
     return { inputNodes: inputs, outputNodes: outputs };
   }, [nodes]);
 
-  // Build webhook URL for webhook-trigger nodes
-  const getWebhookUrl = useCallback(
-    (node: Node<WorkflowNodeData>): string | null => {
+  // Build webhook info for webhook-trigger nodes
+  const getWebhookInfo = useCallback(
+    (node: Node<WorkflowNodeData>): { url: string; method: string } | null => {
       if (node.data.nodeType !== "webhook-trigger" || !workflowId) {
         return null;
       }
@@ -56,10 +56,34 @@ export const WorkflowInfoPanel = ({
           : "";
       if (!webhookName) return null;
 
+      const methodParam = node.data.params.method;
+      const method =
+        typeof methodParam === "object" &&
+        methodParam !== null &&
+        "value" in methodParam
+          ? String((methodParam as { value: unknown }).value)
+          : "POST";
+
       const baseUrl = window.location.origin.replace(/:\d+$/, ":3001");
-      return `${baseUrl}/webhooks/${workflowId}/${webhookName}`;
+      return {
+        url: `${baseUrl}/webhooks/${workflowId}/${webhookName}`,
+        method,
+      };
     },
     [workflowId]
+  );
+
+  // Generate curl command for webhook
+  const getCurlCommand = useCallback(
+    (webhookInfo: { url: string; method: string }): string => {
+      if (webhookInfo.method === "GET") {
+        return `curl "${webhookInfo.url}"`;
+      }
+      return `curl -X POST "${webhookInfo.url}" \\
+  -H "Content-Type: application/json" \\
+  -d '{}'`;
+    },
+    []
   );
 
   // Validate workflow
@@ -118,7 +142,7 @@ export const WorkflowInfoPanel = ({
           ) : (
             <div className="flex flex-col gap-2">
               {inputNodes.map((node) => {
-                const webhookUrl = getWebhookUrl(node);
+                const webhookInfo = getWebhookInfo(node);
                 return (
                   <div
                     key={node.id}
@@ -136,21 +160,41 @@ export const WorkflowInfoPanel = ({
                         )}
                       </span>
                     </div>
-                    {webhookUrl && (
+                    {webhookInfo && (
                       <div className="mt-2">
-                        <div className="text-[10px] text-gray-500 mb-1">
-                          {t.webhookUrl}:
+                        <div className="text-[10px] text-gray-500 mb-1 flex items-center gap-1.5">
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold text-white ${
+                              webhookInfo.method === "GET"
+                                ? "bg-green-500"
+                                : "bg-blue-500"
+                            }`}
+                          >
+                            {webhookInfo.method}
+                          </span>
+                          <span>{t.webhookUrl}:</span>
                         </div>
-                        <div className="text-[10px] font-mono bg-gray-100 px-1.5 py-1 rounded break-all mb-1">
-                          {webhookUrl}
+                        <div className="text-[10px] font-mono bg-gray-100 px-1.5 py-1 rounded break-all mb-1.5">
+                          {webhookInfo.url}
                         </div>
-                        <Button
-                          color="primary"
-                          onClick={() => copyToClipboard(webhookUrl)}
-                          className="px-2 py-1 text-[10px]"
-                        >
-                          {t.copyUrl}
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            color="primary"
+                            onClick={() => copyToClipboard(webhookInfo.url)}
+                            className="px-2 py-1 text-[10px]"
+                          >
+                            {t.copyUrl}
+                          </Button>
+                          <Button
+                            color="default"
+                            onClick={() =>
+                              copyToClipboard(getCurlCommand(webhookInfo))
+                            }
+                            className="px-2 py-1 text-[10px]"
+                          >
+                            {t.copyCurl}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
