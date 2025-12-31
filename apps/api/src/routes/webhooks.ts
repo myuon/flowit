@@ -4,7 +4,7 @@ import type {
   ExecuteWorkflowResponse,
 } from "@flowit/shared";
 import { runWorkflow, type WriteLogFn } from "@flowit/sdk";
-import { workflowRepository } from "../db/repository";
+import { workflowRepository, executionRepository } from "../db/repository";
 
 export function createWebhookRoutes(writeLog: WriteLogFn) {
   return (
@@ -73,6 +73,17 @@ export function createWebhookRoutes(writeLog: WriteLogFn) {
         const query = Object.fromEntries(new URL(c.req.url).searchParams);
         const headers = Object.fromEntries(c.req.raw.headers);
 
+        // Create execution record
+        const execution = await executionRepository.create({
+          workflowId,
+          versionId: workflow.currentVersion.id,
+          status: "pending",
+          inputs: { _webhook: { body, headers, query, method } } as unknown as string,
+        });
+
+        // Mark as running
+        await executionRepository.markStarted(execution.id, "webhook");
+
         // Run the workflow with webhook data as context
         const result = await runWorkflow({
           workflow: dsl,
@@ -89,9 +100,16 @@ export function createWebhookRoutes(writeLog: WriteLogFn) {
           writeLog,
         });
 
+        // Update execution record based on result
+        if (result.status === "success") {
+          await executionRepository.markCompleted(execution.id, result.outputs);
+        } else {
+          await executionRepository.markFailed(execution.id, result.error ?? "Unknown error");
+        }
+
         const response: ExecuteWorkflowResponse = {
           outputs: result.outputs,
-          executionId: result.executionId,
+          executionId: execution.id,
           status: result.status,
           error: result.error,
         };
