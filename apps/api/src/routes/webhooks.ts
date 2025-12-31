@@ -1,12 +1,13 @@
 import { Hono } from "hono";
-import type {
-  ExecuteWorkflowRequest,
-  ExecuteWorkflowResponse,
-} from "@flowit/shared";
-import { runWorkflow, type WriteLogFn } from "@flowit/sdk";
+import type { ExecuteWorkflowRequest } from "@flowit/shared";
 import { workflowRepository, executionRepository } from "../db/repository";
 
-export function createWebhookRoutes(writeLog: WriteLogFn) {
+const WEBHOOK_TIMEOUT_MS = 30_000;
+const POLL_INTERVAL_MS = 500;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export function createWebhookRoutes() {
   return (
     new Hono()
       // Webhook trigger endpoint
@@ -73,7 +74,7 @@ export function createWebhookRoutes(writeLog: WriteLogFn) {
         const query = Object.fromEntries(new URL(c.req.url).searchParams);
         const headers = Object.fromEntries(c.req.raw.headers);
 
-        // Create execution record
+        // Create execution record (worker will pick it up)
         const execution = await executionRepository.create({
           workflowId,
           versionId: workflow.currentVersion.id,
@@ -81,40 +82,41 @@ export function createWebhookRoutes(writeLog: WriteLogFn) {
           inputs: { _webhook: { body, headers, query, method } } as unknown as string,
         });
 
-        // Mark as running
-        await executionRepository.markStarted(execution.id, "webhook");
+        // Poll for completion (up to 30 seconds)
+        const startTime = Date.now();
+        while (Date.now() - startTime < WEBHOOK_TIMEOUT_MS) {
+          await sleep(POLL_INTERVAL_MS);
 
-        // Run the workflow with webhook data as context
-        const result = await runWorkflow({
-          workflow: dsl,
-          inputs: {
-            _webhook: {
-              body,
-              headers,
-              query,
-              method,
-            },
-          },
-          secrets: {},
-          workflowId,
-          writeLog,
-        });
+          const current = await executionRepository.findById(execution.id);
+          if (!current) {
+            return c.json({ error: "Execution not found" }, 500);
+          }
 
-        // Update execution record based on result
-        if (result.status === "success") {
-          await executionRepository.markCompleted(execution.id, result.outputs);
-        } else {
-          await executionRepository.markFailed(execution.id, result.error ?? "Unknown error");
+          if (current.status === "success") {
+            return c.json({
+              executionId: current.id,
+              status: current.status,
+              outputs: current.outputs,
+            });
+          }
+
+          if (current.status === "error") {
+            return c.json({
+              executionId: current.id,
+              status: current.status,
+              error: current.error,
+            }, 500);
+          }
         }
 
-        const response: ExecuteWorkflowResponse = {
-          outputs: result.outputs,
+        // Timeout - return current status
+        const current = await executionRepository.findById(execution.id);
+        return c.json({
           executionId: execution.id,
-          status: result.status,
-          error: result.error,
-        };
-
-        return c.json(response, result.status === "error" ? 500 : 200);
+          status: current?.status ?? "pending",
+          message: "Execution timed out waiting for result",
+          timeout: true,
+        }, 202);
       })
   );
 }

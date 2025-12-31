@@ -75,7 +75,7 @@ const routes = app
   .route("/api", apiRoutes)
   .route("/config", createConfigRoutes())
   .route("/admin", adminRoutes)
-  .route("/webhooks", createWebhookRoutes(writeLog));
+  .route("/webhooks", createWebhookRoutes());
 
 export type AppType = typeof routes;
 
