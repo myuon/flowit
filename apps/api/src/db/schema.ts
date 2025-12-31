@@ -109,92 +109,6 @@ export const executions = sqliteTable(
   ]
 );
 
-export const executionsRelations = relations(executions, ({ one, many }) => ({
-  workflow: one(workflows, {
-    fields: [executions.workflowId],
-    references: [workflows.id],
-  }),
-  version: one(workflowVersions, {
-    fields: [executions.versionId],
-    references: [workflowVersions.id],
-  }),
-  steps: many(runSteps),
-}));
-
-// ============================================
-// Run Steps - Individual node executions within a run
-// ============================================
-export const runSteps = sqliteTable(
-  "run_steps",
-  {
-    id: text("id").primaryKey(),
-    runId: text("run_id")
-      .notNull()
-      .references(() => executions.id, { onDelete: "cascade" }),
-    // Node info
-    nodeId: text("node_id").notNull(),
-    nodeType: text("node_type").notNull(),
-    // Execution order
-    stepOrder: integer("step_order").notNull(),
-    // Step status
-    status: text("status", {
-      enum: ["pending", "running", "success", "error", "skipped"],
-    }).notNull(),
-    // Inputs received by this node
-    inputs: text("inputs", { mode: "json" }),
-    // Outputs produced by this node
-    outputs: text("outputs", { mode: "json" }),
-    // Error message if failed
-    error: text("error"),
-    // Logs from this step
-    logs: text("logs", { mode: "json" }),
-    // Timing
-    startedAt: text("started_at"),
-    completedAt: text("completed_at"),
-  },
-  (table) => [
-    index("run_steps_run_id_idx").on(table.runId),
-    index("run_steps_node_id_idx").on(table.nodeId),
-    index("run_steps_order_idx").on(table.runId, table.stepOrder),
-  ]
-);
-
-export const runStepsRelations = relations(runSteps, ({ one }) => ({
-  execution: one(executions, {
-    fields: [runSteps.runId],
-    references: [executions.id],
-  }),
-}));
-
-// ============================================
-// Node Catalog Cache - Cached node definitions
-// ============================================
-export const nodeCatalogCache = sqliteTable(
-  "node_catalog_cache",
-  {
-    id: text("id").primaryKey(),
-    // Node type identifier (e.g., "text-input", "llm", "http-request")
-    nodeType: text("node_type").notNull().unique(),
-    // Display info
-    displayName: text("display_name").notNull(),
-    description: text("description"),
-    category: text("category").notNull(),
-    icon: text("icon"),
-    // Schema definitions
-    inputsSchema: text("inputs_schema", { mode: "json" }),
-    outputsSchema: text("outputs_schema", { mode: "json" }),
-    paramsSchema: text("params_schema", { mode: "json" }),
-    // Tags for search
-    tags: text("tags", { mode: "json" }),
-    // Cache metadata
-    cachedAt: text("cached_at").notNull(),
-  },
-  (table) => [
-    index("node_catalog_category_idx").on(table.category),
-    index("node_catalog_cached_at_idx").on(table.cachedAt),
-  ]
-);
-
 // ============================================
 // Execution Logs - Logs from log nodes
 // ============================================
@@ -217,13 +131,6 @@ export const executionLogs = sqliteTable(
     index("execution_logs_created_at_idx").on(table.createdAt),
   ]
 );
-
-export const executionLogsRelations = relations(executionLogs, ({ one }) => ({
-  workflow: one(workflows, {
-    fields: [executionLogs.workflowId],
-    references: [workflows.id],
-  }),
-}));
 
 // ============================================
 // User Tokens - OAuth tokens for external APIs
@@ -353,11 +260,7 @@ export function workflowWithVersionsFromDb(
 export type Execution = typeof executions.$inferSelect;
 export type NewExecution = typeof executions.$inferInsert;
 
-export type RunStep = typeof runSteps.$inferSelect;
-export type NewRunStep = typeof runSteps.$inferInsert;
 
-export type NodeCatalogCacheEntry = typeof nodeCatalogCache.$inferSelect;
-export type NewNodeCatalogCacheEntry = typeof nodeCatalogCache.$inferInsert;
 
 export type ExecutionLog = typeof executionLogs.$inferSelect;
 export type NewExecutionLog = typeof executionLogs.$inferInsert;

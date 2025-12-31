@@ -4,8 +4,6 @@ import {
   workflows,
   workflowVersions,
   executions,
-  runSteps,
-  nodeCatalogCache,
   executionLogs,
   userTokens,
   users,
@@ -13,10 +11,6 @@ import {
   type NewWorkflow,
   type Execution,
   type NewExecution,
-  type RunStep,
-  type NewRunStep,
-  type NodeCatalogCacheEntry,
-  type NewNodeCatalogCacheEntry,
   type NewExecutionLog,
   type NewUserToken,
 } from "./schema";
@@ -229,17 +223,6 @@ export const executionRepository = {
     });
   },
 
-  async findByIdWithSteps(id: string) {
-    return db.query.executions.findFirst({
-      where: eq(executions.id, id),
-      with: {
-        steps: {
-          orderBy: [runSteps.stepOrder],
-        },
-      },
-    });
-  },
-
   async findByWorkflowId(
     workflowId: string,
     limit = 50,
@@ -303,178 +286,6 @@ export const executionRepository = {
       retryCount: execution.retryCount + 1,
       completedAt: new Date().toISOString(),
     });
-  },
-};
-
-// ============================================
-// Run Step Repository
-// ============================================
-export const runStepRepository = {
-  async create(data: Omit<NewRunStep, "id">): Promise<RunStep> {
-    const id = crypto.randomUUID();
-    const [result] = await db
-      .insert(runSteps)
-      .values({
-        id,
-        ...data,
-      })
-      .returning();
-    return result;
-  },
-
-  async createMany(steps: Omit<NewRunStep, "id">[]): Promise<RunStep[]> {
-    if (steps.length === 0) return [];
-    const stepsWithIds = steps.map((step) => ({
-      id: crypto.randomUUID(),
-      ...step,
-    }));
-    return db.insert(runSteps).values(stepsWithIds).returning();
-  },
-
-  async findByRunId(runId: string): Promise<RunStep[]> {
-    return db.query.runSteps.findMany({
-      where: eq(runSteps.runId, runId),
-      orderBy: [runSteps.stepOrder],
-    });
-  },
-
-  async update(
-    id: string,
-    data: Partial<Omit<RunStep, "id">>
-  ): Promise<RunStep | undefined> {
-    const [result] = await db
-      .update(runSteps)
-      .set(data)
-      .where(eq(runSteps.id, id))
-      .returning();
-    return result;
-  },
-
-  async markStarted(id: string): Promise<RunStep | undefined> {
-    return this.update(id, {
-      status: "running",
-      startedAt: new Date().toISOString(),
-    });
-  },
-
-  async markCompleted(
-    id: string,
-    outputs: Record<string, unknown>,
-    logs: string[]
-  ): Promise<RunStep | undefined> {
-    return this.update(id, {
-      status: "success",
-      outputs: outputs as unknown as string,
-      logs: logs as unknown as string,
-      completedAt: new Date().toISOString(),
-    });
-  },
-
-  async markFailed(
-    id: string,
-    error: string,
-    logs: string[]
-  ): Promise<RunStep | undefined> {
-    return this.update(id, {
-      status: "error",
-      error,
-      logs: logs as unknown as string,
-      completedAt: new Date().toISOString(),
-    });
-  },
-
-  async markSkipped(id: string): Promise<RunStep | undefined> {
-    return this.update(id, {
-      status: "skipped",
-      completedAt: new Date().toISOString(),
-    });
-  },
-};
-
-// ============================================
-// Node Catalog Cache Repository
-// ============================================
-export const nodeCatalogCacheRepository = {
-  async upsert(
-    data: Omit<NewNodeCatalogCacheEntry, "id" | "cachedAt">
-  ): Promise<NodeCatalogCacheEntry> {
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-
-    const [result] = await db
-      .insert(nodeCatalogCache)
-      .values({
-        id,
-        ...data,
-        cachedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: nodeCatalogCache.nodeType,
-        set: {
-          displayName: data.displayName,
-          description: data.description,
-          category: data.category,
-          icon: data.icon,
-          inputsSchema: data.inputsSchema,
-          outputsSchema: data.outputsSchema,
-          paramsSchema: data.paramsSchema,
-          tags: data.tags,
-          cachedAt: now,
-        },
-      })
-      .returning();
-
-    return result;
-  },
-
-  async findByNodeType(
-    nodeType: string
-  ): Promise<NodeCatalogCacheEntry | undefined> {
-    return db.query.nodeCatalogCache.findFirst({
-      where: eq(nodeCatalogCache.nodeType, nodeType),
-    });
-  },
-
-  async findByCategory(category: string): Promise<NodeCatalogCacheEntry[]> {
-    return db.query.nodeCatalogCache.findMany({
-      where: eq(nodeCatalogCache.category, category),
-    });
-  },
-
-  async findAll(): Promise<NodeCatalogCacheEntry[]> {
-    return db.query.nodeCatalogCache.findMany();
-  },
-
-  async refreshFromRegistry(
-    nodes: Array<{
-      id: string;
-      displayName: string;
-      description?: string;
-      category: string;
-      icon?: string;
-      inputs: Record<string, unknown>;
-      outputs: Record<string, unknown>;
-      paramsSchema: Record<string, unknown>;
-      tags?: string[];
-    }>
-  ): Promise<void> {
-    for (const node of nodes) {
-      await this.upsert({
-        nodeType: node.id,
-        displayName: node.displayName,
-        description: node.description,
-        category: node.category,
-        icon: node.icon,
-        inputsSchema: node.inputs as unknown as string,
-        outputsSchema: node.outputs as unknown as string,
-        paramsSchema: node.paramsSchema as unknown as string,
-        tags: node.tags as unknown as string,
-      });
-    }
-  },
-
-  async clear(): Promise<void> {
-    await db.delete(nodeCatalogCache);
   },
 };
 

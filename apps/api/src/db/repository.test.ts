@@ -13,8 +13,7 @@ const testDb = drizzle(testClient, { schema });
 
 // Create test-specific repository functions
 const createTestRepositories = (db: typeof testDb) => {
-  const { workflows, workflowVersions, executions, runSteps, nodeCatalogCache } =
-    schema;
+  const { workflows, workflowVersions, executions } = schema;
 
   return {
     workflow: {
@@ -127,51 +126,6 @@ const createTestRepositories = (db: typeof testDb) => {
         return result;
       },
     },
-    runStep: {
-      async create(data: {
-        runId: string;
-        nodeId: string;
-        nodeType: string;
-        stepOrder: number;
-        status: "pending" | "running" | "success" | "error" | "skipped";
-      }) {
-        const id = crypto.randomUUID();
-        const [result] = await db
-          .insert(runSteps)
-          .values({ id, ...data })
-          .returning();
-        return result;
-      },
-      async findByRunId(runId: string) {
-        return db.query.runSteps.findMany({
-          where: eq(runSteps.runId, runId),
-          orderBy: [runSteps.stepOrder],
-        });
-      },
-    },
-    nodeCatalog: {
-      async upsert(data: {
-        nodeType: string;
-        displayName: string;
-        category: string;
-        description?: string;
-      }) {
-        const id = crypto.randomUUID();
-        const now = new Date().toISOString();
-        const [result] = await db
-          .insert(nodeCatalogCache)
-          .values({ id, ...data, cachedAt: now })
-          .onConflictDoUpdate({
-            target: nodeCatalogCache.nodeType,
-            set: { ...data, cachedAt: now },
-          })
-          .returning();
-        return result;
-      },
-      async findAll() {
-        return db.query.nodeCatalogCache.findMany();
-      },
-    },
   };
 };
 
@@ -218,47 +172,14 @@ describe("Repository", () => {
         created_at TEXT NOT NULL
       )
     `);
-    await testClient.execute(`
-      CREATE TABLE IF NOT EXISTS run_steps (
-        id TEXT PRIMARY KEY,
-        run_id TEXT NOT NULL REFERENCES executions(id) ON DELETE CASCADE,
-        node_id TEXT NOT NULL,
-        node_type TEXT NOT NULL,
-        step_order INTEGER NOT NULL,
-        status TEXT NOT NULL,
-        inputs TEXT,
-        outputs TEXT,
-        error TEXT,
-        logs TEXT,
-        started_at TEXT,
-        completed_at TEXT
-      )
-    `);
-    await testClient.execute(`
-      CREATE TABLE IF NOT EXISTS node_catalog_cache (
-        id TEXT PRIMARY KEY,
-        node_type TEXT NOT NULL UNIQUE,
-        display_name TEXT NOT NULL,
-        description TEXT,
-        category TEXT NOT NULL,
-        icon TEXT,
-        inputs_schema TEXT,
-        outputs_schema TEXT,
-        params_schema TEXT,
-        tags TEXT,
-        cached_at TEXT NOT NULL
-      )
-    `);
   });
 
   beforeEach(async () => {
     repos = createTestRepositories(testDb);
     // Clean up tables before each test
-    await testClient.execute("DELETE FROM run_steps");
     await testClient.execute("DELETE FROM executions");
     await testClient.execute("DELETE FROM workflow_versions");
     await testClient.execute("DELETE FROM workflows");
-    await testClient.execute("DELETE FROM node_catalog_cache");
   });
 
   describe("workflowRepository", () => {
@@ -375,68 +296,4 @@ describe("Repository", () => {
     });
   });
 
-  describe("runStepRepository", () => {
-    it("should create and find run steps", async () => {
-      const workflow = await repos.workflow.create({ name: "Step Test" });
-      const mockDsl: WorkflowDSL = {
-        dslVersion: "0.1.0",
-        meta: { name: "Test", version: "1.0.0", status: "draft" },
-        inputs: {},
-        outputs: {},
-        secrets: [],
-        nodes: [],
-        edges: [],
-      };
-      const version = await repos.version.create(workflow.id, mockDsl);
-      const run = await repos.run.create({
-        workflowId: workflow.id,
-        versionId: version.id,
-        status: "running",
-      });
-
-      await repos.runStep.create({
-        runId: run.id,
-        nodeId: "node-1",
-        nodeType: "text-input",
-        stepOrder: 0,
-        status: "pending",
-      });
-      await repos.runStep.create({
-        runId: run.id,
-        nodeId: "node-2",
-        nodeType: "template",
-        stepOrder: 1,
-        status: "pending",
-      });
-
-      const steps = await repos.runStep.findByRunId(run.id);
-      expect(steps).toHaveLength(2);
-      expect(steps[0].stepOrder).toBe(0);
-      expect(steps[1].stepOrder).toBe(1);
-    });
-  });
-
-  describe("nodeCatalogCacheRepository", () => {
-    it("should upsert node catalog entries", async () => {
-      const entry1 = await repos.nodeCatalog.upsert({
-        nodeType: "text-input",
-        displayName: "Text Input",
-        category: "input",
-      });
-
-      expect(entry1.nodeType).toBe("text-input");
-
-      // Upsert should update existing
-      const entry2 = await repos.nodeCatalog.upsert({
-        nodeType: "text-input",
-        displayName: "Text Input Updated",
-        category: "input",
-      });
-
-      expect(entry2.displayName).toBe("Text Input Updated");
-
-      const all = await repos.nodeCatalog.findAll();
-      expect(all).toHaveLength(1);
-    });
-  });
 });
