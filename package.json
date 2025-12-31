@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest",
+    "test": "vitest --run",
     "typecheck": "pnpm -r run typecheck"
   },
   "devDependencies": {
