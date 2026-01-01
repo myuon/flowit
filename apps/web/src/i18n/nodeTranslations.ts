@@ -60,6 +60,11 @@ const en: NodeTranslationsData = {
           description: "The HTTP method this webhook accepts",
           options: { GET: "GET", POST: "POST" },
         },
+        executionType: {
+          label: "Execution Type",
+          description: "Sync waits for result (up to 30s), Async returns immediately",
+          options: { sync: "Sync", async: "Async" },
+        },
       },
     },
     // Output nodes
@@ -382,6 +387,11 @@ const ja: NodeTranslationsData = {
           label: "許可メソッド",
           description: "このWebhookが受け付けるHTTPメソッド",
           options: { GET: "GET", POST: "POST" },
+        },
+        executionType: {
+          label: "実行タイプ",
+          description: "同期は結果を待機（最大30秒）、非同期は即座に返却",
+          options: { sync: "同期", async: "非同期" },
         },
       },
     },

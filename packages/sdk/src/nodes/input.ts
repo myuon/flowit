@@ -119,6 +119,17 @@ export const webhookTriggerNode = defineNode({
         default: "POST",
       }
     ),
+    executionType: param.select(
+      "Execution Type",
+      [
+        { label: "Sync", value: "sync" },
+        { label: "Async", value: "async" },
+      ],
+      {
+        description: "Sync waits for result (up to 30s), Async returns immediately",
+        default: "sync",
+      }
+    ),
   },
   display: {
     icon: "🔗",
