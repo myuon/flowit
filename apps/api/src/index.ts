@@ -78,8 +78,8 @@ const routes = app
   .route("/admin", adminRoutes)
   .route("/webhooks", createWebhookRoutes())
   // Serve web SPA static files (production: same-origin deployment)
-  .use("/assets/*", serveStatic({ root: "../web/dist" }))
-  .get("*", serveStatic({ root: "../web/dist", path: "index.html" }));
+  .use("/assets/*", serveStatic({ root: "./apps/web/dist" }))
+  .get("*", serveStatic({ root: "./apps/web/dist", path: "index.html" }));
 
 export type AppType = typeof routes;
 
