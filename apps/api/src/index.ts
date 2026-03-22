@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -75,7 +76,10 @@ const routes = app
   .route("/api", apiRoutes)
   .route("/config", createConfigRoutes())
   .route("/admin", adminRoutes)
-  .route("/webhooks", createWebhookRoutes());
+  .route("/webhooks", createWebhookRoutes())
+  // Serve web SPA static files (production: same-origin deployment)
+  .use("/assets/*", serveStatic({ root: "../web/dist" }))
+  .get("*", serveStatic({ root: "../web/dist", path: "index.html" }));
 
 export type AppType = typeof routes;
 
