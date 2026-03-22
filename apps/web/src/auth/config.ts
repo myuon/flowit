@@ -3,7 +3,7 @@
  * Uses BFF (Backend for Frontend) pattern - OAuth flow handled by API server
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "";
 
 /**
  * Get API login URL
