@@ -56,12 +56,18 @@ importers:
       '@langchain/langgraph':
         specifier: ^0.2.42
         version: 0.2.74(@langchain/core@0.3.80(@opentelemetry/api@1.9.0))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod-to-json-schema@3.25.0(zod@4.2.1))
+      '@libsql/client':
+        specifier: ^0.14.0
+        version: 0.14.0
       ai:
         specifier: ^6.0.3
         version: 6.0.3(zod@4.2.1)
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+      drizzle-orm:
+        specifier: ^0.38.3
+        version: 0.38.4(@libsql/client@0.14.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.7)(react@19.2.3)
       hono:
         specifier: ^4.6.16
         version: 4.11.3
@@ -72,18 +78,12 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
     devDependencies:
-      '@libsql/client':
-        specifier: ^0.14.0
-        version: 0.14.0
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.3
       drizzle-kit:
         specifier: ^0.30.1
         version: 0.30.6
-      drizzle-orm:
-        specifier: ^0.38.3
-        version: 0.38.4(@libsql/client@0.14.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.7)(react@19.2.3)
       tsx:
         specifier: ^4.19.2
         version: 4.21.0
