@@ -57,6 +57,15 @@ export function LoginPage() {
         <p className="mt-6 text-xs text-gray-400">
           Sign in to create and manage your workflows
         </p>
+
+        {import.meta.env.DEV && (
+          <a
+            href={`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/auth/dev-login`}
+            className="mt-4 inline-block text-sm text-blue-500 hover:text-blue-700 underline"
+          >
+            Dev Login (skip OAuth)
+          </a>
+        )}
       </div>
     </div>
   );

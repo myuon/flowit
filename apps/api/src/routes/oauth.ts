@@ -279,5 +279,35 @@ export function createOAuthRoutes(config: OAuthConfig) {
     return c.json({ success: true });
   });
 
+  // Dev-only login bypass (never available in production)
+  if (process.env.DEV_AUTH === "true") {
+    oauth.get("/dev-login", async (c) => {
+      const devUser = {
+        id: "dev-user-001",
+        email: "dev@localhost",
+        name: "Dev User",
+        picture: null,
+      };
+
+      // Upsert dev user
+      await userRepository.upsert(devUser);
+
+      // Create session
+      const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+      const session = await sessionRepository.create(devUser.id, expiresAt);
+
+      // Set session cookie
+      setCookie(c, "session_id", session.id, {
+        path: "/",
+        httpOnly: true,
+        sameSite: "Lax",
+        expires: expiresAt,
+        secure: false,
+      });
+
+      return c.redirect(config.frontendUrl);
+    });
+  }
+
   return oauth;
 }
