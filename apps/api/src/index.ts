@@ -66,8 +66,7 @@ app.use(
 
 // Build routes with type preservation
 const routes = app
-  .get("/", (c) => c.json({ message: "Flowit API", version: "0.1.0" }))
-  .get("/health", (c) => c.json({ status: "ok" }))
+  .get("/health", (c) => c.json({ message: "Flowit API", version: "0.1.0", status: "ok" }))
   .route("/auth", oauthRoutes)
   .get("/auth/me", requireAuth, (c) => {
     const user = c.get("user");
