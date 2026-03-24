@@ -167,7 +167,7 @@ export interface Translations {
 
 const en: Translations = {
   // Common
-  appName: "Flowit",
+  appName: import.meta.env.VITE_APP_DISPLAY_NAME || "Flowit",
   loading: "Loading...",
   saving: "Saving...",
   save: "Save",
@@ -333,7 +333,7 @@ const en: Translations = {
 
 const ja: Translations = {
   // Common
-  appName: "Flowit",
+  appName: import.meta.env.VITE_APP_DISPLAY_NAME || "Flowit",
   loading: "読み込み中...",
   saving: "保存中...",
   save: "保存",

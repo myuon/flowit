@@ -1,4 +1,5 @@
 import { useAuth } from "../auth/AuthContext";
+import { useI18n } from "../i18n";
 
 /**
  * Login page component
@@ -6,6 +7,7 @@ import { useAuth } from "../auth/AuthContext";
  */
 export function LoginPage() {
   const { login, isLoading } = useAuth();
+  const { t } = useI18n();
 
   const handleLogin = async () => {
     try {
@@ -18,7 +20,7 @@ export function LoginPage() {
   return (
     <div className="flex flex-col items-center justify-center h-screen font-sans bg-gray-50">
       <div className="bg-white py-12 px-16 rounded-xl shadow-lg text-center">
-        <h1 className="text-3xl font-bold mb-2 text-gray-800">Flowit</h1>
+        <h1 className="text-3xl font-bold mb-2 text-gray-800">{t.appName}</h1>
         <p className="text-gray-500 mb-8 text-sm">Visual workflow automation</p>
 
         <button

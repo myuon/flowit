@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-PROJECT_ID="${GCP_PROJECT_ID:-default-364617}"
-APP_NAME="${APP_NAME:-flowit}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../deploy.config"
 
 # Env keys to manage in Secret Manager
 ENV_KEYS=(
@@ -18,10 +18,10 @@ ENV_KEYS=(
   TURSO_AUTH_TOKEN
 )
 
-echo "Project: $PROJECT_ID / App: $APP_NAME"
+echo "Project: $GCP_PROJECT_ID / App: $APP_NAME"
 echo ""
 
-gcloud services enable secretmanager.googleapis.com --project="$PROJECT_ID" --quiet
+gcloud services enable secretmanager.googleapis.com --project="$GCP_PROJECT_ID" --quiet
 
 for env_key in "${ENV_KEYS[@]}"; do
   secret_name="${APP_NAME}-$(echo "$env_key" | tr '_' '-' | tr '[:upper:]' '[:lower:]')"
@@ -36,17 +36,17 @@ for env_key in "${ENV_KEYS[@]}"; do
     continue
   fi
 
-  if gcloud secrets describe "$secret_name" --project="$PROJECT_ID" &>/dev/null; then
-    echo -n "$value" | gcloud secrets versions add "$secret_name" --data-file=- --project="$PROJECT_ID" --quiet
+  if gcloud secrets describe "$secret_name" --project="$GCP_PROJECT_ID" &>/dev/null; then
+    echo -n "$value" | gcloud secrets versions add "$secret_name" --data-file=- --project="$GCP_PROJECT_ID" --quiet
     echo "UPDATE: $secret_name"
   else
-    echo -n "$value" | gcloud secrets create "$secret_name" --data-file=- --project="$PROJECT_ID" --quiet
+    echo -n "$value" | gcloud secrets create "$secret_name" --data-file=- --project="$GCP_PROJECT_ID" --quiet
     echo "CREATE: $secret_name"
   fi
 done
 
 # Grant Cloud Run service account access
-PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+PROJECT_NUMBER=$(gcloud projects describe "$GCP_PROJECT_ID" --format="value(projectNumber)")
 SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
 for env_key in "${ENV_KEYS[@]}"; do
@@ -54,7 +54,7 @@ for env_key in "${ENV_KEYS[@]}"; do
   gcloud secrets add-iam-policy-binding "$secret_name" \
     --member="serviceAccount:$SA" \
     --role="roles/secretmanager.secretAccessor" \
-    --project="$PROJECT_ID" \
+    --project="$GCP_PROJECT_ID" \
     --quiet &>/dev/null
 done
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-PROJECT_ID="${GCP_PROJECT_ID:-default-364617}"
-APP_NAME="${APP_NAME:-flowit}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../deploy.config"
 
 # Env keys (same as setup-secrets.sh)
 ENV_KEYS=(
@@ -25,7 +25,7 @@ WORKER_ENV="apps/worker/.env"
 # Worker only needs these
 WORKER_KEYS="TURSO_DATABASE_URL TURSO_AUTH_TOKEN"
 
-echo "Pulling secrets from project: $PROJECT_ID / App: $APP_NAME"
+echo "Pulling secrets from project: $GCP_PROJECT_ID / App: $APP_NAME"
 echo ""
 
 api_lines=()
@@ -34,7 +34,7 @@ worker_lines=()
 for env_key in "${ENV_KEYS[@]}"; do
   secret_name="${APP_NAME}-$(echo "$env_key" | tr '_' '-' | tr '[:upper:]' '[:lower:]')"
 
-  value=$(gcloud secrets versions access latest --secret="$secret_name" --project="$PROJECT_ID" 2>/dev/null || true)
+  value=$(gcloud secrets versions access latest --secret="$secret_name" --project="$GCP_PROJECT_ID" 2>/dev/null || true)
 
   if [ -z "$value" ]; then
     echo "SKIP: $env_key (not found or empty)"
