@@ -1,9 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-PROJECT_ID="${GCP_PROJECT_ID:-default-364617}"
-REGION="${GCP_REGION:-asia-northeast1}"
-APP_NAME="${APP_NAME:-flowit}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../deploy.config"
 
 # Env keys (same as setup-secrets.sh)
 ENV_KEYS=(
@@ -27,13 +26,13 @@ for env_key in "${ENV_KEYS[@]}"; do
 done
 SECRETS_FLAG=$(IFS=,; echo "${SECRETS[*]}")
 
-echo "Deploying $APP_NAME to $REGION (project: $PROJECT_ID)"
+echo "Deploying $APP_NAME to $GCP_REGION (project: $GCP_PROJECT_ID)"
 echo ""
 
 gcloud run deploy "$APP_NAME" \
   --source . \
-  --region "$REGION" \
-  --project "$PROJECT_ID" \
+  --region "$GCP_REGION" \
+  --project "$GCP_PROJECT_ID" \
   --allow-unauthenticated \
   --port 8080 \
   --memory 512Mi \
@@ -43,4 +42,4 @@ gcloud run deploy "$APP_NAME" \
   --quiet
 
 echo ""
-echo "Deployed: $(gcloud run services describe "$APP_NAME" --region "$REGION" --project "$PROJECT_ID" --format="value(status.url)")"
+echo "Deployed: $(gcloud run services describe "$APP_NAME" --region "$GCP_REGION" --project "$GCP_PROJECT_ID" --format="value(status.url)")"

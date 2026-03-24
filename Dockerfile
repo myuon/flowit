@@ -16,7 +16,7 @@ RUN pnpm install --frozen-lockfile
 # Build all packages (tsup bundles workspace deps into single files)
 FROM deps AS build
 COPY . .
-RUN pnpm -r run build
+RUN . ./deploy.config && VITE_APP_DISPLAY_NAME="$APP_DISPLAY_NAME" pnpm -r run build
 
 # Production dependencies for api and worker only
 FROM base AS prod-deps

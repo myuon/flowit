@@ -65,7 +65,7 @@ app.use(
 
 // Build routes with type preservation
 const routes = app
-  .get("/health", (c) => c.json({ message: "Flowit API", version: "0.1.0", status: "ok" }))
+  .get("/health", (c) => c.json({ status: "ok" }))
   .route("/auth", oauthRoutes)
   .get("/auth/me", requireAuth, (c) => {
     const user = c.get("user");
@@ -83,7 +83,7 @@ export type AppType = typeof routes;
 
 const port = parseInt(process.env.PORT || "3001");
 
-console.log(`Flowit API running on http://localhost:${port}`);
+console.log(`API running on http://localhost:${port}`);
 
 serve({
   fetch: routes.fetch,

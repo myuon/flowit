@@ -89,7 +89,7 @@ export function AdminPage() {
       {/* Toolbar */}
       <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-3 bg-white">
         <a href="/" className="font-semibold text-base text-gray-800 no-underline">
-          Flowit
+          {t.appName}
         </a>
         <span className="py-1 px-2.5 bg-amber-100 text-amber-800 rounded text-xs">
           {t.admin}
