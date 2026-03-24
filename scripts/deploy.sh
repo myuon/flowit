@@ -3,29 +3,34 @@ set -euo pipefail
 
 PROJECT_ID="${GCP_PROJECT_ID:-default-364617}"
 REGION="${GCP_REGION:-asia-northeast1}"
-SERVICE_NAME="${CLOUD_RUN_SERVICE:-flowit}"
+APP_NAME="${APP_NAME:-flowit}"
 
-# All env vars from Secret Manager
-SECRETS=(
-  "CORS_ORIGIN=flowit-cors-origin:latest"
-  "FRONTEND_URL=flowit-frontend-url:latest"
-  "OIDC_ISSUER=flowit-oidc-issuer:latest"
-  "OIDC_CLIENT_ID=flowit-oidc-client-id:latest"
-  "OIDC_CLIENT_SECRET=flowit-oidc-client-secret:latest"
-  "OIDC_REDIRECT_URI=flowit-oidc-redirect-uri:latest"
-  "OIDC_AUDIENCE=flowit-oidc-audience:latest"
-  "ADMIN_USER_IDS=flowit-admin-user-ids:latest"
-  "TURSO_DATABASE_URL=flowit-turso-database-url:latest"
-  "TURSO_AUTH_TOKEN=flowit-turso-auth-token:latest"
+# Env keys (same as setup-secrets.sh)
+ENV_KEYS=(
+  CORS_ORIGIN
+  FRONTEND_URL
+  OIDC_ISSUER
+  OIDC_CLIENT_ID
+  OIDC_CLIENT_SECRET
+  OIDC_REDIRECT_URI
+  OIDC_AUDIENCE
+  ADMIN_USER_IDS
+  TURSO_DATABASE_URL
+  TURSO_AUTH_TOKEN
 )
 
-# Join secrets with comma
+# Build --set-secrets flag from env keys
+SECRETS=()
+for env_key in "${ENV_KEYS[@]}"; do
+  secret_name="${APP_NAME}-$(echo "$env_key" | tr '_' '-' | tr '[:upper:]' '[:lower:]')"
+  SECRETS+=("$env_key=$secret_name:latest")
+done
 SECRETS_FLAG=$(IFS=,; echo "${SECRETS[*]}")
 
-echo "Deploying $SERVICE_NAME to $REGION (project: $PROJECT_ID)"
+echo "Deploying $APP_NAME to $REGION (project: $PROJECT_ID)"
 echo ""
 
-gcloud run deploy "$SERVICE_NAME" \
+gcloud run deploy "$APP_NAME" \
   --source . \
   --region "$REGION" \
   --project "$PROJECT_ID" \
@@ -38,4 +43,4 @@ gcloud run deploy "$SERVICE_NAME" \
   --quiet
 
 echo ""
-echo "Deployed: $(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --project "$PROJECT_ID" --format="value(status.url)")"
+echo "Deployed: $(gcloud run services describe "$APP_NAME" --region "$REGION" --project "$PROJECT_ID" --format="value(status.url)")"

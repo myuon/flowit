@@ -2,19 +2,20 @@
 set -euo pipefail
 
 PROJECT_ID="${GCP_PROJECT_ID:-default-364617}"
+APP_NAME="${APP_NAME:-flowit}"
 
-# Secret name -> env key mapping (same as setup-secrets.sh)
-ENTRIES=(
-  "flowit-cors-origin:CORS_ORIGIN"
-  "flowit-frontend-url:FRONTEND_URL"
-  "flowit-oidc-issuer:OIDC_ISSUER"
-  "flowit-oidc-client-id:OIDC_CLIENT_ID"
-  "flowit-oidc-client-secret:OIDC_CLIENT_SECRET"
-  "flowit-oidc-redirect-uri:OIDC_REDIRECT_URI"
-  "flowit-oidc-audience:OIDC_AUDIENCE"
-  "flowit-admin-user-ids:ADMIN_USER_IDS"
-  "flowit-turso-database-url:TURSO_DATABASE_URL"
-  "flowit-turso-auth-token:TURSO_AUTH_TOKEN"
+# Env keys (same as setup-secrets.sh)
+ENV_KEYS=(
+  CORS_ORIGIN
+  FRONTEND_URL
+  OIDC_ISSUER
+  OIDC_CLIENT_ID
+  OIDC_CLIENT_SECRET
+  OIDC_REDIRECT_URI
+  OIDC_AUDIENCE
+  ADMIN_USER_IDS
+  TURSO_DATABASE_URL
+  TURSO_AUTH_TOKEN
 )
 
 # Target .env files to write
@@ -24,15 +25,14 @@ WORKER_ENV="apps/worker/.env"
 # Worker only needs these
 WORKER_KEYS="TURSO_DATABASE_URL TURSO_AUTH_TOKEN"
 
-echo "Pulling secrets from project: $PROJECT_ID"
+echo "Pulling secrets from project: $PROJECT_ID / App: $APP_NAME"
 echo ""
 
 api_lines=()
 worker_lines=()
 
-for entry in "${ENTRIES[@]}"; do
-  secret_name="${entry%%:*}"
-  env_key="${entry##*:}"
+for env_key in "${ENV_KEYS[@]}"; do
+  secret_name="${APP_NAME}-$(echo "$env_key" | tr '_' '-' | tr '[:upper:]' '[:lower:]')"
 
   value=$(gcloud secrets versions access latest --secret="$secret_name" --project="$PROJECT_ID" 2>/dev/null || true)
 
