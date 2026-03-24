@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { runWorkflow, type WriteLogFn } from "@flowit/sdk";
 import {
   initializeDb,

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
@@ -12,8 +12,7 @@
   "dependencies": {
     "@flowit/db": "workspace:*",
     "@flowit/sdk": "workspace:*",
-    "@flowit/shared": "workspace:*",
-    "dotenv": "^17.2.3"
+    "@flowit/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
